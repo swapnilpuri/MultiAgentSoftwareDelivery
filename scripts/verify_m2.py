@@ -53,6 +53,9 @@ def runtime_secrets(workspace: Path) -> None:
     credentials.append(login["password"])
     if not all(credentials):
         raise ValueError("Isolated test credentials must be configured")
+    credentials = list(
+        {value for credential in credentials for value in (credential, quote(credential, safe=""))}
+    )
     for service in ("project-service", "llm-gateway", "agent-service", "web", "postgres"):
         logs = subprocess.run(
             ["docker", "logs", f"masd-m2-{service}-1"],
