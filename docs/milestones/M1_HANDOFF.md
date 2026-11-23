@@ -13,3 +13,6 @@ NOT EXECUTED: live paid-provider generation (no configured credentials), install
 Resume: from each root, uv sync --frozen then uv run --frozen python -m scripts.check; web also npm ci. From masd-infrastructure run uv run --frozen python -m scripts.configure_local then docker compose up --build --wait. This local environment uses UI 4300/API 8100 to preserve pre-existing M0 containers. PostgreSQL named volume retains state. Browser verification uses INTEGRATION_BASE_URL=http://127.0.0.1:4300 and npx playwright test from masd-web. Never remove retained volumes without approval.
 
 Next action: independent M0/M1 review, approved merge/retarget order and stable contract promotion. M2 is not authorized. Do not merge PRs automatically.
+
+
+Central M1 PR: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/2 . All six implementation/evidence CI heads passed, with exact run links in the completion report. Temporary M1 containers were stopped after validation; persistent data and pre-existing M0 containers were retained. All 21 inspected M0 review threads were resolved; no PRs were merged.

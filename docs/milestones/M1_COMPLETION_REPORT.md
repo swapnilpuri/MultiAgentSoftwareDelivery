@@ -12,7 +12,7 @@ All repositories use `feature/m1-project-chat-studio`. Existing repositories tar
 
 | Repository | Compatible final implementation commit | M1 review | PR base |
 | --- | --- | --- | --- |
-| [MultiAgentSoftwareDelivery](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery) | Implementation anchor `1bbf73cefb699ce6a2e2560a4b6f2b767c4b004b`; final report revision is its containing commit/PR head | Central M1 PR prepared after this report | `feature/m0-microservices-foundation` |
+| [MultiAgentSoftwareDelivery](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery) | Implementation anchor `1bbf73cefb699ce6a2e2560a4b6f2b767c4b004b`; final report revision is its containing commit/PR head | [PR #2](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/2) | `feature/m0-microservices-foundation` |
 | [masd-contracts](https://github.com/swapnilpuri/masd-contracts) | `832e3958f9e8d9b3610616734b24e560e5d61500` | [PR #2](https://github.com/swapnilpuri/masd-contracts/pull/2) | `feature/m0-microservices-foundation` |
 | [masd-project-service](https://github.com/swapnilpuri/masd-project-service) | `57bb9347ff1f6bc6fa0bd57f2f39f208e047111a` | [PR #2](https://github.com/swapnilpuri/masd-project-service/pull/2) | `feature/m0-microservices-foundation` |
 | [masd-llm-gateway](https://github.com/swapnilpuri/masd-llm-gateway) | `702d57b6189fbe5671ea0f2789e44f726d179dd7` | [PR #1](https://github.com/swapnilpuri/masd-llm-gateway/pull/1) | `main` |
@@ -100,7 +100,15 @@ NOT EXECUTED: live OpenAI/Anthropic generation (no configured commercial credent
 
 ## CI and acceptance
 
-Every repository has an independent workflow with required formatting/security/type/test failures blocking CI. Project Service CI uses its own PostgreSQL test service; web/API/gateway each build their own image without sibling source. All five companion implementation pipelines had successful runs before the final schema-only test additions; final-head checks are verified during delivery and linked on each PR. Central final evidence CI is run after publication. External review-app skipped statuses are not counted as passed acceptance checks.
+Every repository has an independent workflow with required formatting/security/type/test failures blocking CI. Project Service CI uses its own PostgreSQL test service; web/API/gateway each build their own image without sibling source. All six implementation/evidence pipelines passed at the exact recorded heads, including the formal SSE schema additions. Central evidence revision 9019bc5 passed; this final documentation-only update has its own PR checks. Verified run links:
+
+- MultiAgentSoftwareDelivery: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45107687177
+- masd-contracts: https://github.com/swapnilpuri/masd-contracts/actions/runs/45107329116
+- masd-project-service: https://github.com/swapnilpuri/masd-project-service/actions/runs/45107340460
+- masd-llm-gateway: https://github.com/swapnilpuri/masd-llm-gateway/actions/runs/45107344927
+- masd-web: https://github.com/swapnilpuri/masd-web/actions/runs/45107351965
+- masd-infrastructure: https://github.com/swapnilpuri/masd-infrastructure/actions/runs/45106677444
+ External review-app skipped statuses are not counted as passed acceptance checks.
 
 See M1_ACCEPTANCE_CRITERIA.md for the AC-01–AC-22 evidence mapping. No functional acceptance failure remains in local testing. Human independent acceptance and merge authorization remain explicitly outstanding. M0 review ordering and stable contract promotion are review steps, not automatic actions.
 
@@ -111,5 +119,7 @@ Known limits: development-only single-user identity; one Project Service replica
 From C:/Projects/msad/masd-infrastructure run `uv sync --frozen`, `uv run --frozen python -m scripts.configure_local`, then `docker compose up --build --wait`. Open the WEB_PORT configured in ignored .env (this acceptance environment: http://127.0.0.1:4300/projects). Default ports are 4200/8000 when free. Select and explicitly allow test/deterministic for credential-free acceptance; provider keys/catalogs belong only in gateway environment configuration.
 
 Project state persists in the dedicated named volume. Stop with `docker compose down` to retain it; never remove volumes or downgrade retained data without approval. Per-repository READMEs describe standalone builds and provider setup. Do not print expanded Compose configuration containing credentials.
+
+Validation cleanup: only temporary M1 containers/networks were stopped; the PostgreSQL named volume and all project records remain. Pre-existing M0 containers on 4200/8000 were left running. Temporary review worktrees were removed after confirming they were clean; their M0 branch commits are preserved.
 
 Next: independent M0/M1 architectural and acceptance review, human-approved merge order and stable contract release promotion. Recommended M2 planning scope: real identity/data-routing governance plus product/requirements refinement and planning artifacts. M2 is not authorized or started.
