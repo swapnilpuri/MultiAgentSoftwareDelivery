@@ -4,7 +4,7 @@ Central architecture, governance and milestone repository for independently vers
 
 ## Workspace and delivery
 
-Sibling repositories under C:/Projects: masd-web, masd-project-service, masd-contracts and masd-infrastructure. Each owns its Git history, dependencies, tests, standards manifest and CI. Local repositories are independent; remote creation requires explicit visibility authorization. See repository.json, the architecture documents and M0 completion report for actual delivery status.
+Sibling repositories under C:/Projects/msad: masd-web, masd-project-service, masd-contracts and masd-infrastructure. Each owns its Git history, dependencies, tests, standards manifest and CI. Local repositories are independent; remote creation requires explicit visibility authorization. See repository.json, the architecture documents and M0 completion report for actual delivery status.
 
 The original monorepo work is preserved in local checkpoint d729e8c on feature/m0-foundation-standards. Reusable application code was moved into siblings, with remaining superseded files in an ignored .m0-preserved directory. Do not delete the checkpoint/archive until human review. The active branch follows the multi-repository architecture.
 

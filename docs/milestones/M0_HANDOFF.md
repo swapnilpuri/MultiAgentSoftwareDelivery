@@ -11,3 +11,10 @@ Risks/limits: central feature history initially exposed the preservation checkpo
 Resume: `uv sync --frozen` and `uv run --frozen python -m scripts.check` from each root; web also `npm ci`. Integration: from masd-infrastructure run `docker compose up --build --wait` then `uv run --frozen python -m scripts.smoke`. Browser: from masd-web set INTEGRATION_BASE_URL=http://127.0.0.1:4200 and run `npx playwright test`. No merge or M1 is authorized.
 
 Central evidence revision 08890b2 passed both push and PR CI. Temporary validation containers were stopped with docker compose down; restart with the commands above. All repository working trees should be clean after final evidence delivery.
+
+
+## Local workspace relocation
+
+The five repositories now live together under C:/Projects/msad. The current workspace path supersedes the original C:/Projects layout recorded in the M0 requirements and historical validation report. GitHub repository URLs and relative Compose build contexts are unchanged. Open C:/Projects/msad/msad.code-workspace for the multi-root workspace. Standards source paths remain provenance records; the shared canonical source has not moved.
+
+Relocation verification is recorded in docs/governance/WORKSPACE_RELOCATION.md.
