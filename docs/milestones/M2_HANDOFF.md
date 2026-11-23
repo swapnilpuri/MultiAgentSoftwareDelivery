@@ -14,7 +14,7 @@ Branch feature/m2-implementation; base `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c
 | masd-infrastructure | `d82fec450bf282900a89ac4355e93d7cd2825773` | `0d606f3afac1dbe1deb84c30b2eec1ed3213764a` | `96f87a824c4b7276013f58af49e9a259175f22a2` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
 | MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | `Containing documentation commit; verify live #7 head` | `6eed7cc8958373fe43f0e63b78668ae0939648f7` | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
 
-Completed: full M2 implementation and reviewed safeguards; see ADR0005, M2_FINAL_VERIFICATION_REPORT.md and M2_APPROVAL_RUNBOOK.md.
+Candidate: M2 implementation and local safeguards; final safeguard review remains pending; see ADR0005, M2_FINAL_VERIFICATION_REPORT.md and M2_APPROVAL_RUNBOOK.md.
 
 Environment: Windows/PowerShell with frozen uv Python3.12 environments; independent CI uses Ubuntu/Python3.12. Authorized local integration is the isolated masd-m2 Linux Docker stack, PostgreSQL 17, UI/API/DB ports 4400/8200/5434 and separate database volume. Existing M0/M1 history/configuration/data and user changes are preserved. No automatic merge, permissions change, M3 implementation or production/cloud deployment.
 

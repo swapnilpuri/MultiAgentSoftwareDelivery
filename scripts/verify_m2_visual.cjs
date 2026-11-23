@@ -27,13 +27,13 @@ const output = path.resolve(__dirname, '../artifacts/m2-implementation');
     await baseline.waitFor();
     await baseline.scrollIntoViewIfNeeded();
     fs.mkdirSync(output, { recursive: true });
-    await page.screenshot({ path: path.join(output, 'studio-desktop.png') });
+    await page.screenshot({ path: path.join(output, 'studio-desktop.png'), fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     await baseline.scrollIntoViewIfNeeded();
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) {
       throw new Error('Requirements Studio has horizontal overflow at 390px');
     }
-    await page.screenshot({ path: path.join(output, 'studio-mobile.png') });
+    await page.screenshot({ path: path.join(output, 'studio-mobile.png'), fullPage: true });
     console.log('PASS: desktop/390px mobile rendering; no horizontal overflow; screenshots retained');
   } finally {
     await browser.close();

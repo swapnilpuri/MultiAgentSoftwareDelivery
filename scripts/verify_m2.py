@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import quote
 
@@ -35,7 +36,11 @@ def postgres(workspace: Path) -> None:
     subprocess.run(
         ["uv", "run", "--frozen", "pytest", "-q", "--tb=short"],
         cwd=project,
-        env={**os.environ, "MASD_TEST_DATABASE_URL": url},
+        env={
+            k: v
+            for k, v in {**os.environ, "MASD_TEST_DATABASE_URL": url}.items()
+            if k not in {"PYTEST_ADDOPTS", "PYTEST_PLUGINS"}
+        },
         check=True,
     )
 
@@ -56,9 +61,10 @@ def runtime_secrets(workspace: Path) -> None:
     credentials = list(
         {value for credential in credentials for value in (credential, quote(credential, safe=""))}
     )
+    cutoff = datetime.now(UTC).isoformat()
     for service in ("project-service", "llm-gateway", "agent-service", "web", "postgres"):
         logs = subprocess.run(
-            ["docker", "logs", f"masd-m2-{service}-1"],
+            ["docker", "logs", "--until", cutoff, f"masd-m2-{service}-1"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -73,7 +79,10 @@ def runtime_secrets(workspace: Path) -> None:
     names = {entry.split("=", 1)[0] for entry in container["Config"]["Env"]}
     if {"MASD_DATABASE_URL", "MASD_HUMAN_ACCOUNTS"} & names:
         raise RuntimeError("Agent unexpectedly received database or human-account configuration")
-    print("PASS: five runtime logs contain no generated credential; Agent has no DB/human config")
+    print(
+        "PASS: runtime log prefixes through scan cutoff contain no generated credential; "
+        "Agent has no DB/human config"
+    )
 
 
 def main() -> None:
