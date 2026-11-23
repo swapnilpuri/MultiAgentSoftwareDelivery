@@ -1,9 +1,9 @@
-name: M0 independent quality gates
+name: M1 independent quality gates
 on:
   push:
     branches: [main, 'feature/**']
   pull_request:
-    branches: [main]
+    branches: [main, 'feature/m0-*']
 permissions:
   contents: read
 jobs:
