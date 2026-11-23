@@ -19,3 +19,6 @@ coverage/
 artifacts/
 .uv-cache/
 pytest-cache-files-*/
+.m0-preserved/
+test-results/
+playwright-report/

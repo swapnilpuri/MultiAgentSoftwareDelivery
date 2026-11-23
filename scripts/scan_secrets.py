@@ -1,9 +1,11 @@
-"""Scan Git-visible source; fail on findings without printing secret values."""
+"""Scan Git-visible source; only known manifest hash fields are nonsecret metadata."""
 
+import re
 import subprocess
+from pathlib import Path
 
-from detect_secrets import SecretsCollection  # type: ignore[import-untyped]
-from detect_secrets.settings import default_settings  # type: ignore[import-untyped]
+from detect_secrets.core.secrets_collection import SecretsCollection
+from detect_secrets.settings import default_settings
 
 
 def main() -> int:
@@ -15,14 +17,28 @@ def main() -> int:
         .split("\0")
     )
     secrets = SecretsCollection()
+    count = 0
     with default_settings():
         for name in sorted(set(names) - {""}):
-            secrets.scan_file(name)
+            if Path(name).is_file():
+                secrets.scan_file(name)
     for name, findings in secrets.data.items():
+        lines = Path(name).read_text(encoding="utf-8", errors="replace").splitlines()
         for finding in findings:
-            print(f"Potential secret: {name}:{finding.line_number} ({finding.type})")
-    print(f"Secret scan: {len(secrets.data)} files with findings")
-    return int(bool(secrets.data))
+            is_manifest_hash = (
+                Path(name).as_posix() == "docs/governance/STANDARDS_MANIFEST.yaml"
+                and finding.type == "Hex High Entropy String"
+                and re.fullmatch(
+                    r'\s*"(?:source|imported)_sha256": "[a-f0-9]{64}",?',
+                    lines[finding.line_number - 1],
+                )
+                is not None
+            )
+            if not is_manifest_hash:
+                print(f"Potential secret: {name}:{finding.line_number} ({finding.type})")
+                count += 1
+    print(f"Secret scan: {count} findings")
+    return int(bool(count))
 
 
 if __name__ == "__main__":

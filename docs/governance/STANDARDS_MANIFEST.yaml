@@ -3,6 +3,7 @@
   "standards": [
     {
       "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AI_DEVELOPMENT_OPERATING_MODEL.md",
+      "source_version": "1.0",
       "source_sha256": "1a24781f0278b60f5fa54cd7c6b24856192d78566fd3376f37220d6a946a3b13",
       "imported_copy_path": "docs/AI_DEVELOPMENT_OPERATING_MODEL.md",
       "imported_sha256": "1a24781f0278b60f5fa54cd7c6b24856192d78566fd3376f37220d6a946a3b13",
@@ -14,13 +15,14 @@
         "handoff",
         "efficiency"
       ],
-      "last_verification": "2026-11-22; source and imported SHA-256 recorded"
+      "last_verification": "2026-11-22; source/import byte hashes verified"
     },
     {
       "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AGENTS.md",
+      "source_version": "content-pinned companion template",
       "source_sha256": "d42f22f8adec5639bcc8c56311c7f8be3ffd74a422479a851478eda9ad153192",
       "imported_copy_path": "AGENTS.md",
-      "imported_sha256": "42ae038d5883ba4efd4812a1ed461563319301cef2a4eb3e560dfca81f5c65e8",
+      "imported_sha256": "745725d823f74d205b7243f7fd73e40c47676b695df986a5899d27e2a06cf3eb",
       "import_status": "imported-project-adapted",
       "applicable_standards": [
         "ownership",
@@ -29,7 +31,7 @@
         "handoff",
         "efficiency"
       ],
-      "last_verification": "2026-11-22; source and imported SHA-256 recorded"
+      "last_verification": "2026-11-22; source/import byte hashes verified"
     }
   ]
 }

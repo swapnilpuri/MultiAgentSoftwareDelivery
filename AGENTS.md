@@ -12,14 +12,19 @@
 ## Project-specific settings (fill in)
 
 - Project name: `MultiAgentSoftwareDelivery`
-- Stack and supported platforms: `Python 3.12+, FastAPI; Angular 21, TypeScript; Windows/Linux`
-- Setup command: `uv sync --frozen; npm --prefix apps/web ci`
-- Targeted test command: `uv run pytest tests/test_api.py`
-- Full test command: `pwsh -File scripts/check.ps1`
-- Run/smoke-test command: `uv run uvicorn services.api.app.main:app --host 127.0.0.1 --port 8000; npm --prefix apps/web start`
+- Stack and supported platforms: `Governance Python tooling`
+- Setup command: `uv sync --frozen`
+- Targeted test command: `uv run --frozen pytest -q`
+- Full test command: `uv run --frozen python -m scripts.check`
+- Run/smoke-test command: `uv run --frozen python scripts/validate_standards.py`
 - Primary branch: `main`
 - Requirements location: `docs/milestones/`
 - Handoff location: `docs/milestones/<MILESTONE>_HANDOFF.md`
+
+- Standards version: `1.0`
+- Governing architecture: `https://github.com/swapnilpuri/MultiAgentSoftwareDelivery`
+- Local operating model: `docs/AI_DEVELOPMENT_OPERATING_MODEL.md`
+- Service owner/domain: `repository.json`
 
 ## Execution policy
 

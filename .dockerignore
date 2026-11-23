@@ -1,0 +1,15 @@
+.git
+.venv
+.uv-cache
+node_modules
+dist
+.angular
+artifacts
+.m0-preserved
+.env
+.env.*
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+test-results

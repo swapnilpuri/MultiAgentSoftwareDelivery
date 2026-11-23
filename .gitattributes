@@ -1,2 +1,5 @@
 * text=auto eol=lf
 *.ico binary
+/docs/AI_DEVELOPMENT_OPERATING_MODEL.md -text
+
+/AGENTS.md -text
