@@ -8,7 +8,7 @@ The five M0 main branches contained empty baselines and their foundation PRs wer
 
 The user subsequently requested PR-comment closure. Twenty-one inspected M0 review threads across five PRs (including the externally merged Project Service PR) were addressed with fixes or evidence-based false-positive explanations, replied to and resolved. All five M0 PRs were verified with zero unresolved threads. Valid fixes have regressions: portable provenance IDs, digest/type validation, complete missing-file diagnostics, Git-correct trailing-space handling, path-contained secret scanning, stale finding bounds, full-SHA action pins, health-state preservation and optimized-Python smoke validation. Correct inherited Docker HEALTHCHECK and 64-character source hashes were verified rather than weakened or fabricated. Fixes were committed on isolated M0 worktrees and carried into M1; no user work was discarded.
 
-All repositories use `feature/m1-project-chat-studio`. Initial M1 PRs stacked on `feature/m0-microservices-foundation`. A final reconciliation observed Project Service M0 PR #1 merged externally at commit f894058c331c9ba788b1525a8430b66682816ee4; its M1 PR was retargeted to main and includes later M0 review hardening. Four other M0 PRs remain open and their M1 PRs stay stacked. Gateway targets its authorized empty main baseline. No PR was merged by the implementation agent.
+All repositories use `feature/m1-project-chat-studio`. Initial M1 PRs stacked on `feature/m0-microservices-foundation`. A final reconciliation observed Project Service M0 PR #1 merged externally at commit f894058c331c9ba788b1525a8430b66682816ee4; its M1 PR was retargeted to main and includes later M0 review hardening. Infrastructure M0 #1 and stacked M1 #2 were also merged externally afterward. The M1 infrastructure merge targeted the old feature branch and main still contained the two-service M0 Compose definition; follow-up infrastructure PR #3 now targets main with the verified M1 changes. Remaining M1 reviews were prepared stacked on their M0 branches; current GitHub state is authoritative after later human actions. Gateway targets its authorized empty main baseline. No PR was merged by the implementation agent.
 
 | Repository | Compatible final implementation commit | M1 review | PR base |
 | --- | --- | --- | --- |
@@ -17,7 +17,7 @@ All repositories use `feature/m1-project-chat-studio`. Initial M1 PRs stacked on
 | [masd-project-service](https://github.com/swapnilpuri/masd-project-service) | `8d42144348205f9d48ca057cc801f5fcf90706c3` | [PR #2](https://github.com/swapnilpuri/masd-project-service/pull/2) | `main` |
 | [masd-llm-gateway](https://github.com/swapnilpuri/masd-llm-gateway) | `702d57b6189fbe5671ea0f2789e44f726d179dd7` | [PR #1](https://github.com/swapnilpuri/masd-llm-gateway/pull/1) | `main` |
 | [masd-web](https://github.com/swapnilpuri/masd-web) | `c020caeacbada9e6cc897cbdc701cc3a5c5fb55f` | [PR #2](https://github.com/swapnilpuri/masd-web/pull/2) | `feature/m0-microservices-foundation` |
-| [masd-infrastructure](https://github.com/swapnilpuri/masd-infrastructure) | `2209bc419efb8b70bbea072eba20347a55b5d2ea` | [PR #2](https://github.com/swapnilpuri/masd-infrastructure/pull/2) | `feature/m0-microservices-foundation` |
+| [masd-infrastructure](https://github.com/swapnilpuri/masd-infrastructure) | `0f6cc1803cf40a7ef6a4e9b24f2ab675eede53a8` | [PR #3](https://github.com/swapnilpuri/masd-infrastructure/pull/3) | `main` |
 
 The four original application/contract/infrastructure repositories and gateway remain private; central governance retains its existing public visibility. No repository permissions or protected branches were changed. Original work and local preservation refs remain intact.
 
@@ -100,7 +100,7 @@ NOT EXECUTED: live OpenAI/Anthropic generation (no configured commercial credent
 
 ## CI and acceptance
 
-Every repository has an independent workflow with required formatting/security/type/test failures blocking CI. Project Service CI uses its own PostgreSQL test service; web/API/gateway each build their own image without sibling source. All six implementation/evidence pipelines passed, including the formal SSE schema additions. The Project Service retarget handoff and final central evidence edits are documentation-only follow-ups whose current-head checks are verified on their PRs. Central evidence revision 9019bc5 passed; this final documentation-only update has its own PR checks. Verified run links:
+Every repository has an independent workflow with required formatting/security/type/test failures blocking CI. Project Service CI uses its own PostgreSQL test service; web/API/gateway each build their own image without sibling source. All six implementation/evidence pipelines passed, including the formal SSE schema additions. The Project Service retarget handoff, infrastructure main-integration/nonsecret example update and final central evidence edits are follow-ups whose current-head checks are verified on their PRs. Central evidence revision 9019bc5 passed; this final documentation-only update has its own PR checks. Verified run links:
 
 - MultiAgentSoftwareDelivery: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45107687177
 - masd-contracts: https://github.com/swapnilpuri/masd-contracts/actions/runs/45107329116
