@@ -38,7 +38,7 @@ def main() -> int:
                 and finding.type == "Hex High Entropy String"
                 and re.fullmatch(
                     r'\s*"(?:source|imported)_sha256": "[a-f0-9]{64}",?',
-                    lines[finding.line_number - 1],
+                    lines[finding.line_number - 1] if 0 < finding.line_number <= len(lines) else "",
                 )
                 is not None
             )

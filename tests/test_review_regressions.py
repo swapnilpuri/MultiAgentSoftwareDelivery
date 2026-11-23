@@ -79,3 +79,26 @@ def test_manifest_format_failure_is_explicit(repository):
         "standards: []", encoding="utf-8"
     )
     assert any("JSON-compatible YAML required" in error for error in validate(repository))
+
+
+def test_stale_scanner_line_is_reported_without_crashing(repository, monkeypatch):
+    import contextlib
+    from types import SimpleNamespace
+
+    from scripts import scan_secrets
+
+    name = "docs/governance/STANDARDS_MANIFEST.yaml"
+
+    class Collection:
+        data = {name: [SimpleNamespace(line_number=99999, type="Hex High Entropy String")]}
+
+        def scan_file(self, filename):
+            pass
+
+    monkeypatch.chdir(repository)
+    monkeypatch.setattr(
+        scan_secrets.subprocess, "check_output", lambda *a, **k: name.encode() + b"\0"
+    )
+    monkeypatch.setattr(scan_secrets, "SecretsCollection", Collection)
+    monkeypatch.setattr(scan_secrets, "default_settings", contextlib.nullcontext)
+    assert scan_secrets.main() == 1
