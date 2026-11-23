@@ -1,6 +1,6 @@
 # M0 completion report
 
-Date: 2026-11-22 (America/Chicago). Status: implementation and local verification complete; independent human acceptance remains required. GitHub delivery is in progress only for the central review/evidence revision. No PR has been merged and no M1 work is authorized.
+Date: 2026-11-22 (America/Chicago). Status: implementation, validation and five review PRs complete; independent human acceptance remains required. Central public-history correction remains awaiting explicit approval. No PR has been merged and no M1 work is authorized.
 
 ## Repositories and Git delivery
 
@@ -8,7 +8,7 @@ All five repositories exist independently under C:/Projects, with no nested Git 
 
 | Repository | Visibility | Implementation commit | Review |
 | --- | --- | --- | --- |
-| [MultiAgentSoftwareDelivery](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery) | Existing public | Central implementation initially 6076d00; see history note below and the commit containing this report for final evidence revision | https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/1 |
+| [MultiAgentSoftwareDelivery](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery) | Existing public | Central implementation initially 6076d00; evidence revision 08890b2 passed CI; containing report commit is the final evidence revision | https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/1 |
 | [masd-web](https://github.com/swapnilpuri/masd-web) | Private, verified | 886ac8e340c010de969dd8390a113ab1513af6a3 | https://github.com/swapnilpuri/masd-web/pull/1 |
 | [masd-project-service](https://github.com/swapnilpuri/masd-project-service) | Private, verified | d7f5ec569b93a4b15e36f555f835e38b3a02363f | https://github.com/swapnilpuri/masd-project-service/pull/1 |
 | [masd-contracts](https://github.com/swapnilpuri/masd-contracts) | Private, verified | 8fa25feb26d9c3b6431ec03d27b065f9c5b06e6d | https://github.com/swapnilpuri/masd-contracts/pull/1 |
@@ -90,15 +90,17 @@ Verified successful push/PR runs for sibling commits:
 - Contracts: https://github.com/swapnilpuri/masd-contracts/actions/runs/45088139344
 - Infrastructure: https://github.com/swapnilpuri/masd-infrastructure/actions/runs/45088141719
 
-Central implementation run passed: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45088250712 . All five implementation pipelines have successful runs. The central PR is https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/1 ; final evidence-revision status is checked there. A passing local suite is never substituted for an unexecuted remote run.
+Central implementation run passed: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45088250712 . Evidence revision 08890b2 also passed push/PR runs: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45088645444 and https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45088649458 . All five implementation pipelines have successful runs. The central PR is https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/1 ; final evidence-revision status is checked there. A passing local suite is never substituted for an unexecuted remote run.
 
 ## Remaining limits and review
 
-Mandatory runtime/build/test/compliance checks passed locally. Central history correction/review delivery is pending in this progress revision. Human independent acceptance is not yet granted. No merge, branch-protection change, cloud deployment or M1 is performed.
+Mandatory runtime/build/test/compliance checks passed locally. All five PRs are open and validation runs passed. Central history correction remains awaiting explicit approval. Human independent acceptance is not yet granted. No merge, branch-protection change, cloud deployment or M1 is performed.
 
 Not executed: PlantUML rendering, production security/authorization, cloud deployment, durable workflows, model execution, database recovery and historical secret scanning; all are either documentation-only verification limits or explicitly future scope. One upstream httpx/TestClient deprecation warning occurs in backend tests; it does not fail tests and no warning filter hides it. Source secret scanners are heuristic, not proof of absence of every possible credential. Public-history retention remains a known limitation described above.
 
 ## Run and next milestone
+
+Temporary Compose containers/networks were stopped with `docker compose down` after validation; images and source remain available.
 
 From C:/Projects/masd-infrastructure run `docker compose up --build --wait`, then `uv run --frozen python -m scripts.smoke`; open http://127.0.0.1:4200/projects. Separate development uses `uv run --frozen uvicorn project_service.main:app --host 127.0.0.1 --port 8000` in masd-project-service and `npm start` in masd-web.
 
