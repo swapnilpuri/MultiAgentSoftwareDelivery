@@ -1,3 +1,13 @@
+# Current M2 final verification result — 2026-11-22
+
+**PARTIAL; M3 NOT READY.** M1 main integration is now confirmed; M2 is specification/design only. No PM Agent, Requirements Studio, PRD revisions, story traceability, requirement quality workflow or immutable human-approved baseline is implemented. The merged central M2 PR #4 changed only six documents, reaching main via #5. Historical prerequisite status below is preserved and superseded on merge reconciliation only.
+
+Fresh result: 6/29 PASS, 22 FAIL, 1 BLOCKED, 0 NOT_EXECUTED criteria. All six existing pipelines pass (174 distinct Python, 13 Angular tests, standards/security/contracts/production build); 35 tests additionally pass on real PostgreSQL, three actual M1 browser tests pass and three existing independent images build. Actual browser M2 acceptance fails at discovery entry; remaining M2 workflow/restart scenarios did not execute. No mock is represented as live provider evidence. Mandatory AI/human review evidence remains incomplete.
+
+See [final verification report](M2_FINAL_VERIFICATION_REPORT.md) for exact SHAs, commands, source findings, full acceptance/review matrices and limits; [current handoff](M2_HANDOFF.md) for documentation PR delivery. This verification modifies documentation only. Human review/merge is pending; no M2 runtime work or M3 implementation was performed.
+
+## Historical prerequisite completion checkpoint (retained verbatim)
+
 # M2 completion report — prerequisite checkpoint
 
 Date: 2026-11-22 (America/Chicago). Status: INCOMPLETE; BASELINE GATE BLOCKED. M2 is authorized by the supplied specification, but no M2 runtime capability has been implemented, tested or accepted.
