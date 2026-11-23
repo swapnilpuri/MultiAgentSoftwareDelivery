@@ -2,7 +2,7 @@
   "schema_version": 1,
   "standards": [
     {
-      "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AI_DEVELOPMENT_OPERATING_MODEL.md",
+      "source_document": "AIEngineeringStandards/AI_DEVELOPMENT_OPERATING_MODEL.md",
       "source_version": "1.0",
       "source_sha256": "1a24781f0278b60f5fa54cd7c6b24856192d78566fd3376f37220d6a946a3b13",
       "imported_copy_path": "docs/AI_DEVELOPMENT_OPERATING_MODEL.md",
@@ -18,7 +18,7 @@
       "last_verification": "2026-11-22; source/import byte hashes verified"
     },
     {
-      "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AGENTS.md",
+      "source_document": "AIEngineeringStandards/AGENTS.md",
       "source_version": "content-pinned companion template",
       "source_sha256": "d42f22f8adec5639bcc8c56311c7f8be3ffd74a422479a851478eda9ad153192",
       "imported_copy_path": "AGENTS.md",
@@ -33,5 +33,6 @@
       ],
       "last_verification": "2026-11-22; source/import byte hashes verified"
     }
-  ]
+  ],
+  "format": "JSON-compatible YAML; JSON syntax is required"
 }
