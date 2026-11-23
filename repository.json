@@ -4,7 +4,7 @@
   "domain": "Architecture/governance and consolidated milestone evidence",
   "standards_version": "1.0",
   "architecture_repository": "https://github.com/swapnilpuri/MultiAgentSoftwareDelivery",
-  "contract_version": "0.1.0-candidate",
+  "contract_version": "0.2.0-m1-candidate",
   "commands": {
     "build": "uv run --frozen python -m scripts.validate_governance",
     "test": "uv run --frozen pytest -q",
@@ -26,6 +26,12 @@
     "docs/milestones/M0_REQUIREMENTS.md",
     "docs/milestones/M0_ACCEPTANCE_CRITERIA.md",
     "docs/milestones/M0_HANDOFF.md",
-    "docs/milestones/M0_COMPLETION_REPORT.md"
+    "docs/milestones/M0_COMPLETION_REPORT.md",
+    "docs/milestones/M1_REQUIREMENTS.md",
+    "docs/milestones/M1_DESIGN.md",
+    "docs/milestones/M1_IMPLEMENTATION_PLAN.md",
+    "docs/milestones/M1_ACCEPTANCE_CRITERIA.md",
+    "docs/milestones/M1_HANDOFF.md",
+    "docs/milestones/M1_COMPLETION_REPORT.md"
   ]
 }
