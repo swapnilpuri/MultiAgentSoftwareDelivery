@@ -1,4 +1,4 @@
-Current implementation checkpoint: the authorized M2 candidate is implemented across seven repositories; local quality gates, real PostgreSQL, four Chromium workflows and actual restart recovery pass. Sourcery remediation/re-review and exact-head CI are in progress. Human merges and post-merge main acceptance remain required; no M3. See M2_FINAL_VERIFICATION_REPORT.md, M2_HANDOFF.md and ADR 0005. The original design/plan below is retained for history.
+Current implementation checkpoint: the authorized M2 candidate is implemented across seven repositories; local quality gates, real PostgreSQL, four Chromium workflows and actual restart recovery pass. Current required Sourcery/CI evidence is recorded in M2_HANDOFF.md. Human merges and post-merge main acceptance remain required; no M3. See M2_FINAL_VERIFICATION_REPORT.md, M2_HANDOFF.md and ADR 0005. The original design/plan below is retained for history.
 
 # M2 implementation plan
 

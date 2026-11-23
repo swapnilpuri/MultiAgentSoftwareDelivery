@@ -6,7 +6,7 @@ The feature candidate requires passing CI, actual Sourcery review and addressed 
 
 1. Open each PR below. Record its exact current head SHA with `gh pr view <PR-URL> --json headRefOid`. Confirm checks for that SHA have successful required `validate` results, completed successful Sourcery review, and no unresolved actionable conversations. Read its `M2_REVIEW_EVIDENCE.md` for exact tested source and individual review dispositions. Candidate documentation heads and tested runtime/source commits are separate columns in the central handoff.
 2. Review the complete changes and evidence. A reviewer may request changes; those must be fixed and checked before merge. No gate or protection setting should be disabled to make a PR mergeable.
-3. Immediately before approving and merging, recheck the head SHA and that SHA's checks/review. If it changed, stop and review/check the new head. After required human approval, use `gh pr merge <PR-URL> --match-head-commit <REVIEWED-HEAD-SHA>` so a changed head is rejected rather than merged. Do not enable automatic merge. Follow this order:
+3. Immediately before approving and merging, recheck the head SHA and that SHA's checks/review. If it changed, stop and review/check the new head. After required human approval, use `gh pr merge <PR-URL> --merge --match-head-commit <REVIEWED-HEAD-SHA>` so a changed head is rejected rather than merged. Do not enable automatic merge. Follow this order:
 
 | Order | Repository | PR |
 | --- | --- | --- |
