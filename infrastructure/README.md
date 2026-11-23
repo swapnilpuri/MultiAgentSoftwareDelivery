@@ -1,0 +1,1 @@
+M0 runs two local processes without credentials. Docker Compose, PostgreSQL/pgvector, Temporal, LiteLLM, Kubernetes and Terraform/OpenTofu provisioning are future work; no production resources are deployed.

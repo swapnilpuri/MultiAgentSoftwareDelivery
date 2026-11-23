@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "standards": [
+    {
+      "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AI_DEVELOPMENT_OPERATING_MODEL.md",
+      "source_sha256": "1a24781f0278b60f5fa54cd7c6b24856192d78566fd3376f37220d6a946a3b13",
+      "imported_copy_path": "docs/AI_DEVELOPMENT_OPERATING_MODEL.md",
+      "imported_sha256": "1a24781f0278b60f5fa54cd7c6b24856192d78566fd3376f37220d6a946a3b13",
+      "import_status": "imported-verbatim",
+      "applicable_standards": [
+        "ownership",
+        "approval",
+        "verification",
+        "handoff",
+        "efficiency"
+      ],
+      "last_verification": "2026-11-22; source and imported SHA-256 recorded"
+    },
+    {
+      "source_document": "C:\\Projects\\AiEngineeringStandardProject\\AGENTS.md",
+      "source_sha256": "d42f22f8adec5639bcc8c56311c7f8be3ffd74a422479a851478eda9ad153192",
+      "imported_copy_path": "AGENTS.md",
+      "imported_sha256": "42ae038d5883ba4efd4812a1ed461563319301cef2a4eb3e560dfca81f5c65e8",
+      "import_status": "imported-project-adapted",
+      "applicable_standards": [
+        "ownership",
+        "approval",
+        "verification",
+        "handoff",
+        "efficiency"
+      ],
+      "last_verification": "2026-11-22; source and imported SHA-256 recorded"
+    }
+  ]
+}
