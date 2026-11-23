@@ -16,3 +16,17 @@ Next action: independent M0/M1 review, approved merge/retarget order and stable 
 
 
 Central M1 PR: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/2 . All six implementation/evidence CI heads passed, with exact run links in the completion report. Temporary M1 containers were stopped after validation; persistent data and pre-existing M0 containers were retained. All 21 inspected M0 review threads were resolved; no PRs were merged.
+
+## M2 prerequisite reconciliation — 2026-11-22
+
+The new M2 request authorizes requirements engineering, but does not waive baseline approval. Current remote evidence supersedes the earlier merge-state notes: every listed M1 PR is merged. Central #2, contracts #2 and web #2 targeted the old M0 feature branch after M0 had already merged; their M1 file changes are absent from main. Project Service, Gateway and Infrastructure main trees match the M1 implementation exactly.
+
+Three `feature/m1-main-integration` branches merge the original M1 candidate into current main for separate human-reviewed follow-up PRs. No main branch was merged or pushed. Before this handoff update, all three integration trees exactly matched their M1 candidates (`git diff --exit-code origin/feature/m1-project-chat-studio HEAD`). This repairs delivery ancestry without recreating M1 implementation.
+
+Current remote main heads: central `231cfc924d7f176c7d85d02250f0a2b1465ca5a9`; contracts `bc8a17ebbe834719b0cf54747a65ab97f8e6d094`; web `87c71edc9276273ef77e660fc4478b7a9b087997`; Project Service `c7c9c4bd08d8edb0d52cf74731ceca8929aacf0f`; Gateway `2c6ac6aafbd9995f3939773deaa990d770f68d90`; Infrastructure `d82fec450bf282900a89ac4355e93d7cd2825773`. Original compatible candidate SHAs remain in M1_COMPLETION_REPORT.md; integration PR heads supply the final documentation commits.
+
+Actual GitHub inspection of seven M1/follow-up PRs found zero review threads and zero submitted reviews, with validate CI checks successful. CodeRabbit reviews were SKIPPED for contracts/web/original infrastructure (nondefault target) and unavailable due review limits for Project Service/Gateway/infrastructure follow-up. Central had no reviewer evidence. AI review is NOT EXECUTED, not passed. No findings were dismissed or conversations fabricated. The connector could access central only; installed gh with authorized network access supplied private-repository evidence.
+
+Fresh local checks: `uv run --frozen python -m scripts.check` passed for contracts (31 Python tests, OpenAPI/SSE validation) and web (22 Python tests, 13 Angular tests, lint/types/format/build, dependency audit). Central passed governance/lint/format/types, 22 Python tests and source secret scan; its full command failed in pip-audit due the user cache. `uv run --frozen pip-audit --cache-dir artifacts/pip-audit-cache` then passed with no known vulnerabilities. Initial sandboxed uv invocations could not access the existing user cache; checks ran with approved access. No new Docker/browser/live-provider execution was performed during this reconciliation.
+
+Next: review the main-integration PRs and obtain human baseline acceptance; do not merge automatically. Then create `feature/m2-pm-requirements-studio` from approved compatible baselines, preserve the supplied M2 specification, define additive contracts, and implement discovery persistence first. New masd-agent-service does not exist locally and has not been created; its parent directory is outside current writable roots. No schema/data migration, deployment, credentials or permissions were changed.
