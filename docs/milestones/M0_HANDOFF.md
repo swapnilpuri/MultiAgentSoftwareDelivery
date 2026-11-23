@@ -1,9 +1,11 @@
-# M0 handoff — in progress
+# M0 handoff
 
-Branch: feature/m0-microservices-foundation in each local repository. Central preservation baseline: d729e8c on feature/m0-foundation-standards. Actual current commit/status must be read from each repository; final commit references will be recorded in the completion report.
+Status: implemented and locally validated; central final review/evidence delivery in progress. Independent human acceptance and merge remain required. Branch in all repositories: feature/m0-microservices-foundation. Main contains only explicitly authorized empty review baselines.
 
-The user superseded the original monorepo plan with independent repositories. API/UI code was reused; no original work was discarded. Central docs record approved boundaries, standards inheritance, contract versioning and future controls. Contracts, backend, frontend and infrastructure are independently scaffolded. No future service is implemented.
+Source, domain and validation details: [completion report](M0_COMPLETION_REPORT.md). Four private companion PRs are open at /pull/1 in masd-web, masd-project-service, masd-contracts and masd-infrastructure; their CI checks passed. Central PR: https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/1 . All five implementation CI runs passed. Central implementation was initially 6076d00, with a clean governance-only history prepared for approved replacement. Original work remains on local feature/m0-foundation-standards at d729e8c and in an ignored archive. Read each repo's actual HEAD/status before continuing.
 
-Validation and remote delivery are in progress. Do not treat earlier monorepo checks as final microservices evidence. Remote creation is pending visibility authorization. Docker engine was initially unavailable; startup/verification must be checked explicitly.
+Passed: 79 Python tests, 5 Angular tests, all independent quality/security gates, independent Docker builds, Compose healthy startup, HTTP smoke, one real-browser test and API image revision update without changing/restarting the web artifact. The final API loopback port is also verified. Contract consumer snapshots are byte-identical to the 0.1.0 candidate. No credentials were detected.
 
-Resume with each repository's README and `uv run --frozen python -m scripts.check`; see M0_COMPLETION_REPORT.md for final actual evidence. No M1 work or merge is authorized.
+Risks/limits: central feature history initially exposed the preservation checkpoint in the existing public repository; approved replacement cannot guarantee GitHub erases prior objects. Contract immutable release is pending review. Production auth/policy, persistence, workflows, LLMs and future services are not implemented. PlantUML rendering was not executed. Backend tests emit one upstream deprecation warning.
+
+Resume: `uv sync --frozen` and `uv run --frozen python -m scripts.check` from each root; web also `npm ci`. Integration: from masd-infrastructure run `docker compose up --build --wait` then `uv run --frozen python -m scripts.smoke`. Browser: from masd-web set INTEGRATION_BASE_URL=http://127.0.0.1:4200 and run `npx playwright test`. No merge or M1 is authorized.
