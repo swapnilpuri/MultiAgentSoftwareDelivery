@@ -2,7 +2,7 @@
 
 Milestone: Project Workspace, Multi-LLM Gateway and AI Chat Studio. Status: implemented/verified for independent human review; not automatically accepted or merged. Branch: feature/m1-project-chat-studio in all six repositories. Central implementation anchor before this evidence revision: 1bbf73cefb699ce6a2e2560a4b6f2b767c4b004b; final report/PR head supplies the containing commit SHA.
 
-M0 PRs remain open with main still an empty baseline. M1 stacks on feature/m0-microservices-foundation except gateway targets its new main. All 21 inspected M0 review threads were replied to with evidence and resolved; final M0 review checks were inspected, and source fixes were carried forward. No force-push, protected merge or user-data discard was performed.
+Four M0 PRs remain open. Project Service M0 PR #1 was merged externally; its M1 PR now targets main and includes subsequent review hardening. Other existing M1 PRs remain stacked on feature/m0-microservices-foundation; gateway targets its authorized main baseline. All 21 inspected M0 review threads were replied to with evidence and resolved; final M0 review checks were inspected, and source fixes were carried forward. No force-push, protected merge or user-data discard was performed.
 
 Completed: PostgreSQL projects/settings/conversations/messages/turn metadata; local server identity and owner/project authorization; idempotent bounded SSE persistence/recovery; isolated LiteLLM gateway and three provider adapters; Angular projects/chat with safe Markdown, streaming, stop and history; independent Compose and pinned candidate contracts. ADR 0004 and M1_DESIGN.md document choices and limits. Compatible source commits/PRs are in M1_COMPLETION_REPORT.md.
 
