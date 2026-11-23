@@ -1,0 +1,27 @@
+@startuml
+!define RECTANGLE class
+skinparam componentStyle rectangle
+actor "Human / reviewer" as human
+rectangle "MASD platform" {
+  component "Angular control center
+[masd-web; M0]" as web
+  component "Project Service
+[FastAPI; M0]" as project
+  artifact "OpenAPI 0.1.0 candidate
+[masd-contracts]" as contracts
+  component "Future independently deployed services
+[planned; no M0 implementations]" as future
+}
+artifact "Architecture / governance
+[MultiAgentSoftwareDelivery]" as governance
+artifact "Compose / future IaC
+[masd-infrastructure]" as infra
+human --> web : browser
+web --> project : HTTP /api/v1
+contracts ..> web : pinned snapshot
+contracts ..> project : pinned snapshot
+governance ..> future : ownership / approval rules
+governance ..> project : standards pins
+infra ..> project : independent image
+infra ..> web : independent image
+@enduml

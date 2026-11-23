@@ -1,0 +1,7 @@
+# Quality gates
+
+Every repository runs `uv run --frozen python -m scripts.check` from its own root after `uv sync --frozen`; web also runs `npm ci`. It checks standards integrity, ownership metadata, required docs, documented commands, CI invocation, secret exclusions, Ruff lint/format, mypy, pytest, source secret scanning and pip-audit. Contract validation and Compose syntax validation run in their respective pipelines. Web adds ESLint, strict TypeScript, Prettier, Vitest, production build and npm audit at all severities. Service CI builds its own Docker image. No pipeline checks out another service's source.
+
+The common scripts are intentionally copied bootstrap tooling, not a centrally enforced service. Negative tests cover missing/modified standards and missing documentation/metadata/CI/security exclusions. Secret scanning covers Git-visible nonignored source and fails on findings; only exact source_sha256/imported_sha256 hex fields in the standards manifest are recognized as provenance metadata. Other content remains scanned.
+
+A failed mandatory check blocks review readiness. Advisory database unavailability is BLOCKED rather than PASS. Docker configuration validation cannot prove startup; build/start/smoke and unchanged-image checks require a running engine. Independent acceptance requires actual evidence, human review, and unresolved checks explicitly listed. Branch protection and permissions are not changed by M0.
