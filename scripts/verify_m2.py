@@ -27,14 +27,13 @@ def postgres(workspace: Path) -> None:
     if not 1 <= port <= 65535:
         raise ValueError("Invalid isolated database port")
     project = workspace / "masd-project-service"
-    executable = project / (".venv/Scripts/python.exe" if os.name == "nt" else ".venv/bin/python")
     user = quote(values.get("POSTGRES_USER", "masd"), safe="")
     password = quote(values["POSTGRES_PASSWORD"], safe="")
     database = quote(values.get("POSTGRES_DB", "masd"), safe="")
     url = f"postgresql+psycopg://{user}:{password}@127.0.0.1:{port}/{database}"
     print("Running Project tests against isolated PostgreSQL temporary schemas", flush=True)
     subprocess.run(
-        [str(executable), "-m", "pytest", "-q", "--tb=short"],
+        ["uv", "run", "--frozen", "pytest", "-q", "--tb=short"],
         cwd=project,
         env={**os.environ, "MASD_TEST_DATABASE_URL": url},
         check=True,
