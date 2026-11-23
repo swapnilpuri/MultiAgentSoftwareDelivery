@@ -4,15 +4,15 @@ Milestone/status: M2 implementation and local acceptance complete; required Sour
 
 Branch feature/m2-implementation; main baseline 32fa751f21700c813c7b3e5c411bdd4fdbb54a1c; exact prior verification commits through 6c59d64 retained. Current central commit is containing PR head (`git rev-parse HEAD`). Runtime branches feature/m2-pm-requirements-studio:
 
-| Repository | Main baseline | Candidate/tested source HEAD | PR |
-| --- | --- | --- | --- |
-| masd-contracts | `9829c8d72588f842a7e723bcbe868fdfad001bb7` | `724e989a5c7b1c65cd0cdfc4580dd0fa2c1132c6` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) |
-| masd-project-service | `c7c9c4bd08d8edb0d52cf74731ceca8929aacf0f` | `1bd2e9457379b83a21e04d5c1fef10e2a79a9323` | [#3](https://github.com/swapnilpuri/masd-project-service/pull/3) |
-| masd-web | `e411d359aa81d560e213ec8a99db692d441a145a` | `a884e01081de0c0c436b5959bc6553f1148d0c78` | [#4](https://github.com/swapnilpuri/masd-web/pull/4) |
-| masd-llm-gateway | `2c6ac6aafbd9995f3939773deaa990d770f68d90` | `9bd57f8aa15a7591496d7d4e00f85fe9532f93b3` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2) |
-| masd-infrastructure | `d82fec450bf282900a89ac4355e93d7cd2825773` | `9f074d206ba97ec4daaed2dd59b13c94a652a04a` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
-| masd-agent-service | `3f8c662f4228ecc8d178fb0dc7febbcd3995f3bd` | `5cb535f2d91ef9439040e792ca13b84d0aacb4de` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1) |
-| MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | Containing documentation commit on feature/m2-implementation; retains exact verification commits through 6c59d64 | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
+| Repository | Main baseline | PR candidate HEAD (includes evidence docs) | Exact tested runtime/source commit | PR |
+| --- | --- | --- | --- | --- |
+| masd-contracts | `9829c8d72588f842a7e723bcbe868fdfad001bb7` | `724e989a5c7b1c65cd0cdfc4580dd0fa2c1132c6` | `3a91be14fae8460b6c32541696c5a95b9549a0a3` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) |
+| masd-project-service | `c7c9c4bd08d8edb0d52cf74731ceca8929aacf0f` | `1bd2e9457379b83a21e04d5c1fef10e2a79a9323` | `399c03c0149702fbf07cb5e2f5445588d3347ba7` | [#3](https://github.com/swapnilpuri/masd-project-service/pull/3) |
+| masd-web | `e411d359aa81d560e213ec8a99db692d441a145a` | `a884e01081de0c0c436b5959bc6553f1148d0c78` | `08301b824c7de33dc344a94e00ed014ba4c04211` | [#4](https://github.com/swapnilpuri/masd-web/pull/4) |
+| masd-llm-gateway | `2c6ac6aafbd9995f3939773deaa990d770f68d90` | `9bd57f8aa15a7591496d7d4e00f85fe9532f93b3` | `0884545dcec7e345f140b6f70cca86fca7680f83` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2) |
+| masd-infrastructure | `d82fec450bf282900a89ac4355e93d7cd2825773` | `9f074d206ba97ec4daaed2dd59b13c94a652a04a` | `19d4174a08381334df089d87f497adfb0fe76572` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
+| masd-agent-service | `3f8c662f4228ecc8d178fb0dc7febbcd3995f3bd` | `5cb535f2d91ef9439040e792ca13b84d0aacb4de` | `b4b09418b8eb9a907560e52df408d880f87383b7` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1) |
+| MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | Containing documentation commit on feature/m2-implementation; retains exact verification commits through 6c59d64 | `c17c71d0eeb4260d568dce4e2302e24f85bffc6a` (22 tests/full gate; later docs checked by CI) | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
 
 Completed: actual bounded LangGraph PM service; Project-owned structured PRDs, revisions, stories/criteria/traceability/quality, immutable baseline/human decisions, password-verified development humans and durable paginated history; Angular Studio including streaming saved acknowledgements, editor/comparison/review; independent M2 profile. See ADR 0005, M2_DESIGN.md and current M2_FINAL_VERIFICATION_REPORT.md for the complete 29-criterion and 20-step matrices, exact commands and limits. Historical reports remain below.
 
@@ -29,6 +29,7 @@ Approval and full acceptance steps: [M2_APPROVAL_RUNBOOK.md](M2_APPROVAL_RUNBOOK
 
 
 Current required external gate: [Agent PR #1 Sourcery check](https://github.com/swapnilpuri/masd-agent-service/pull/1/checks) remains failed without diagnostic detail after documented review-comment retries; GitHub check rerequest returned 404. If it does not restart, use the connected Sourcery dashboard to inspect/retry this repository review or obtain Sourcery support resolution. Do not override the check or waive AI review. Central [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) review is processing; no human merge is requested until required gates complete.
+
 
 ## Historical handoff (retained verbatim)
 
