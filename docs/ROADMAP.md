@@ -1,17 +1,9 @@
 # Roadmap
 
-M0: five independent repositories, standards inheritance, central architecture, contract candidate, project-service health/readiness, connected Angular shell, independent CI/Dockerfiles and local integration.
+M0: independent repositories, standards/governance, health shell and initial local integration. Its PRs remain subject to human review.
 
-M1 proposal: authenticated project intake and the first PostgreSQL-owned project schema, with project access isolation and requirement/task identities. Requires a new authorized specification.
+M1 (authorized): PostgreSQL project workspace, project-owned conversations, isolated LiteLLM gateway, OpenAI/Anthropic/Ollama adapters, explicit model routing and streamed Angular AI Chat Studio. See M1 acceptance evidence; implementation is not autonomous agent execution.
 
-M2 proposal: project chat, LiteLLM routing, provider independence, integration adapter contracts and credential brokerage.
+M2 proposal: product/requirements refinement and planning artifacts with authenticated identities and reviewed data-classification/model-routing policy. Requires independent M1 acceptance and a separately authorized specification.
 
-M3 proposal: Temporal workflows, LangGraph agents, human approval records and durable recovery.
-
-M4 proposal: isolated execution workers, GitHub adapters, parallel development, independent QA/security and remediation.
-
-M5 proposal: region/cloud selection, Terraform/OpenTofu, deployment approvals and Kubernetes.
-
-M6 proposal: centralized standards/policy, drift enforcement, telemetry and enterprise adapters (Jira, ServiceNow, Confluence, Harness).
-
-These are planning boundaries, not implemented services. Do not create empty service repositories before their use case and authorization.
+Later: Temporal workflows, LangGraph runtime, durable human approvals, scoped isolated execution workers, independent QA/security loops, deployment approvals, cloud/region selection and enterprise integrations. No later milestone is implemented or authorized by M1.

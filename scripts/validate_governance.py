@@ -9,7 +9,7 @@ from scripts.validate_standards import ROOT, validate
 def check(root: Path = ROOT) -> list[str]:
     errors = validate(root)
     try:
-        metadata = json.loads((root / "repository.json").read_text())
+        metadata = json.loads((root / "repository.json").read_text(encoding="utf-8"))
         for key in ("name", "owner", "domain", "standards_version", "architecture_repository"):
             if not metadata.get(key):
                 errors.append(f"Missing ownership/standards metadata: {key}")
@@ -17,7 +17,7 @@ def check(root: Path = ROOT) -> list[str]:
             command = metadata.get("commands", {}).get(key)
             if not isinstance(command, str) or not command.strip():
                 errors.append(f"Missing command: {key}")
-            elif command not in (root / "README.md").read_text():
+            elif command not in (root / "README.md").read_text(encoding="utf-8"):
                 errors.append(f"Undocumented command: {key}")
         required = set(metadata["required_docs"]) | {
             "README.md",
@@ -30,17 +30,17 @@ def check(root: Path = ROOT) -> list[str]:
             path = (root / name).resolve()
             if not path.is_relative_to(root.resolve()) or not path.is_file():
                 errors.append(f"Missing or invalid required path: {name}")
-        agents = (root / "AGENTS.md").read_text()
+        agents = (root / "AGENTS.md").read_text(encoding="utf-8")
         if (
             metadata["architecture_repository"] not in agents
             or "Standards version: `1.0`" not in agents
         ):
             errors.append("AGENTS.md must reference governing architecture and standards version")
-        ignore = (root / ".gitignore").read_text().splitlines()
+        ignore = (root / ".gitignore").read_text(encoding="utf-8").splitlines()
         for pattern in (".env", ".env.*", "*.pem", "*.key"):
             if pattern not in ignore:
                 errors.append(f"Missing secret exclusion: {pattern}")
-        workflow = (root / ".github/workflows/ci.yml").read_text()
+        workflow = (root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         if "scripts.check" not in workflow:
             errors.append("CI must invoke the mandatory compliance and quality entry point")
     except (OSError, ValueError, KeyError, TypeError) as exc:

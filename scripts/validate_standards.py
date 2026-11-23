@@ -11,7 +11,9 @@ MANDATORY = {"AGENTS.md", "docs/AI_DEVELOPMENT_OPERATING_MODEL.md"}
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     try:
-        manifest = json.loads((root / "docs/governance/STANDARDS_MANIFEST.yaml").read_text())
+        manifest = json.loads(
+            (root / "docs/governance/STANDARDS_MANIFEST.yaml").read_text(encoding="utf-8")
+        )
         entries = manifest["standards"]
         paths = [entry["imported_copy_path"] for entry in entries]
         if set(paths) != MANDATORY or len(paths) != len(MANDATORY):

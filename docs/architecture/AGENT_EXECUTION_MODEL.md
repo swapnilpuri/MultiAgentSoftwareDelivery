@@ -7,3 +7,6 @@ PM/architect/planner propose work; scoped development agents implement; QA/secur
 Temporal will own durable transitions, approval signals and recovery. LangGraph executes stateful tasks within approved scope. Workers isolate repository, filesystem, network and credentials by task/project. Activities use idempotency keys, bounded retries and reconcile external side effects before replay. Recovery rechecks authorization and expired approvals, preserving requirement→task→commit→test→release evidence.
 
 M0 runs no agent, workflow engine, approval service or sandbox. These are interface expectations for later authorization.
+
+
+M1 update: chat is interactive only. No agent tools or workflow/coding execution is enabled. The isolated gateway accepts scoped, bounded chat requests from Project Service, not agent privilege grants.
