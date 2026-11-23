@@ -1,6 +1,6 @@
 # M2 implementation and acceptance candidate — current checkpoint
 
-Overall: **FUNCTIONALLY_COMPLETE_GOVERNANCE_BLOCKED**, pending configured Sourcery reviews, final-head CI reconciliation, human-approved merges and post-merge main acceptance. M3: **NOT READY**. This supersedes the historical PARTIAL verdict only for the new implementation candidate; it does not retroactively approve historical PRs or claim acceptance on main.
+Overall: **FUNCTIONALLY_COMPLETE_GOVERNANCE_BLOCKED**, pending Agent/central Sourcery review completion, human-approved merges and post-merge main acceptance. M3: **NOT READY**. This supersedes the historical PARTIAL verdict only for the new implementation candidate; it does not retroactively approve historical PRs or claim acceptance on main.
 
 ## Repository and source matrix
 
@@ -14,7 +14,7 @@ All work began from fetched clean main baselines; existing work and the exact in
 | masd-llm-gateway | `2c6ac6aafbd9995f3939773deaa990d770f68d90` | `9bd57f8aa15a7591496d7d4e00f85fe9532f93b3` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2) |
 | masd-infrastructure | `d82fec450bf282900a89ac4355e93d7cd2825773` | `9f074d206ba97ec4daaed2dd59b13c94a652a04a` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
 | masd-agent-service | `3f8c662f4228ecc8d178fb0dc7febbcd3995f3bd` | `5cb535f2d91ef9439040e792ca13b84d0aacb4de` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1) |
-| MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | Containing documentation commit on feature/m2-implementation; retains exact verification commits through 6c59d64 | Central implementation evidence PR pending creation |
+| MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | Containing documentation commit on feature/m2-implementation; retains exact verification commits through 6c59d64 | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
 
 
 Initial full candidate heads, later test/pin/history fixes and final checks remain in each PR's history. The Agent CI initially caught a Windows/Git line-ending mismatch in the adapted AGENTS pin: instruction text was verified unchanged, canonical LF bytes pinned, then local and Linux CI passed. A real-browser logout assertion initially raced the async logout response; it now waits for the sign-in screen before asserting unauthorized access. No check was disabled. Two synthetic test passwords tripped source scanning; generated fixtures replaced them without scanner exemptions.
@@ -62,8 +62,8 @@ Contracts 0.3.0 are additive published PR candidates: Project/Agent OpenAPI, doc
 | AC-23 | The full deterministic end-to-end discovery-to-approval workflow is verified. | Full e2e/m2-requirements.spec.ts plus scripts.verify_m2_restart | T3/T4 and twenty-step matrix below | PASS | Actual discovery-to-human-test-principal approval, stale/mutation/access negatives and container recovery executed. |
 | AC-24 | Services remain independently buildable and deployable. | Four independent runtime Dockerfiles, optional m2 Compose profile and isolated volume | T7 CI image builds; actual compose up --build --wait | PASS | All five isolated services healthy; Agent has no database/human-account environment or database network. |
 | AC-25 | CI and AIEngineeringStandards validation pass. | Seven standards manifests and scripts.check entry points | T1; exact-head CI matrix | PASS | All local gates pass; final central documentation checks tracked on its PR. |
-| AC-26 | PR review comments and required conversations are appropriately resolved. | M2_REQUIREMENTS.md §18; configured Sourcery reviewer replacing removed CodeRabbit | Current submitted reviews, inline threads and reviewer checks | BLOCKED | Actual Sourcery reviews produced 71 individually assessed findings across six PRs. Fixes and evidence are pushed; individual responses/closure and re-review are being reconciled, including central PR. Human merge/acceptance remain pending. |
-| AC-27 | Required CI checks pass on all affected PRs. | Independent .github/workflows/ci.yml and final PR heads | T7 exact-head validate checks | BLOCKED | Reviewed implementation heads are pushed; exact-head validate/Sourcery checks and the central evidence PR are being reconciled. |
+| AC-26 | PR review comments and required conversations are appropriately resolved. | M2_REQUIREMENTS.md §18; configured Sourcery reviewer replacing removed CodeRabbit | Current submitted reviews, inline threads and reviewer checks | BLOCKED | All 71 original implementation threads have specific evidence responses and are resolved. Five Sourcery checks pass; Agent check failed with only an In progress summary, and central review is processing. No unavailable review is claimed passed; human merge/acceptance remain pending. |
+| AC-27 | Required CI checks pass on all affected PRs. | Independent .github/workflows/ci.yml and final PR heads | T7 exact-head validate checks | PASS | Both validate pipelines pass on all six implementation heads and central c17c71d; later documentation-only head must also pass. Sourcery review result is separately gated by AC-26. |
 | AC-28 | M2 handoff and completion evidence are accurate. | Current handoff/completion/final-verification records with retained history | Documentation consistency, source-SHA and test-count review; central gates | PASS | Fresh implementation evidence supersedes historical missing-runtime verdict without erasing it; human acceptance remains pending. |
 | AC-29 | No autonomous coding or deployment activity is introduced in M2. | PM graph has no tools/approval API; no M3/runtime coding/deployment agent added | Agent no-tools regression; source inspection; isolated local testing only | PASS | No autonomous development or cloud deployment feature. Human explicitly authorized repository and isolated test environment creation. |
 
@@ -74,7 +74,7 @@ Local evidence: ignored central artifacts/m2-implementation; exact commands and 
 
 | Key | Exact command / working directory | Result |
 | --- | --- | --- |
-| T1 | Each of seven roots: `uv run --frozen python -m scripts.check` | Existing configured gates: standards/governance, Ruff lint/format, mypy, pytest, source secret scan and pip-audit. Runtime/contract/infrastructure gates pass; central evidence gate runs after documentation edits. Central 22, contracts 38, web 22, Project 64 plus two PostgreSQL-only skips under SQLite, Gateway 46, infrastructure 30, Agent 34. |
+| T1 | Each of seven roots: `uv run --frozen python -m scripts.check` | Existing configured gates: standards/governance, Ruff lint/format, mypy, pytest, source secret scan and pip-audit. Runtime/contract/infrastructure gates pass; central evidence gate passed with 22 tests on the c17c71d source tree. Central 22, contracts 38, web 22, Project 64 plus two PostgreSQL-only skips under SQLite, Gateway 46, infrastructure 30, Agent 34. |
 | T1 | Web commands invoked by scripts.check: `npm.cmd run lint`, `typecheck`, `format:check`, `test`, `build`; `npm.cmd audit --audit-level=low` | PASS: 24 Angular tests; production build with lazy Studio stays under existing initial warning budget; zero audit vulnerabilities. |
 | T1 | Contracts: `uv run --frozen python -m scripts.validate_contracts` | PASS: five OpenAPI files, existing/new SSE and document JSON schemas. Immutable M1 compatibility and actual M2 request/success/stream payload tests pass. |
 | T2 | Project: `uv run --frozen python C:/Projects/msad/MultiAgentSoftwareDelivery/artifacts/run-m2-postgres.py` | PASS: **66 tests on real isolated PostgreSQL**, using per-test temporary schemas. Includes upgrades/idempotency/metadata drift, raw mutation triggers, human authorization, decisions, stale/hash/concurrency, provenance, complete history and application recovery. Launcher reads ignored .env.m2 without outputting it and invokes `python -m pytest -q --tb=short` with MASD_TEST_DATABASE_URL set. |
@@ -115,7 +115,7 @@ Additional negatives: unrelated human/project=404; service login=401; missing/fo
 
 ## Review and CI governance
 
-The user removed CodeRabbit and explicitly enabled Sourcery. Actual submitted Sourcery reviews identified 71 findings across the six implementation PRs. Each has a specific fix or evidence-based scope disposition in that repository's M2_REVIEW_EVIDENCE.md, linked to exact tested source. Responses and addressed-thread resolutions are posted individually; fresh reviews are requested with `@sourcery-ai review`. No bulk resolve/dismiss or automatic merge is used. Final review/check status remains pending reconciliation, including this central evidence PR; guides alone never count as full review.
+The user removed CodeRabbit and explicitly enabled Sourcery. Actual submitted Sourcery reviews identified 71 findings across the six implementation PRs. Each has a specific fix or evidence-based scope disposition in that repository's M2_REVIEW_EVIDENCE.md, linked to exact tested source. Responses and addressed-thread resolutions are posted individually; fresh reviews are requested with `@sourcery-ai review`. No bulk resolve/dismiss or automatic merge is used. All 71 original implementation threads are now resolved after specific evidence responses. Five Sourcery checks pass; the Agent check failed with an In progress summary and no new finding, while central #7 review is processing. Documented comment retries were sent on Agent #1 and GitHub check rerequest returned 404; no review result was overridden. Guides alone never count as full review.
 
 CI uses exact final candidate heads and independent validate pipelines; Project Service CI runs with PostgreSQL. No GitHub permissions, review settings or protections were modified by the implementation agent. Prior central main protection was absent; private protection metadata was unavailable under the account plan. Policy gates still apply. Human-approved merges and explicit milestone acceptance remain outstanding regardless of green CI or AI comments.
 
@@ -142,6 +142,22 @@ Review remediation adds explicit replay/CSRF/SSE/semantic contracts, PostgreSQL 
 The candidate-head matrix includes a later documentation-only evidence commit. Runtime source and tests are identical to the exact tested source anchors above. Final-head CI must independently pass.
 
 Approval and full acceptance steps: [M2_APPROVAL_RUNBOOK.md](M2_APPROVAL_RUNBOOK.md).
+
+
+Current required external gate: [Agent PR #1 Sourcery check](https://github.com/swapnilpuri/masd-agent-service/pull/1/checks) remains failed without diagnostic detail after documented review-comment retries; GitHub check rerequest returned 404. If it does not restart, use the connected Sourcery dashboard to inspect/retry this repository review or obtain Sourcery support resolution. Do not override the check or waive AI review. Central [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) review is processing; no human merge is requested until required gates complete.
+
+## Exact-head CI evidence after remediation
+
+| Repository/head | Validate evidence | Original review threads | Sourcery check |
+| --- | --- | --- | --- |
+| masd-contracts `724e989a5c7b1c65cd0cdfc4580dd0fa2c1132c6` | [PASS](https://github.com/swapnilpuri/masd-contracts/actions/runs/45225503949/job/137870785181), [PASS](https://github.com/swapnilpuri/masd-contracts/actions/runs/45225489669/job/137870719630) | 5 resolved, 0 unresolved | PASS |
+| masd-project-service `1bd2e9457379b83a21e04d5c1fef10e2a79a9323` | [PASS](https://github.com/swapnilpuri/masd-project-service/actions/runs/45225517369/job/137870817987), [PASS](https://github.com/swapnilpuri/masd-project-service/actions/runs/45225500249/job/137870764559) | 19 resolved, 0 unresolved | PASS |
+| masd-agent-service `5cb535f2d91ef9439040e792ca13b84d0aacb4de` | [PASS](https://github.com/swapnilpuri/masd-agent-service/actions/runs/45225528007/job/137870854837), [PASS](https://github.com/swapnilpuri/masd-agent-service/actions/runs/45225515286/job/137870814016) | 17 resolved, 0 unresolved | FAILED: In progress summary only; retry pending |
+| masd-web `a884e01081de0c0c436b5959bc6553f1148d0c78` | [PASS](https://github.com/swapnilpuri/masd-web/actions/runs/45225544388/job/137870912991), [PASS](https://github.com/swapnilpuri/masd-web/actions/runs/45225531098/job/137870868256) | 14 resolved, 0 unresolved | PASS |
+| masd-infrastructure `9f074d206ba97ec4daaed2dd59b13c94a652a04a` | [PASS](https://github.com/swapnilpuri/masd-infrastructure/actions/runs/45225553934/job/137870951595), [PASS](https://github.com/swapnilpuri/masd-infrastructure/actions/runs/45225544107/job/137870912765) | 11 resolved, 0 unresolved | PASS |
+| masd-llm-gateway `9bd57f8aa15a7591496d7d4e00f85fe9532f93b3` | [PASS](https://github.com/swapnilpuri/masd-llm-gateway/actions/runs/45225567246/job/137870998658), [PASS](https://github.com/swapnilpuri/masd-llm-gateway/actions/runs/45225554224/job/137870955312) | 5 resolved, 0 unresolved | PASS |
+
+Central #7 c17c71d: both validate workflows PASS; Sourcery review is processing. Final documentation-only follow-up must pass the same CI. Latest remote main was fetched for all seven repos; each baseline still matches the matrix and all feature worktrees were clean. No human merge occurred.
 
 ## Historical verification-only report (retained verbatim)
 

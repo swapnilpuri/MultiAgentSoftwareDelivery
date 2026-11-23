@@ -1,15 +1,18 @@
 # Current M2 completion candidate
 
-Status: FUNCTIONALLY_COMPLETE_GOVERNANCE_BLOCKED pending Sourcery review/thread closure, final-head CI reconciliation, human-approved merges and post-merge main acceptance. M3 NOT READY. No automatic merge, production deployment or M3 implementation.
+Status: FUNCTIONALLY_COMPLETE_GOVERNANCE_BLOCKED pending Agent/central Sourcery review completion, human-approved merges and post-merge main acceptance. M3 NOT READY. No automatic merge, production deployment or M3 implementation.
 
 Implemented across seven independent repositories: executable LangGraph PM via existing Gateway; durable requirements/discovery/history, typed 19-section PRDs, revisions/stories/criteria/traceability/quality; immutable human approval and stale/concurrent-write controls; Angular Requirements Studio; additive 0.3.0 contracts; isolated five-service integration. Production remains refused; test/structured is explicitly synthetic. See ADR 0005 for development-auth and recovery limits.
 
 Fresh evidence: 258 distinct Python tests covered including 66 actual PostgreSQL tests, 24 Angular tests/production build, four actual Chromium M1/M2 workflows and actual interruption/database/service restart recovery. Standards/lint/types/source scans/dependency audits passed; source and runtime logs have no detected generated-credential exposure. CodeRabbit removed; Sourcery enabled/requested and its complete review evidence is still being reconciled. Human automated-test account decisions are not human milestone acceptance.
 
-Current 27 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED, out of 29. Full per-criterion/source/test evidence, source/PR matrix, exact commands, failure corrections and unexecuted limits are in M2_FINAL_VERIFICATION_REPORT.md. Human merge and final-main verification remain explicit prerequisites. This supersedes the historical missing-runtime verdict only for the new feature-branch candidate; historical evidence is retained below.
+Current 28 PASS / 0 FAIL / 1 BLOCKED / 0 NOT_EXECUTED, out of 29. Full per-criterion/source/test evidence, source/PR matrix, exact commands, failure corrections and unexecuted limits are in M2_FINAL_VERIFICATION_REPORT.md. Human merge and final-main verification remain explicit prerequisites. This supersedes the historical missing-runtime verdict only for the new feature-branch candidate; historical evidence is retained below.
 
 
 Review remediation adds explicit replay/CSRF/SSE/semantic contracts, PostgreSQL lifetime recovery ownership and policy locking, stricter review/discovery state guards, complete comparison/export and cursor history, bounded auth cleanup, Agent transport/cancellation/readiness/action schemas/provenance, robust Angular retry/unsaved-edit/routing/catalog/SSE controls, and isolated configuration/recovery hardening. All six full configured runtime gates pass. Raw refreshed logs: artifacts/m2-implementation/*-review-check.log, review-postgres.log, review-browser.log, review-compose.log and review-restart.log (ignored locally). Test count is 258 distinct Python tests including central 22; repeated PostgreSQL execution is not double-counted.
+
+
+Current required external gate: [Agent PR #1 Sourcery check](https://github.com/swapnilpuri/masd-agent-service/pull/1/checks) remains failed without diagnostic detail after documented review-comment retries; GitHub check rerequest returned 404. If it does not restart, use the connected Sourcery dashboard to inspect/retry this repository review or obtain Sourcery support resolution. Do not override the check or waive AI review. Central [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) review is processing; no human merge is requested until required gates complete.
 
 ## Historical completion/verification checkpoints (retained verbatim)
 

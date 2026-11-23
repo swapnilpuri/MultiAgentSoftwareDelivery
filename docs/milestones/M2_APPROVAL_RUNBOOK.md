@@ -16,7 +16,7 @@ The feature candidate requires passing CI, actual Sourcery review and addressed 
 | 4 | Project Service | [masd-project-service #3](https://github.com/swapnilpuri/masd-project-service/pull/3) |
 | 5 | Angular Studio | [masd-web #4](https://github.com/swapnilpuri/masd-web/pull/4) |
 | 6 | Infrastructure | [masd-infrastructure #4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
-| 7 | Consolidated governance/evidence | Current feature/m2-implementation PR, linked in M2_HANDOFF.md |
+| 7 | Consolidated governance/evidence | [MultiAgentSoftwareDelivery #7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
 
 The central candidate preserves the exact prior verification commits from [central #6](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/6). Review the overlapping history when merging; do not discard it or count the old verification-only report as runtime acceptance.
 
