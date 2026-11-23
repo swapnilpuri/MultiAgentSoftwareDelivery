@@ -16,14 +16,20 @@ const output = path.resolve(__dirname, '../artifacts/m2-implementation');
     const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });
     const response = await context.request.post('http://127.0.0.1:4400/api/v1/auth/session', {
       headers: { 'X-MASD-Request': 'requirements-studio' }, data: login,
+      maxRedirects: 0,
     });
     if (response.status() !== 200) throw new Error('Configured test-human login failed');
     const page = await context.newPage();
     await page.goto(`http://127.0.0.1:4400/projects/${match[1]}/requirements/${match[2]}`);
     await page.getByLabel('Product overview', { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'View approved baseline', exact: true }).click();
+    const baseline = page.getByRole('heading', { name: 'Approved requirements baseline', exact: true });
+    await baseline.waitFor();
+    await baseline.scrollIntoViewIfNeeded();
     fs.mkdirSync(output, { recursive: true });
     await page.screenshot({ path: path.join(output, 'studio-desktop.png') });
     await page.setViewportSize({ width: 390, height: 844 });
+    await baseline.scrollIntoViewIfNeeded();
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) {
       throw new Error('Requirements Studio has horizontal overflow at 390px');
     }
