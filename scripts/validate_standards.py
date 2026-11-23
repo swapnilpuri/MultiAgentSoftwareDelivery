@@ -1,7 +1,8 @@
-"""Validate locally pinned copies. This does not enforce upstream synchronization."""
+"""Validate pinned local copies. Manifest uses JSON-compatible YAML (JSON syntax)."""
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,8 +12,12 @@ MANDATORY = {"AGENTS.md", "docs/AI_DEVELOPMENT_OPERATING_MODEL.md"}
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     try:
-        manifest = json.loads((root / "docs/governance/STANDARDS_MANIFEST.yaml").read_text())
+        manifest = json.loads(
+            (root / "docs/governance/STANDARDS_MANIFEST.yaml").read_text(encoding="utf-8")
+        )
         entries = manifest["standards"]
+        if not isinstance(entries, list) or any(not isinstance(entry, dict) for entry in entries):
+            return ["Invalid standards entry list"]
         paths = [entry["imported_copy_path"] for entry in entries]
         if set(paths) != MANDATORY or len(paths) != len(MANDATORY):
             return ["Manifest must pin each mandatory artifact exactly once"]
@@ -22,10 +27,15 @@ def validate(root: Path = ROOT) -> list[str]:
                 errors.append(f"Missing mandatory artifact: {path.name}")
             elif hashlib.sha256(path.read_bytes()).hexdigest() != entry["imported_sha256"]:
                 errors.append(f"Modified mandatory artifact: {path.name}")
-            if not entry["source_sha256"] or not entry["import_status"].startswith("imported"):
+            for field in ("source_sha256", "imported_sha256"):
+                value = entry.get(field)
+                if not isinstance(value, str) or re.fullmatch(r"[a-f0-9]{64}", value) is None:
+                    errors.append(f"Invalid {field}: expected 64 lowercase hexadecimal characters")
+            status = entry.get("import_status")
+            if not isinstance(status, str) or not status.startswith("imported"):
                 errors.append("Missing source pin or import status")
     except (OSError, ValueError, KeyError, TypeError) as exc:
-        errors.append(f"Invalid standards manifest: {exc}")
+        errors.append(f"Invalid standards manifest (JSON-compatible YAML required): {exc}")
     return errors
 
 

@@ -8,6 +8,10 @@ from detect_secrets.core.secrets_collection import SecretsCollection
 from detect_secrets.settings import default_settings
 
 
+def within_repository(root: Path, name: str) -> bool:
+    return (root / name).resolve().is_relative_to(root.resolve())
+
+
 def main() -> int:
     names = (
         subprocess.check_output(
@@ -20,6 +24,10 @@ def main() -> int:
     count = 0
     with default_settings():
         for name in sorted(set(names) - {""}):
+            if not within_repository(Path.cwd(), name):
+                print("Refusing to scan a path outside the repository")
+                count += 1
+                continue
             if Path(name).is_file():
                 secrets.scan_file(name)
     for name, findings in secrets.data.items():
