@@ -6,28 +6,15 @@ import os
 import re
 import subprocess
 from collections.abc import Iterable
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote_to_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
-# Every Docker call is pinned to the local default context, never the active one.
-DOCKER = ("docker", "--context", "default")
 PROJECT = "masd-m2"
 SERVICES = ("project-service", "llm-gateway", "agent-service", "web", "postgres")
 CHUNK = 65536
 CONTAINER_ID = re.compile(r"^[0-9a-f]{64}$")
-# Cluster identity plus the connected database name, read through both paths.
-SYSTEM_IDENTIFIER = (
-    "select system_identifier::text || chr(58) || current_database() from pg_control_system()"
-)
-HOST_IDENTITY = (
-    "import os, sqlalchemy\n"
-    "engine = sqlalchemy.create_engine(os.environ['MASD_TEST_DATABASE_URL'])\n"
-    "with engine.connect() as connection:\n"
-    f"    print(connection.exec_driver_sql({SYSTEM_IDENTIFIER!r}).scalar())\n"
-)
 
 
 def configuration(workspace: Path) -> dict[str, str]:
@@ -41,10 +28,58 @@ def configuration(workspace: Path) -> dict[str, str]:
     return values
 
 
+# Every subprocess argv below is a complete string literal (no runtime values), pinned to
+# the local `default` Docker context and to the fixed masd-m2 container names.
+INSPECT = {
+    "project-service": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-project-service-1"]
+    ),
+    "llm-gateway": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-llm-gateway-1"]
+    ),
+    "agent-service": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-agent-service-1"]
+    ),
+    "web": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-web-1"]
+    ),
+    "postgres": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-postgres-1"]
+    ),
+}
+LOGS = {
+    "project-service": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-project-service-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "llm-gateway": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-llm-gateway-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "agent-service": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-agent-service-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "web": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-web-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "postgres": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-postgres-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+}
+
+
 def local_docker() -> None:
     """The pinned `default` context must itself resolve to the local daemon."""
     endpoint = subprocess.check_output(
-        [*DOCKER, "context", "inspect", "default", "--format", "{{.Endpoints.docker.Host}}"],
+        ["docker", "context", "inspect", "default", "--format", "{{.Endpoints.docker.Host}}"],
         text=True,
     ).strip()
     if not endpoint.startswith(("unix:///", "npipe:////./pipe/")):
@@ -55,7 +90,7 @@ def inspect(service: str) -> dict[str, Any]:
     """Inspect a container and require that it belongs to the authorized M2 project."""
     if service not in SERVICES:
         raise ValueError("Unknown M2 service")
-    output = subprocess.check_output([*DOCKER, "inspect", f"{PROJECT}-{service}-1"])
+    output = INSPECT[service]()
     container: dict[str, Any] = json.loads(output)[0]
     labels = container["Config"].get("Labels") or {}
     if (
@@ -98,7 +133,18 @@ def verify_database_target(workspace: Path, port: int, env: dict[str, str], data
     if inspect("postgres")["Id"] != container["Id"]:
         raise RuntimeError("The M2 PostgreSQL container changed during verification")
     through_url = subprocess.check_output(
-        ["uv", "run", "--frozen", "python", "-c", HOST_IDENTITY],
+        [
+            "uv",
+            "run",
+            "--frozen",
+            "python",
+            "-c",
+            "import os, sqlalchemy\n"
+            "engine = sqlalchemy.create_engine(os.environ['MASD_TEST_DATABASE_URL'])\n"
+            "with engine.connect() as connection:\n"
+            "    print(connection.exec_driver_sql('select system_identifier::text || chr(58) "
+            "|| current_database() from pg_control_system()').scalar())\n",
+        ],
         cwd=workspace / "masd-project-service",
         env=env,
         text=True,
@@ -196,14 +242,11 @@ def runtime_secrets(workspace: Path) -> None:
     pinned = {service: inspect(service)["Id"] for service in SERVICES}
     credentials = read_credentials(workspace)
     forms = credential_forms(credentials)
-    cutoff = datetime.now(UTC).isoformat()
     total = 0
-    for service, container_id in pinned.items():
-        with subprocess.Popen(
-            [*DOCKER, "logs", "--until", cutoff, container_id],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        ) as process:
+    # Each fixed container's complete log prefix at scan time; the pinned IDs are compared
+    # again afterwards, so a recreated container cannot substitute its logs.
+    for service in pinned:
+        with LOGS[service]() as process:
             assert process.stdout is not None
             leaked, scanned = scan_stream(process.stdout, forms)
             if leaked:
@@ -221,8 +264,8 @@ def runtime_secrets(workspace: Path) -> None:
     if {"MASD_DATABASE_URL", "MASD_HUMAN_ACCOUNTS"} & names:
         raise RuntimeError("Agent unexpectedly received database or human-account configuration")
     print(
-        f"PASS: {total} bytes of pinned {PROJECT} runtime log prefixes through the scan cutoff "
-        "contain no generated credential; Agent has no DB/human config"
+        f"PASS: {total} bytes of complete {PROJECT} runtime log prefixes (container IDs "
+        "unchanged during the scan) contain no generated credential; Agent has no DB/human config"
     )
 
 

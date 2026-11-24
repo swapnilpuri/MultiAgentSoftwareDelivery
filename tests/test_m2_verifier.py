@@ -81,9 +81,11 @@ def stack(tmp_path, monkeypatch):
 
 def test_clean_scan_pins_context_project_and_container_ids(stack, tmp_path, capsys):
     verify_m2.runtime_secrets(tmp_path)
-    assert all(call[:3] == ["docker", "--context", "default"] for call in stack["calls"])
+    container_calls = [call for call in stack["calls"] if call[1] != "context"]
+    assert all(call[:3] == ["docker", "--context", "default"] for call in container_calls)
+    assert ["docker", "context", "inspect", "default"] == stack["calls"][0][:4]
     log_targets = [call[-1] for call in stack["calls"] if "logs" in call]
-    assert log_targets == [ids[service] for service in verify_m2.SERVICES]
+    assert log_targets == [f"masd-m2-{service}-1" for service in verify_m2.SERVICES]
     assert "PASS" in capsys.readouterr().out
 
 
@@ -91,14 +93,14 @@ def test_clean_scan_pins_context_project_and_container_ids(stack, tmp_path, caps
 def test_scan_detects_percent_encoded_credentials_in_any_escape_case(stack, tmp_path, encode):
     encoded = quote(stack["credential"], safe="")
     leaked = encoded.replace("%2B", encode("%2B")).replace("%2F", encode("%2F"))
-    stack["logs"][ids["web"]] = f"request url={leaked}\n".encode()
+    stack["logs"]["masd-m2-web-1"] = f"request url={leaked}\n".encode()
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
 
 
 def test_scan_detects_a_credential_split_across_stream_chunks(stack, tmp_path, monkeypatch):
     monkeypatch.setattr(verify_m2, "CHUNK", 7)
-    stack["logs"][ids["postgres"]] = b"x" * 1000 + stack["credential"].encode() + b"y" * 1000
+    stack["logs"]["masd-m2-postgres-1"] = b"x" * 1000 + stack["credential"].encode() + b"y" * 1000
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
 
@@ -160,7 +162,8 @@ def test_postgres_tests_run_only_against_the_m2_cluster(monkeypatch, tmp_path):
     position = calls.index(["pytest"])
     assert any("exec" in call for call in calls[:position])
     assert any("exec" in call for call in calls[position:])
-    assert all(call[:3] == ["docker", "--context", "default"] for call in calls if "docker" in call)
+    docker = [call for call in calls if call[0] == "docker" and call[1] != "context"]
+    assert docker and all(call[:3] == ["docker", "--context", "default"] for call in docker)
 
 
 @pytest.mark.parametrize(
@@ -184,7 +187,7 @@ def test_scan_detects_partially_percent_encoded_credentials(stack, tmp_path, enc
     credential = stack["credential"]
     # Only some characters are escaped: the first one always, the "+" in either hex case.
     partial = "%" + format(ord(credential[0]), "02X") + credential[1:].replace("+", encoded)
-    stack["logs"][ids["web"]] = f"url={partial}\n".encode()
+    stack["logs"]["masd-m2-web-1"] = f"url={partial}\n".encode()
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
 
