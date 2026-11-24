@@ -1,3 +1,144 @@
+# M2 implementation and acceptance — tested candidate
+
+This is a **pre-push implementation checkpoint**, not milestone acceptance or merge authorization. M2 implementation and local acceptance pass at the exact source snapshots below. Required final AI review/current-head CI remain pending: **27 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED** across29 criteria. **M3 NOT READY.** Final live results must be reconciled after this documentation head is published; no unchecked future CI or unavailable review is claimed passed.
+
+## Source and PR matrix
+
+| Repository | Main baseline | PR candidate head | Exact tested source | PR |
+| --- | --- | --- | --- | --- |
+| masd-contracts | `9829c8d72588f842a7e723bcbe868fdfad001bb7` | `b418892b0a6f94dedfadb3492e05b6863c32a809` | `87c452c21b83db524b43a92b4fbbf88f034a5cce` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) |
+| masd-llm-gateway | `2c6ac6aafbd9995f3939773deaa990d770f68d90` | `13647521523a4b4af9c3aa714bbef6b977c7cd23` | `7c30dc1ebc923f101fd0b7aceb65794ee1fb7cd9` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2) |
+| masd-agent-service | `3f8c662f4228ecc8d178fb0dc7febbcd3995f3bd` | `a741ef4fe86a36a4befa55d0d2bdf234b7a145a3` | `10b14bfd19239167b46a7287da38584189c8861e` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1) |
+| masd-project-service | `c7c9c4bd08d8edb0d52cf74731ceca8929aacf0f` | `ba86d70483c0fe604df52b95f8732f82b9da4c3d` | `63433bd474b969bcd431edeede0c3bee99325bb6` | [#3](https://github.com/swapnilpuri/masd-project-service/pull/3) |
+| masd-web | `e411d359aa81d560e213ec8a99db692d441a145a` | `bec0bb64f6cbfe4dba556bc7b3041ee3d9794745` | `17c1043dd635918bc1710ebafbb06c8209878720` | [#4](https://github.com/swapnilpuri/masd-web/pull/4) |
+| masd-infrastructure | `d82fec450bf282900a89ac4355e93d7cd2825773` | `190eb8e504d59528437285c6c7f9defe7dbdc93b` | `ed6a3ab54967f498ff8d8cfe0dc58bcaa497269c` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) |
+| MultiAgentSoftwareDelivery | `32fa751f21700c813c7b3e5c411bdd4fdbb54a1c` | `Containing documentation commit; verify live #7 head` | `d3c788730995262af4c0686bbb0eddab73c93fcf` | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7) |
+
+Environment: Windows/PowerShell with frozen uv Python3.12 environments; independent CI uses Ubuntu/Python3.12. Authorized local integration is the isolated masd-m2 Linux Docker stack, PostgreSQL17, UI/API/DB ports4400/8200/5434 and separate database volume. Existing M0/M1 history/configuration/data and user changes are preserved. No automatic merge, permissions change, M3 implementation or production/cloud deployment.
+
+The user authorized the private Agent repository/local directory and isolated development configuration/deployment, removed CodeRabbit and explicitly enabled Sourcery. Real submitted Sourcery reviews, inline findings, security checks and individual evidence responses are used. Old CodeRabbit results and Sourcery guides alone never establish review completion.
+
+## Implemented controls
+
+Project Service owns durable requirements sessions/checkpoints/operations, immutable revisions, append-only decisions and complete activity history. Typed canonical JSON has19 sections, globally unique IDs, unique acyclic links, valid hierarchy/criteria, provenance and bounded content. PostgreSQL/ORM guards protect saved records; single-replica lifetime advisory lock precedes interruption recovery. Writes use NOWAIT locks and reauthorize policy after dependency awaits; consistent read views do not reserve mutation locks. Ambiguous commit acknowledgements reconcile durable results before failure classification.
+
+Password-verified development humans use salted scrypt, hashed expiring HttpOnly sessions, CSRF/origin guards and atomic bounded account/peer throttling. HTTP trust uses the socket peer or explicitly configured private web proxy, not Host; HTTPS is required outside that development boundary. Identity responses are typed. Service credentials cannot approve. Permitted human product owners may author/approve product revisions under M2; independent human PR review/merge and milestone acceptance remain separate gates. Production Project startup remains refused.
+
+Agent Service runs an actual bounded LangGraph prepare/Gateway/validate workflow with no database, provider SDK, tools or approval endpoint. It validates checkpoints/approval-context coherence, preserves human questions/finding dispositions, resets changed draft provenance/story trust and returns clarification prompts. Quality preserves authored content and applies findings only; owner stores new prompts as unconfirmed findings. Model/context/output budgets are explicit. Admission/readiness/Gateway bytes/events are bounded; failed transport is cancelled without amplification; parsing retries are bounded. Internal HTTP opt-in is development-only for the approved llm-gateway host and ignores environment proxies. Process-local request replay is bounded; Project owns durable idempotency/recovery. Approved snapshots remain immutable while changed drafts may be proposed.
+
+Angular reuses the shell and provides discovery/deferral, structured PRD editing, stories/criteria/traceability, findings, complete baseline/review/history, comparison and export. Guards preserve unsaved PRD/answer/workflow text edits and immutable pending request body/UUID across reload; authentication credentials never enter browser storage. Late session/revision-pair responses are ignored, active operations block mutations, schema limits are visible and catalog/pagination errors have retry paths. Raw unvalidated tokens are not reported as saved.
+
+Contracts0.3.0 are additive candidates with typed identity/checkpoint/document/SSE, required CSRF headers, version/replay semantics and portable semantic validation. M0/M1 contracts are unchanged; legacy health body0.1.0 identifies that immutable protocol while OpenAPI0.3.0 identifies the additive release. All repos build independently. Additive migrations retain data; rollback to an older image requires a reviewed command override that skips its obsolete Alembic graph. Pre-ledger migration can import only actual retained last30 messages, not discarded history or metadata that was never stored. No historical detail is fabricated.
+
+## Complete29-criterion matrix
+
+| ID | Requirement (unchanged) | Implementation | Actual verification | Status | Evidence / limit |
+| --- | --- | --- | --- | --- | --- |
+| AC-01 | Existing M0/M1 architecture and standards are preserved. | ADR 0001–0005; seven manifests; independent Dockerfiles | T1/T7, M1 contract and browser regression | PASS | Standards/service boundaries preserved; existing M0/M1 environment and history retained. |
+| AC-02 | PM Agent is implemented in its approved service boundary. | Agent Service agent_service/main.py, LangGraph StateGraph | tests/test_pm.py::test_graph_discovery_prd_stories_quality_and_no_tools; T3 | PASS | Executable authenticated prepare → Gateway → validate/retry graph; no tools or approval API. |
+| AC-03 | PM Agent uses the existing LLM Gateway. | Agent Service agent_service/gateway.py; Gateway llm_gateway/main.py | T3 actual service chain; Gateway test_litellm_adapter_routing and test_structured_fixture_is_explicitly_enabled_and_labeled | PASS | PM calls existing Gateway; commercial/Ollama SDK tests mocked; integrated route explicitly test/structured. |
+| AC-04 | Requirements discovery is available through Angular. | web navigation.ts, app.routes.ts, project-detail.ts, requirements-studio.* | T3 foundation and m2-requirements.spec.ts | PASS | Normal navigation and project link reach the same Angular shell. |
+| AC-05 | Users can respond to clarification questions. | Project requirements.py answer handler; web requirements-studio.html | T2 test_discovery_revisions_review_and_immutable_baseline; T3 | PASS | Answered/deferred questions are persisted; missing decisions remain visible. |
+| AC-06 | Discovery state persists across application restarts. | requirements_sessions, requirement_operations and requirement_history; migrations 0002/0003 | T2 test_checkpoint_and_approval_recovery_after_application_restart, test_all_conversation_activity_survives_bounded_agent_context; T4 | PASS | Actual container/database restart and interrupted operation recovery; complete history stored apart from last-30 context. |
+| AC-07 | Structured PRD generation works. | Agent schema.py/fixtures.py/main.py; Project requirements_schema.py | Agent test_graph_discovery_prd_stories_quality_and_no_tools, test_bounded_invalid_output_retries; T3 | PASS | All 19 typed sections; output validated twice; bounded parsing retries. |
+| AC-08 | PRD sections are editable. | web requirements-studio.html; Project save command | Angular requirements-studio.spec.ts; T3 editor/save/reload | PASS | Structured section/requirement/story/criterion edits create saved revisions; Markdown derived one-way. |
+| AC-09 | PRD revisions are persisted and distinguishable. | requirement_revisions; append_revision; immutable database triggers | T2 test_discovery_revisions_review_and_immutable_baseline; T3/T4 | PASS | Revision number/parent/hash/author/time persisted; unique session sequence. |
+| AC-10 | Epics and user stories can be generated. | Agent PM stories workflow; Document epic/story models; Angular hierarchy | Agent test_graph_discovery_prd_stories_quality_and_no_tools; T3 | PASS | Epics/stories generated through Gateway and shown with criteria and links. |
+| AC-11 | Stories trace to requirements. | Document.consistent; stable requirement/epic/story IDs and references | T2 test_structured_document_rejects_invalid_graphs; T3 | PASS | Broken references/hierarchy and duplicate IDs rejected; revisions preserve requirement IDs. |
+| AC-12 | Acceptance criteria are structured and testable. | Criterion Given/When/Then models; story criteria min length | T2 test_structured_document_rejects_invalid_graphs; T3 criteria rendering | PASS | Structured nonempty criteria; human review remains necessary for business adequacy. |
+| AC-13 | Requirements quality validation executes. | requirements_schema.py quality; Agent quality instructions; findings dispositions | T2 test_quality_findings_are_visible_and_rejectable, test_post_draft_questions_do_not_change_review_state_and_findings_keep_human_disposition; T3 | PASS | Canonical validation aggregates large finding sets explicitly; reviewed AI dispositions persist. Quality cannot rewrite authored scope; new prompts are unconfirmed findings. |
+| AC-14 | Unresolved assumptions and questions remain visible. | Question/deferred/provenance/assumptions fields and Studio panels | T2 discovery/deferral; T3 visible unresolved questions and assumptions | PASS | No inferred business decisions or automatic human confirmation from agent output. |
+| AC-15 | The approval workflow supports approved/rejected/changes-requested decisions. | Project submit/decide handlers; human_auth.py; approval history UI | T2 test_negative_review_decisions_are_audited; T3 changes requested → revise → resubmit → approve | PASS | All three decisions persist identity/revision/hash/scope/comments/time. |
+| AC-16 | Approved artifact versions are immutable. | PostgreSQL and SQLite history triggers; revision/baseline endpoints | T2 raw UPDATE/DELETE rejection; T3 PUT revision=405 and new-draft baseline preservation; T4 | PASS | No update endpoint; approved content/history remain unchanged after edits and restarts. |
+| AC-17 | Stale approval attempts are rejected. | Session version lock, revision binding and expected content hash | T2 test_stale_hash_invalid_document_and_no_self_approval, test_postgres_serializes_competing_mutations; T3 stale decision=409 | PASS | Stale/hash-mismatched decisions rejected transactionally. |
+| AC-18 | PM Agent cannot approve its own output. | Human cookies, reviewer permission, agent-only backend token; independent provenance enforcement | T2 test_human_security_boundaries, test_agent_cannot_self_confirm_new_requirements_or_findings; Agent no-approval route test | PASS | Service account login rejected; agent credentials cannot decide; new agent facts/findings remain proposals. |
+| AC-19 | Project access boundaries are enforced to the extent supported by the authenticated runtime. | human_auth.py; requirements.py project_access on every nested route | T2 ownership/cross-project/logout/CSRF/expiry tests; T3 unauthorized baseline=401 | PASS | M2 requires password-verified human owner. Development only; production startup refused. |
+| AC-20 | Version comparison works. | ComparisonView, compare endpoint; Angular before/after tables | T2 revision comparison assertions; T3 | PASS | Before/after sections, requirements, epics, stories, criteria, assumptions, questions and findings, including changed/removed/impacted story IDs. |
+| AC-21 | API contracts are published and validated. | contracts 0.3.0 OpenAPI/JSON/SSE candidates and consumer snapshots | T1 contracts/test_m2_contracts.py; Project test_m1_contract.py and test_m2_contract.py | PASS | Five validated OpenAPI files plus typed document/SSE/checkpoint/identity schemas and portable semantic validation; immutable M1 paths/DTOs unchanged. |
+| AC-22 | Unit, integration, and applicable frontend tests pass. | Seven independently configured test suites; Angular and browser specs | T1/T2/T3/T4 | PASS | 337 distinct Python tests, 34 Angular tests, four real Chromium workflows with zero skips; Project81 on PostgreSQL counted once. |
+| AC-23 | The full deterministic end-to-end discovery-to-approval workflow is verified. | Full e2e/m2-requirements.spec.ts plus scripts.verify_m2_restart | T3/T4 and twenty-step matrix below | PASS | Actual discovery-to-human-test-principal approval, stale/mutation/access negatives and container recovery executed. |
+| AC-24 | Services remain independently buildable and deployable. | Four independent runtime Dockerfiles, optional m2 Compose profile and isolated volume | T7 CI image builds; actual compose up --build --wait | PASS | All five isolated services healthy; Agent has no database/human-account environment or database network. |
+| AC-25 | CI and AIEngineeringStandards validation pass. | Seven standards manifests and scripts.check entry points | T1; exact-head CI matrix | PASS | All seven configured local standards/quality/security gates pass at the exact tested sources. Live final-head GitHub CI is separately gated by AC-27. |
+| AC-26 | PR review comments and required conversations are appropriately resolved. | M2_REQUIREMENTS.md §18; configured Sourcery reviewer replacing removed CodeRabbit | Current submitted reviews, inline threads and reviewer checks | BLOCKED | Pre-push checkpoint: actual Sourcery reviews exist; individually evidenced follow-up closure/re-review is being reconciled. Do not infer completion from a guide or old successful check. |
+| AC-27 | Required CI checks pass on all affected PRs. | Independent .github/workflows/ci.yml and final PR heads | T7 exact-head validate checks | BLOCKED | Pre-push checkpoint: final containing documentation head must pass required validate workflows. Current-head results are authoritative; no future check is marked passed. |
+| AC-28 | M2 handoff and completion evidence are accurate. | Current handoff/completion/final-verification records with retained history | Documentation consistency, source-SHA and test-count review; central gates | PASS | Fresh implementation evidence supersedes historical missing-runtime verdict without erasing it; human acceptance remains pending. |
+| AC-29 | No autonomous coding or deployment activity is introduced in M2. | PM graph has no tools/approval API; no M3/runtime coding/deployment agent added | Agent no-tools regression; source inspection; isolated local testing only | PASS | No autonomous development or cloud deployment feature. Human explicitly authorized repository and isolated test environment creation. |
+
+## Executed checks and limits
+
+| Evidence | Exact command / execution | Actual result |
+| --- | --- | --- |
+| T1 | Each of seven roots: `uv run --frozen python -m scripts.check` | PASS: central23; contracts47; Project78 plus three PostgreSQL-only skips on SQLite; Agent60; web22 Python/34 Angular; infrastructure55; Gateway49. Standards/governance, lint/format/types, source scans and dependency audits pass. Web production build passes. |
+| T2 | Central: `uv run --frozen python -m scripts.verify_m2 postgres` | PASS: all81 Project tests on actual isolated PostgreSQL temporary schemas, including all concurrency/advisory-lock/connection-loss tests, immutable triggers, lost-commit-ack recovery, history, decisions and authorization. PostgreSQL repeats Project tests; it is not added to the distinct total a second time. |
+| T3 | Web: the workspace-relative PowerShell environment and JSON reporter command in M2_APPROVAL_RUNBOOK.md | PASS: four actual Chromium M1/M2 workflows; expected4/skipped0/unexpected0/flaky0. Real Angular/API/Agent/Gateway/PostgreSQL; explicitly synthetic test/structured generation. The M2 scenario is not accepted when integration configuration is absent. |
+| T4 | Infrastructure: `uv run --frozen python -m scripts.verify_m2_restart --record <central>/artifacts/m2-implementation/browser-baseline.json` | PASS: actual paused-Agent operation checkpoint, forced API interruption, PostgreSQL plus four application restarts; complete cursor-paginated history, decisions and baseline preserved; interrupted key rejected and explicit new retry succeeds. Verifier owns an OS lock, rejects redirects and writes current-run status. |
+| T5 | Central: `uv run --frozen python -m scripts.verify_m2 visual` | PASS: actual desktop/390px mobile approved-baseline rendering, screenshots inspected and no horizontal overflow. Committed helper includes the complete baseline view. |
+| T6 | Central: `uv run --frozen python -m scripts.verify_m2 runtime-secrets` | PASS: no configured generated credential or its URL-encoded representation in five runtime log prefixes through one UTC cutoff; Agent has no DB/human-account environment. Source scans zero findings; package audits no known vulnerabilities. This is not a historical secret or container-image vulnerability scan. |
+| T7 | Infrastructure: `uv run --frozen python -m scripts.m2_compose up --build --wait` | PASS: four independently built runtime images and five healthy isolated containers. Wrapper pins a verified local Docker context, rejects destructive/target overrides and sanitizes inherited model/provider settings. Final current-head CI/review is separately reconciled after push. |
+
+Distinct coverage: **337 Python tests** and **34 Angular tests**. Four real browser workflows are separate. Passed checks above executed. Failed: no unresolved local failure at these source snapshots. Skipped: three PostgreSQL-only tests in SQLite, all executed successfully on PostgreSQL; zero integrated browser skips. Blocked: final AI review/conversation and exact-head CI reconciliation, then human merges. Not executed: live provider generation, production/cloud or rollback deployment, container-image vulnerability scan, M3 or post-merge main acceptance. One upstream Starlette/httpx warning and a harmless uv parent-environment selection warning remain; neither gate was bypassed.
+
+Reproduction helpers are committed (`scripts/verify_m2.py`, `scripts/verify_m2_visual.cjs` and infrastructure scripts). A clean checkout needs the seven sibling repos, frozen installs, web npm/Playwright Chromium, Docker and separately authorized locally generated ignored configuration. Exact portable commands and the four-pass/zero-skip assertion are in M2_APPROVAL_RUNBOOK.md. Generated credentials/records/logs/screenshots remain intentionally untracked.
+
+## Twenty-step acceptance scenario
+
+| Step | Result and evidence |
+| --- | --- |
+| 1 Open project | PASS: real browser creates/opens isolated appointment project. |
+| 2 Start discovery | PASS: project-linked Studio saves session. |
+| 3 Submit product description | PASS: clinic/patient appointment fixture retained. |
+| 4 Receive PM clarifications | PASS: actual Agent/Gateway graph returns four questions. |
+| 5 Answer questions | PASS: three answered, one explicitly deferred and visible. |
+| 6 Generate structured PRD | PASS: all 19 sections and typed requirements validated/persisted. |
+| 7 Edit PRD | PASS: manual overview edit saved. |
+| 8 Generate epics/stories | PASS: stable IDs, parent and requirement references, Given/When/Then displayed. |
+| 9 Validate coverage | PASS: deterministic/AI workflow and visible findings. |
+| 10 Save revisions | PASS: manual, generation, quality and AI revision create distinct saved revisions. |
+| 11 Compare revisions | PASS: changed overview and before/after section content. |
+| 12 Submit for review | PASS: current saved revision/hash submitted. |
+| 13 Request changes/revise | PASS: audited changes-requested, performance target revised. |
+| 14 Resubmit | PASS: revised saved version submitted. |
+| 15 Approve | PASS in automated fixture: password-authenticated permitted test-human principal; actual milestone human approval remains pending. |
+| 16 Verify immutability | PASS: revision PUT=405, direct database mutation rejected, new draft leaves baseline unchanged. |
+| 17 Stale approval | PASS: stale/unsubmitted decision=409. |
+| 18 Retrieve baseline | PASS: approved content/ID/history retrieved; after logout baseline=401. |
+| 19 Restart services | PASS: actual isolated PostgreSQL/API/Agent/Gateway/web restarts with interrupted generation. |
+| 20 Recover workflow | PASS: checkpoint/history/decisions/baseline retained; interrupted operation not silently replayed; explicit retry succeeds. |
+
+Additional negatives: unrelated human/project=404; service login=401; missing/foreign CSRF origin/header=403; expired session=401; invalid body/graphs/references/criteria=422; excess size=413; unauthorized model/stale submission/concurrent write rejected; invalid provider output bounded and sanitized. These execute through targeted backend/Agent tests and the actual browser scenario as identified in the matrix.
+
+
+
+## Review and CI governance
+
+The initial71 implementation findings and9 central documentation/scanner findings received specific fixes or evidence-based dispositions. Follow-up reviews added118 pending conversations (including duplicate issue descriptions); each is mapped to an individual tested-source response in the repository evidence. Two repeated Agent scanner threads were independently marked addressed by Sourcery at bd43154. No blanket resolve/dismiss command or scanner exception is used. Every new actionable finding must be resolved and a fresh actual reviewer/check result inspected before AC-26 passes.
+
+Sourcery initially exposed only an In progress summary on the failed Agent check. A user retry and subsequent diagnostic identified its blocking generic subprocess wrapper. Explicit frozen static command vectors fixed it; central verification uses static argv too. That old missing-diagnostic message is historical, not a current blocker. Exact latest results are linked on all seven PRs; review SUCCESS does not excuse unresolved actionable conversations.
+
+The final follow-up adds 56 separately mapped finding responses, including corrected header declarations, non-UTC expiry, stream setup error delivery, lost-lock process fencing, bounded response reads, stack ownership, browser recovery/navigation and precise acceptance checks. Source/test dispositions are recorded per repository.
+
+Current-head required CI is not inferred from older source/CI. This file is written before its containing documentation commit is tested, so AC-27 remains BLOCKED here until successful checks for that exact head are observed. The final reconciliation is recorded on the central PR with the verified SHA/check links; if a head changes, its review/CI gate must be re-evaluated. Human merging uses the runbook's `--match-head-commit` safeguard. No review/protection setting or result is overridden.
+
+| Central finding | Disposition |
+| --- | --- |
+| [Review finding](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7#discussion_r4670436558) | This helper is explicitly limited to the authorized local development stack and its generated test account. Trust of the local host/loopback listener is part of that boundary; authenticating a hostile local machine with an unrelated HTTP health probe would provide no security. No external/production login claim is made, redirects are disabled, and the fixed stack was verified healthy before this actual run. TLS/production identity remains a separate approved deployment gate. |
+| [Review finding](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7#discussion_r4670436572) | All five Docker log reads now use the same UTC --until cutoff, yielding consistent captured prefixes rather than moving per-service endpoints. The success message explicitly scopes the claim to those prefixes; future logging cannot be certified by any finite scan. |
+| [Review finding](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7#discussion_r4670436581) | The PostgreSQL helper now removes PYTEST_ADDOPTS and PYTEST_PLUGINS from its child environment before invoking the explicit suite. The actual run executed 81 PostgreSQL tests with zero skips; no collect-only result is used. |
+| [Review finding](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7#discussion_r4670436588) | The handoff completion wording now explicitly calls this an implementation candidate with final safeguard review pending. The 27/2 checkpoint remains explicit until actual current-head reconciliation, and human merge/acceptance are separate gates. |
+| [Review finding](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7#discussion_r4670436599) | Desktop and mobile screenshots now use fullPage: true. Both complete artifacts were generated and visually inspected after successful actual restart; the 390px page has no horizontal overflow. |
+
+## Corrected failures
+
+Development failures were fixed and retested rather than hidden: generated wrong-input fixtures replaced source-scanner-rejected literals; Windows child Python selected the global interpreter until module gates used explicit frozen uv commands; maximum quality output required counted aggregation; busy navigation initially blocked the Studio's own saved-session URL, now covered by unit and real browser tests. A stopped local stack during the usage pause and one visual probe overlapping deliberate restart produced connection/login failures; the stack was restored and sequential final checks pass. Agent standards line-ending and initial logout-test race corrections remain in Git/PR history. Historical milestone reports below remain verbatim.
+
+## Exact human actions and M3 status
+
+Review the seven linked PRs only after exact current-head CI, actual Sourcery review and all actionable conversations complete. Recommended human merge order: contracts, Gateway, Agent, Project Service, web, infrastructure, central#7. Central#7 contains the exact historical verification commits through6c59d64 from#6; preserve that ancestry and treat the older verification-only report as historical.
+
+After human merges, fetch all seven repos and reconcile actual main content/merge SHAs, rerun configured gates plus actual PostgreSQL, zero-skip Chromium, restart, visual and credential-log checks against that merged set. Then obtain explicit human M2 milestone acceptance. M3 remains NOT READY/unauthorized until these gates complete. No automatic merge or M3 implementation.
+
+## Historical verification-only report (retained verbatim)
+
 # M2 final acceptance verification report
 
 Date: 2026-11-22 (America/Chicago). Overall result: **PARTIAL**. M3 readiness: **NOT READY** technically and **NOT ACCEPTED** by governance. This is verification-only; no runtime code, M3 feature, credential, permission or deployment configuration was changed.
