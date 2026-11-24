@@ -32,7 +32,7 @@ Typed JSON, validated by Pydantic in Project Service and Agent Service, and by t
 | `data` | `ENT-n` entities (owner, attributes, aggregate, retention), `DREL-n` relationships, transaction boundaries, consistency |
 | `deployment` | environments, nodes, network boundaries, scaling, availability, DR, observability, secrets, CI/CD. Marked as proposals unless required |
 | `security` | trust boundaries `TB-n`, controls `SEC-n`, data classification, encryption, threats `THR-n` → controls, assumptions |
-| `views` | `VIEW-n` C4 views: level (context, container, component), focus element, included elements and relationships |
+| `views` | `VIEW-n` C4 views: level (context, container, component), focus element, included elements and relationships. The focus is the view's scope (the system of a container view, the container of a component view). It is not required to be a drawn node, but it is always rendered as a named C4 boundary around its children: `System_Boundary`/`Container_Boundary` in C4-PlantUML, and a labelled dashed boundary in the SVG preview. View graphs return it as `focus` |
 | `adrs` | `ADR-n`: title, status (proposed until approved), context, decision, alternatives, consequences, version, source (ai/human), review metadata |
 | `risks` | `RSK-n`: category, likelihood, impact, mitigation, anti-pattern flag |
 | `traceability` | per requirement: disposition (covered / not_applicable / deferred), rationale, element IDs of any type |
@@ -59,9 +59,10 @@ Run on every save and generation, and kept separate from model-generated suggest
 New tables, following ADR 0005 patterns, with no change to M1/M2 tables:
 
 - `architecture_sessions`: project, requirements session, source PRD revision/hash/approval, model, state, version, checkpoint (questions, messages, execution), current/submitted/approved revision pointers, active operation.
-- `architecture_revisions`: append-only. Number, parent, schema version, canonical content, SHA-256 hash, copied source references, creation source (human/agent), generation metadata (provider, model, prompt version, attempts, usage as returned), author.
+- `architecture_revisions`: append-only. Number, parent, schema version, canonical content, SHA-256 hash (hash version 1: SHA-256 over the UTF-8 JSON of the validated package with object keys sorted, separators `,` and `:`, no ASCII escaping and no insignificant whitespace; published as `x-content-hash` in the 0.4.0 schema, and returned in `X-Content-Hash` on export), copied source references, creation source (human/agent), generation metadata (provider, model, prompt version, attempts, usage as returned), author.
 - `architecture_approvals`: append-only. Revision, content hash, source PRD ID/revision/hash, decision, approver, comment, scope, policy version, time.
-- `architecture_operations` (idempotency key + request hash, status, result) and `architecture_messages` (history).
+- `architecture_operations` (idempotency key + request hash, status, result).
+- `architecture_history`: append-only, the durable history behind `GET …/history`. Unique `(session, sequence)`, where the sequence equals the session version written by that command. The session checkpoint keeps only the last 30 messages as a convenience copy.
 
 PostgreSQL triggers plus ORM guards enforce immutability. Uniqueness: one session per (project, requirements session) and revision numbers per session. Rollback leaves the additive tables in place (no destructive downgrade).
 
@@ -77,7 +78,7 @@ CHANGES_REQUESTED / REJECTED --revise|save|rebase--> DRAFT (new revision require
 APPROVED --revise|rebase--> DRAFT (approved baseline retained)
 ```
 
-Approval requires all of: human principal with approval permission (service credentials refused); the submitted revision equal to the current revision; matching expected hash and version; the source approval still valid with matching hash; and the source being the *latest* approved PRD revision. Any earlier negative decision on the same content hash blocks resubmission (M2 regression). Approval writes the record and updates the pointer in one transaction.
+Approval requires all of: human principal with approval permission (service credentials refused); the submitted revision equal to the current revision; matching expected hash and version; the source approval still valid with matching hash; and the source being the *latest* approved PRD revision. Any earlier negative decision on the same content hash blocks resubmission (M2 regression). Approval writes the record and updates the pointer in one transaction. To keep the supersession invariant under concurrency, architecture approval first takes `FOR UPDATE NOWAIT` on the source requirements session row, the same row PRD decisions lock. The latest-source check and the approval then commit under that lock, so no newer PRD approval can commit in between; a concurrent PRD decision returns 409 and is retried.
 
 ## 6. Drift and supersession
 
@@ -91,7 +92,14 @@ Approval requires all of: human principal with approval permission (service cred
 
 PRD text and model output are untrusted data inside delimited blocks. The system policy forbids following embedded instructions, and the graph has no tools. The response carries provider, model, prompt version, attempts, node trace and usage only when the Gateway returned it. The Agent never returns approval states; Project Service ignores any status field in model output. Duplicate execution is prevented by the Project Service operation key plus the Agent's request-ID replay (M2 pattern). Cancellation and timeouts are bounded; restart recovery marks interrupted operations failed, and an explicit retry is required.
 
+Cancellation is defined as follows (no separate cancel route):
+- **Streamed commands (`/commands:stream`).** Closing the stream is the cancellation signal. Project Service cancels the operation task, which aborts its in-flight Agent request. The transaction is rolled back and the operation is marked failed. No revision, partial package or history row is saved, and the session's active operation is released.
+- **Agent and Gateway work.** The Agent is stateless and never writes, so abandoned Agent or Gateway work cannot commit anything. Only Project Service persists results, and only from a completed operation.
+- **Non-streamed commands.** These are bounded by the Agent timeout. The Studio's *Stop waiting* stops waiting only. The outcome is then determined by reloading saved state or replaying the same idempotency key: a completed operation replays its saved result, and a failed one requires an explicit retry.
+
 Model profiles reuse the Gateway catalog (provider, model, limits, streaming) and the project allow-list. The Agent adds `architect_timeout`, `architect_retries ≤ 2`, `architect_output_tokens` and the context budget. There is no provider fallback outside the allow-list.
+
+Data routing: the project's `allowed_model_ids` is the data-routing policy for everything sent to a model, including the PRD. Project Service checks the session's model against it on start, under the session lock before every Agent call, and again before saving the result. A model removed from the list blocks further generation (422), and a removal during a call discards that result (409). The Gateway routes only to that exact model; there is no fallback, no alternative provider and no per-request override. M2 and M3 have no per-requirement data classification, so there is no narrower route to choose. A project that must keep a PRD within one provider restricts its allow-list to that provider's models.
 
 ## 8. API (Project Service, `/api/v1/projects/{project}/architecture`)
 
@@ -105,13 +113,17 @@ Model profiles reuse the Gateway catalog (provider, model, limits, streaming) an
 | approved baseline | `GET /sessions/{id}/baseline`: immutable package, content hash, approval evidence, source PRD binding and effective ADR statuses. This is the input for future agents |
 | drift | `GET /sessions/{id}/drift` |
 | export | `GET /sessions/{id}/revisions/{rev}/export?format=markdown|json|plantuml|mermaid` |
-| history | `GET /sessions/{id}/history`: cursor pagination pinned to one snapshot (`through_sequence`) |
+| history | `GET /sessions/{id}/history`: cursor pagination pinned to one snapshot (`through_sequence`). Sequences are allocated and committed under the session row lock (`FOR UPDATE NOWAIT`), so commit order equals sequence order. Once `through_sequence` is observed, no lower sequence can still commit, so every page sees the same set |
 
 Errors follow the existing typed envelope, with 401/403/404/409/413/422/429/502/503/504. Input limits: package ≤ 300 000 UTF-8 bytes; list caps per section; enums validated.
 
 ## 9. Studio (masd-web)
 
-A new lazy route `projects/:projectId/architecture[/:sessionId]` and a navigation entry beside Requirements Studio. Sections: dashboard; conversation (questions linked to requirements, model selection, progress via SSE, retry/resume); document workspace (section navigation, editable drafts, read-only approved versions); C4 explorer (native SVG, level tabs, zoom/pan, element inspector, requirement links, PlantUML/Mermaid/SVG download, validation errors shown); service-boundary, technology and ADR explorers (status filter); traceability matrix (uncovered first); revision comparison; review and approval. Recovery behaviour reuses the hardened M2 patterns (idempotency keys, settle-before-discard, latched stop).
+A new lazy route `projects/:projectId/architecture[/:sessionId]` and a navigation entry beside Requirements Studio. Sections: dashboard; conversation (questions linked to requirements, model selection, progress via SSE, retry/resume); document workspace (section navigation, editable drafts, read-only approved versions); C4 explorer (native SVG, level tabs, zoom/pan, focus scope boundary, selectable elements and relationships with inspectors for each, requirement links, PlantUML/Mermaid/SVG download, validation errors shown). The relationship inspector shows the description, source and target, protocol, sync/async style and requirements; service-boundary, technology and ADR explorers (status filter); traceability matrix (uncovered first); revision comparison; review and approval. Recovery behaviour reuses the hardened M2 patterns (idempotency keys, settle-before-discard, latched stop).
+
+The dashboard includes a **source PRD evidence** panel. It shows the pinned PRD revision's requirements and its approval record (decision, approver, time, scope), and checks that the approval's revision and hash match the session's source. It reports a mismatch or a missing record instead of hiding it.
+
+**Keyboard accessibility.** Every control is a native button, link, select or input. The diagram canvas is focusable: arrow keys pan, `+`/`-` zoom and `0` resets. Every element and relationship has a keyboard-reachable button outside the SVG, and the evidence panel is a native disclosure. The Chromium acceptance run operates these with the keyboard.
 
 ## 10. Testing strategy
 
@@ -120,6 +132,6 @@ Covered with deterministic `test/structured` fixtures through the real Gateway p
 - real PostgreSQL integration tests;
 - Agent graph tests (invalid JSON, repair, Gateway failure, clarification interrupt, duplicate request, cancellation, no tools);
 - Angular unit tests;
-- a Chromium end-to-end run from approved PRD to immutable approved architecture, plus restart, stale approval, drift and unauthorized-user scenarios.
+- a Chromium end-to-end run from approved PRD to immutable approved architecture, plus restart, stale approval, drift and unauthorized-user scenarios. It also asserts the source PRD evidence, the focus boundary, relationship inspection and keyboard operation.
 
 There is no live-provider claim.

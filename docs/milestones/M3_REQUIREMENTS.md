@@ -1,6 +1,6 @@
 # M3 requirements — Architect Agent & Solution Architecture Studio
 
-Status: authorized specification; implementation in progress (M3-A). M2 baseline VERIFIED_ACCEPTED on 2026-11-24 ([M3_BASELINE_VERIFICATION.md](M3_BASELINE_VERIFICATION.md)).
+Status: authorized specification; implementation and verification complete, **READY_FOR_HUMAN_APPROVAL** (see [M3_COMPLETION_REPORT.md](M3_COMPLETION_REPORT.md)). M2 baseline VERIFIED_ACCEPTED on 2026-11-24 ([M3_BASELINE_VERIFICATION.md](M3_BASELINE_VERIFICATION.md)).
 
 ## Authoritative source
 
@@ -19,7 +19,7 @@ SHA-256 values for these files are recorded in M3_BASELINE_VERIFICATION.md.
 
 In scope: transform an approved M2 PRD revision into a structured, versioned, human-approved solution architecture package. The package covers the overview, alternatives, technology stack, service boundaries, API and event proposals, data, deployment, security, proposed ADRs, risks, C4 context/container/component diagrams, requirement traceability, drift detection, revision comparison, exports, and an approved-baseline API for future agents.
 
-Out of scope (explicitly prohibited for M3): generating or deploying target-application code; modifying infrastructure; merging PRs; agent self-approval; altering approved PRDs; automatically triggering development agents; C4 level-4 code diagrams; production identity; M4 planning.
+Out of scope (explicitly prohibited for M3): generating or deploying target-application code; modifying the target application's or any production infrastructure (development-platform wiring in masd-infrastructure, such as Compose and verification scripts, is in scope); merging PRs; agent self-approval; altering approved PRDs; automatically triggering development agents; C4 level-4 code diagrams; production identity; M4 planning.
 
 ## Interpretation decisions (within the approved scope)
 

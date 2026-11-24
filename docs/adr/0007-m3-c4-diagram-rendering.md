@@ -10,7 +10,7 @@ M3 requires C4 context, container and component diagrams: generated, rendered, z
 
 - The canonical package stores C4 **views** over the structured element/relationship graph. Diagrams are never stored as free text.
 - Project Service generates **C4-PlantUML** and **Mermaid** source deterministically from a view. Labels are escaped, line breaks normalized, and length bounded. Only the fixed stdlib include `!include <C4/C4_Container>` (or `C4_Context` / `C4_Component`) is emitted, never user-supplied directives. The generated text is a download artifact; the platform does not execute it.
-- The Studio renders an **inline SVG** directly from the validated graph with a deterministic layered layout: level-based rows, labels as text nodes (no HTML injection), zoom and pan via SVG transforms, and selectable elements. SVG download exports the same rendering.
+- The Studio renders an **inline SVG** directly from the validated graph with a deterministic layered layout: level-based rows, labels as text nodes (no HTML injection), zoom and pan via SVG transforms, and selectable, inspectable elements and relationships (each also reachable as a keyboard button). The view's focus is drawn as a labelled scope boundary around its children, matching the C4-PlantUML `System_Boundary`/`Container_Boundary`. SVG download exports the same rendering.
 - Graph validation (dangling references, wrong level for the element kind, empty view, cycles in containment) runs server-side. The Studio shows these errors instead of a diagram; it never shows a false success.
 
 ## Alternatives considered

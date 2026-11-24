@@ -8,7 +8,7 @@ M3 must persist architecture sessions, generation attempts, immutable revisions,
 
 ## Decision
 
-- Project Service owns all M3 state in new additive PostgreSQL tables (`architecture_sessions`, `architecture_revisions`, `architecture_approvals`, `architecture_operations`, `architecture_messages`). Revisions and approvals are append-only, enforced by triggers and ORM guards. No new microservice and no shared database.
+- Project Service owns all M3 state in new additive PostgreSQL tables (`architecture_sessions`, `architecture_revisions`, `architecture_approvals`, `architecture_operations`, `architecture_history`). Revisions and approvals are append-only, enforced by triggers and ORM guards. No new microservice and no shared database.
 - The canonical representation is a typed JSON **architecture package** (schema 0.4.0, published in masd-contracts). Exports (Markdown, JSON, PlantUML, Mermaid) are generated from it, one-way.
 - Each architecture session is bound to one requirements session. Each revision copies the source PRD revision ID, content hash and approval ID. Approval requires that source to be the *latest* approved PRD revision with a matching hash. Otherwise an explicit `rebase` revision is required (supersession policy).
 - The Agent Service runs a stateless LangGraph Architect graph. Project Service persists the authoritative checkpoint per operation, and the LangGraph checkpoint is not domain state. Interrupted operations fail at startup and require an explicit retry (M2 behaviour).
