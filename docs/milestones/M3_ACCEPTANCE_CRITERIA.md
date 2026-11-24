@@ -6,7 +6,7 @@ Statuses: PASS, FAIL, BLOCKED, NOT_EXECUTED, NOT_APPLICABLE. A criterion passes 
 
 | Repository | PR | Evidence head | CI | Sourcery (final head) |
 |---|---|---|---|---|
-| masd-contracts | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) | `e98ecf6` | success | success |
+| masd-contracts | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) | `e98ecf6` | success | skipped by Sourcery for the one-line schema follow-up; success on the prior head `074f39e` |
 | masd-project-service | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) | `1af95a7` | success | success |
 | masd-agent-service | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) | `249b922` | success | success |
 | masd-web | [#6](https://github.com/swapnilpuri/masd-web/pull/6) | `3cbff8e` | success | success |
@@ -61,7 +61,7 @@ Evidence keys:
 | M3-AC-36 | Deterministic end-to-end architecture workflow passes | PASS | E2E (Chromium, 0 skips), with keyboard operation (canvas zoom/reset, relationship list, inspector, evidence disclosure) and a 390px no-overflow check |
 | M3-AC-37 | Security, standards and regression checks pass | PASS | Governance/standards validators, secret scans, dependency audits in every gate; M0–M2 browser regressions in E2E; SEC. Limitation: no container image vulnerability scan |
 | M3-AC-38 | Independent service build/deployment boundaries preserved | PASS | Each image built from its own repository context (`m2_compose up --build`); independent CI per repository |
-| M3-AC-39 | Configured AI PR reviews completed | PASS | Sourcery success on all six PR heads, including central #11 |
+| M3-AC-39 | Configured AI PR reviews completed | PASS | Sourcery reviewed all six PRs, including central #11, with success on every final head except contracts. There, Sourcery skipped the one-line `x-content-hash` follow-up (`e98ecf6`) after succeeding on `074f39e`; that change is the same schema text reviewed in project-service #5 |
 | M3-AC-40 | Actionable PR feedback addressed and required threads resolved | PASS | Every actionable finding fixed with regressions or answered with evidence, and every thread resolved. The former focus dispute (contracts #5) was resolved by implementing the focus as a rendered C4 boundary |
 | M3-AC-41 | Required PR CI checks pass | PASS | `validate` success on every PR head |
 | M3-AC-42 | M3 documentation, completion evidence and handoff are accurate | PASS | This file, M3_COMPLETION_REPORT.md, M3_HANDOFF.md, M3_DESIGN.md corrections |

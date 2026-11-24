@@ -92,7 +92,7 @@ See [M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md): 44 PASS, 0 BLOCKED.
 
 ## 12. AI-review evidence
 
-Sourcery reviewed every component PR, and its final-head check is successful on all five. Each review round was processed in bounded batches. Every actionable finding received a fix plus a regression test, or an evidence-based reply, and each thread was resolved after the fix.
+Sourcery reviewed every component PR, and its final-head check is successful on all of them except contracts, where Sourcery skipped the one-line schema follow-up after succeeding on the prior head. Each review round was processed in bounded batches. Every actionable finding received a fix plus a regression test, or an evidence-based reply, and each thread was resolved after the fix.
 
 Three "cannot occur" dispositions were resolved with evidence instead of code:
 - the startup sweep and the readiness pin (two project-service threads): both rest on the tested single-replica runtime guard;
