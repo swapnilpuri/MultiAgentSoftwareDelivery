@@ -1,0 +1,22 @@
+@startuml m3-platform-integration
+title M3 platform integration (no new microservice)
+skinparam componentStyle rectangle
+actor "Human architect / reviewer" as human
+rectangle "MASD platform" {
+  component "masd-web\nArchitecture Studio (Angular)" as web
+  component "masd-project-service\narchitecture sessions, revisions,\napprovals, drift, exports" as project
+  database "PostgreSQL\n(Project Service owned)" as db
+  component "masd-agent-service\nArchitect LangGraph (stateless)" as agent
+  component "masd-llm-gateway\nmodel routing" as gateway
+  artifact "masd-contracts 0.4.0\narchitecture package, OpenAPI, SSE" as contracts
+}
+cloud "Configured model providers\n(commercial / local)" as providers
+human --> web : HTTPS (same-origin)
+web --> project : /api/v1/projects/{p}/architecture
+project --> db : SQL (sole owner)
+project --> agent : POST /api/v1/architect/run (bounded snapshot)
+agent --> gateway : POST /api/v1/completions
+gateway --> providers : allow-listed routing
+contracts ..> project : validates
+contracts ..> agent : validates
+@enduml

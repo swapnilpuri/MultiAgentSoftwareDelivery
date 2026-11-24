@@ -1,0 +1,27 @@
+@startuml m3-architect-agent-workflow
+title Architect Agent workflow (Project Service owns durable state)
+start
+:Project Service: authorize project + human;
+:Load approved PRD baseline; verify source hash + approval;
+if (source approved and current?) then (yes)
+else (no)
+  :Reject (unapproved / stale source);
+  stop
+endif
+:Claim durable operation (idempotency key);
+partition "Agent Service (LangGraph, no tools)" {
+  :validate_context;
+  :analyze_requirements;
+  if (material questions?) then (yes)
+    :return questions (interrupt);
+    detach
+  endif
+  :generate (Gateway, structured JSON);
+  repeat
+    :validate_structure;
+  repeat while (invalid and attempts < 3?) is (repair)
+  :deterministic_checks (traceability, consistency);
+}
+:Project Service: re-validate and persist DRAFT revision;
+:Await human review;
+@enduml

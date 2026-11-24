@@ -1,0 +1,19 @@
+@startuml m3-service-interactions
+title Generate an architecture draft
+actor Human
+participant "masd-web" as Web
+participant "Project Service" as PS
+database PostgreSQL as DB
+participant "Agent Service" as AS
+participant "LLM Gateway" as GW
+Human -> Web : Generate architecture
+Web -> PS : POST commands:stream {generate, expected_version}\nIdempotency-Key
+PS -> DB : authorize, verify source PRD, claim operation, commit
+PS -> AS : architect/run (approved PRD snapshot, prior package, model route)
+AS -> GW : completions (bounded, structured)
+GW --> AS : output + actual model + usage (if returned)
+AS --> PS : validated package + findings + execution metadata
+PS -> DB : re-validate, append revision, release operation, commit
+PS --> Web : SSE saved {session view}
+Web --> Human : draft rendered (C4, sections, traceability)
+@enduml

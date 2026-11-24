@@ -1,0 +1,15 @@
+@startuml m3-artifact-lifecycle
+title Architecture revision lifecycle
+[*] --> CLARIFICATION_REQUIRED : analyze (questions)
+[*] --> DRAFT : generate
+CLARIFICATION_REQUIRED --> DRAFT : answer / defer + generate
+DRAFT --> DRAFT : save / revise / quality (new immutable revision)
+DRAFT --> UNDER_REVIEW : submit(revision, hash)
+UNDER_REVIEW --> APPROVED : human approve
+UNDER_REVIEW --> CHANGES_REQUESTED : human request changes
+UNDER_REVIEW --> REJECTED : human reject
+CHANGES_REQUESTED --> DRAFT : new revision required
+REJECTED --> DRAFT : new revision required
+APPROVED --> DRAFT : revise / rebase (baseline retained)
+note right of APPROVED : immutable baseline\nconsumable by future agents
+@enduml
