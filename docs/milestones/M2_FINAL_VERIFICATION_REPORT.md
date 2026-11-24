@@ -1,4 +1,6 @@
-# M2 implementation and acceptance — tested candidate
+# M2 implementation and acceptance — tested candidate (historical)
+
+> **Historical pre-merge report.** Superseded by the post-merge reconciliation in [M2_ACCEPTANCE_CRITERIA.md](M2_ACCEPTANCE_CRITERIA.md). M2 was accepted on 2026-11-24 (29 PASS). Statuses below, such as AC-27 BLOCKED, describe the pre-merge state.
 
 This is a **pre-push implementation checkpoint**, not milestone acceptance or merge authorization. M2 implementation and local acceptance pass at the exact source snapshots below. Required final AI review/current-head CI remain pending: **27 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED** across29 criteria. **M3 NOT READY.** Final live results must be reconciled after this documentation head is published; no unchecked future CI or unavailable review is claimed passed.
 

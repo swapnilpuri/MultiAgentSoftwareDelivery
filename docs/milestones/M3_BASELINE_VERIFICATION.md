@@ -11,7 +11,21 @@ Governing prompt (version-controlled copy of the authorized package, byte-identi
 | [M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md](M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md) | `11a466f2688aaf352496181b017dc2ba2da69937ed95b370d94708f7d2e7251a` |
 | [M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md](M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md) | `d411e6edc17f11d81b8cf18301ae63d7931eb364c46d5e42227cca695b4dae1d` |
 
-## Decision
+## Post-merge update — 2026-11-24
+
+- **G1 closed:** masd-contracts #4 was human-merged (`2f2bc3d` on `main`).
+- **G2 closed:** the 37 findings were addressed in follow-up PRs (gateway #3, agent-service #2, project-service #4, web #5, infrastructure #5, central #9). These were human-merged and all 37 threads are resolved. Three disputed follow-up threads are open for owner confirmation.
+- **G3 closed:** the full post-merge acceptance set passed on merged `main` (see M2_HANDOFF.md), and the human acceptance conditions below are recorded.
+
+**Both remaining conditions were met on 2026-11-24:** the owner resolved the three disputed threads by accepting their documented dispositions (AC-26 PASS), and the owner explicitly accepted M2.
+
+**Current classification: VERIFIED_ACCEPTED.** M3-A may start. It must fetch and branch from the then-current `main` heads; the SHAs in M2_HANDOFF.md identify the acceptance-run sources only.
+
+---
+
+*Everything below is the original pre-merge verification (2026-11-23), retained verbatim as history. Its gaps, evidence matrix, "not executed" notes and continuation plan are superseded by the post-merge update above.*
+
+## Decision (historical, pre-merge)
 
 **M2 baseline classification: PARTIAL.** Only VERIFIED_ACCEPTED is an eligible M3 baseline (M3 §2.4), so **M3 runtime and UI implementation have not started** and stop at this gate. No branch was merged, amended or rewritten; no review thread was resolved or dismissed; no settings were changed.
 

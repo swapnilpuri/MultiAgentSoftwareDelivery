@@ -1,4 +1,35 @@
-# M2 completion candidate
+# M2 completion report — accepted
+
+**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **29 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED** across 29 criteria (criterion-by-criterion reconciliation in M2_ACCEPTANCE_CRITERIA.md). On 2026-11-24 the owner resolved the three disputed review threads by accepting their documented dispositions and **explicitly accepted M2**. **Status: M2 ACCEPTED.**
+
+The SHAs below identify the merged sources used for this acceptance run. Later work, including M3, must fetch and branch from the then-current `main` heads.
+
+| Repository | Acceptance-run `main` | M2 PRs merged | `main` CI |
+| --- | --- | --- | --- |
+| masd-contracts | `2f2bc3d` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) | success |
+| masd-llm-gateway | `687db1b` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2), follow-up [#3](https://github.com/swapnilpuri/masd-llm-gateway/pull/3) | success |
+| masd-agent-service | `9bd7ad5` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1), follow-up [#2](https://github.com/swapnilpuri/masd-agent-service/pull/2) | success |
+| masd-project-service | `08e45ac` | [#3](https://github.com/swapnilpuri/masd-project-service/pull/3), follow-up [#4](https://github.com/swapnilpuri/masd-project-service/pull/4) | success |
+| masd-web | `ec9c650` | [#4](https://github.com/swapnilpuri/masd-web/pull/4), follow-up [#5](https://github.com/swapnilpuri/masd-web/pull/5) | success |
+| masd-infrastructure | `94302a8` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4), follow-up [#5](https://github.com/swapnilpuri/masd-infrastructure/pull/5) | success |
+| MultiAgentSoftwareDelivery | `6e0961a` | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7), [#8](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/8), follow-up [#9](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/9) | success |
+
+Every follow-up PR was merged by the human owner with `--match-head-commit` at its verified head, with green `validate` and Sourcery checks. The follow-ups address the 37 Sourcery findings left on the final heads of the original M2 PRs (M3 baseline gap G2) and three further review rounds: fixes with regression tests, or evidence-based dispositions. All 37 original threads are resolved after merge.
+
+| Post-merge check (merged `main`, isolated masd-m2 stack rebuilt) | Result |
+| --- | --- |
+| `uv run --frozen python -m scripts.check` in all seven repos | PASS: central 40; contracts 52; Gateway 50; Agent 76; Project 85 + 5 PostgreSQL-only skips; web 22 Python + 57 Angular + production build + `npm audit` 0; infrastructure 70 + 1 POSIX-only skip |
+| `scripts.verify_m2 postgres` (identity-checked target) | PASS: 90 Project tests on real PostgreSQL 17, 0 skipped |
+| Chromium M1/M2 browser suite (runbook command) | PASS: expected 4, skipped 0, unexpected 0, flaky 0 |
+| `scripts.verify_m2_restart` | PASS: paused-Agent interruption, PostgreSQL and four service restarts; checkpoint, history, decisions and approved baseline preserved; interrupted key rejected; explicit retry recovered |
+| `scripts.verify_m2 visual` | PASS: desktop and 390px mobile, no horizontal overflow; screenshots inspected |
+| `scripts.verify_m2 runtime-secrets` | PASS: complete pinned log prefixes contain no generated credential; Agent has no DB/human configuration |
+
+Disputed threads, resolved by owner decision on 2026-11-24 (dispositions accepted as documented): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
+
+Known limits are unchanged: development-only authentication with production startup refused, no live commercial or Ollama generation, and no container-image vulnerability scan or cloud deployment.
+
+**Pre-merge checkpoint (superseded by the post-merge result above, retained):**
 
 This is a **pre-push implementation checkpoint**, not milestone acceptance or merge authorization. M2 implementation and local acceptance pass at the exact source snapshots below. Required final AI review/current-head CI remain pending: **27 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED** across29 criteria. **M3 NOT READY.** Final live results must be reconciled after this documentation head is published; no unchecked future CI or unavailable review is claimed passed.
 
