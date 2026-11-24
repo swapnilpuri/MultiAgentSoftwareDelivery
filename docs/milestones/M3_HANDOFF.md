@@ -1,6 +1,6 @@
 # M3 handoff
 
-Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **READY_FOR_HUMAN_APPROVAL** (44/44 PASS). M2 baseline VERIFIED_ACCEPTED. No merges performed; M4 not started.
+Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **MERGED_AND_VERIFIED_ON_MAIN** (44/44 PASS, re-verified on `main`; see the post-merge section of M3_ACCEPTANCE_CRITERIA.md). M2 baseline VERIFIED_ACCEPTED. M4 not started.
 
 | Repository | Branch | Evidence head | PR |
 |---|---|---|---|
@@ -13,8 +13,8 @@ Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **READY_FO
 
 ## Human actions
 
-1. Review, then merge with `--match-head-commit`, in this order: contracts → project-service → agent-service → web → infrastructure → central.
-2. Accept M3.
+1. ~~Review, then merge with `--match-head-commit`, in this order: contracts → project-service → agent-service → web → infrastructure → central.~~ Done 2026-11-24 on the owner's instruction (`main` heads in M3_ACCEPTANCE_CRITERIA.md).
+2. Accept M3. This is the only open action.
 
 ## Reproduce the evidence
 

@@ -2,9 +2,9 @@
 
 ## 1. Milestone status
 
-**READY_FOR_HUMAN_APPROVAL**. Merging and M3 acceptance remain human decisions.
+**MERGED_AND_VERIFIED_ON_MAIN; awaiting the owner's M3 acceptance.**
 
-Implementation and verification are complete: 44 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). No PR is merged, and M4 is not started.
+Implementation and verification are complete: 44 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). All six PRs were merged on the owner's instruction (2026-11-24), and the full evidence passed again on `main` (post-merge section of the acceptance file). M4 is not started.
 
 ## 2. Scope completed
 

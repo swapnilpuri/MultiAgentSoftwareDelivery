@@ -2,7 +2,7 @@
 
 Statuses: PASS, FAIL, BLOCKED, NOT_EXECUTED, NOT_APPLICABLE. A criterion passes only on executed evidence. Evidence was produced at the PR heads below, on 2026-11-24, on the isolated local stack built from those branches.
 
-**Tally: 44 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED.** Human merge approval and M3 acceptance remain with the owner (AC-43).
+**Tally: 44 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED.** The PRs are merged on the owner's instruction and re-verified on `main` (see the end of this file). M3 acceptance remains with the owner.
 
 | Repository | PR | Evidence head | CI | Sourcery (final head) |
 |---|---|---|---|---|
@@ -69,3 +69,30 @@ Evidence keys:
 | M3-AC-44 | M3 does not perform autonomous target-application coding or deployment | PASS | Agent has no tools; no-tools prompt test; Architect returns proposals only; no deployment capability |
 
 Limitations (not hidden as passes): generation quality was verified only with the deterministic `test/structured` adapter through the real Gateway; there was no live commercial or Ollama generation. Authentication is development-only (production startup refused). There was no container image vulnerability scan and no cloud deployment.
+
+## Post-merge verification on `main` (2026-11-24)
+
+All six M3 PRs were merged by the owner's instruction, in order, each pinned with `--match-head-commit` to the verified head. The full evidence was then re-run from clean `main` checkouts, on the isolated masd-m2 stack rebuilt from `main`.
+
+| Repository | `main` | Merged PR | Post-merge CI |
+|---|---|---|---|
+| masd-contracts | `f8cb30c` | #5 | success |
+| masd-project-service | `7798356` | #5 | success |
+| masd-agent-service | `bb851aa` | #3 | success |
+| masd-web | `748f308` | #6 | success |
+| masd-infrastructure | `4c8c350` | #6 | success |
+| MultiAgentSoftwareDelivery | `72f5d9b` | #11 | success |
+| masd-llm-gateway | `687db1b` | none | unchanged |
+
+| Check | Result on `main` |
+|---|---|
+| Gates (`scripts.check`) | contracts 78; Project Service 165 (+6 PostgreSQL-only skips); agent 103; Gateway 50; web 22 Python + 91 Angular + production build; infrastructure 74 (+1 POSIX-only skip); central 40. Each with secret scan 0 findings and dependency audit clean |
+| Real PostgreSQL 17 | 171 passed, 0 skipped |
+| Chromium | 5 expected, 0 skipped, 0 unexpected, 0 flaky (M0, M1×2, M2, M3) |
+| Restart (`verify_m3_restart`) | PASS |
+| Runtime secrets | PASS before and after the restart run (730 KB of logs; Agent has no DB or human configuration) |
+| Visual | Desktop and 390px Studio screenshots inspected; no overflow |
+
+The infrastructure gate first failed 3 tests when it was run concurrently with `m2_compose up`: both take the same process lock (`PermissionError` in `process_lock.py`). Run alone, it passed. This is a test-isolation limitation of running the two together, not a product defect.
+
+Result: **all 44 criteria still PASS on `main`.** M3 acceptance is the owner's decision and is not recorded here.
