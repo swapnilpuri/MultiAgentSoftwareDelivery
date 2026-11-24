@@ -1,4 +1,33 @@
-# M2 acceptance criteria — tested candidate
+# M2 acceptance criteria — post-merge result
+
+**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **28 PASS / 0 FAIL / 1 BLOCKED / 0 NOT_EXECUTED** across 29 criteria. The single BLOCKED item is AC-26, waiting only on the owner's confirmation of three disputed review threads (below). **Explicit human M2 milestone acceptance is still required. M3 is not started.**
+
+| Repository | Merged `main` | M2 PRs merged | `main` CI |
+| --- | --- | --- | --- |
+| masd-contracts | `2f2bc3d` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) | success |
+| masd-llm-gateway | `687db1b` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2), follow-up [#3](https://github.com/swapnilpuri/masd-llm-gateway/pull/3) | success |
+| masd-agent-service | `9bd7ad5` | [#1](https://github.com/swapnilpuri/masd-agent-service/pull/1), follow-up [#2](https://github.com/swapnilpuri/masd-agent-service/pull/2) | success |
+| masd-project-service | `08e45ac` | [#3](https://github.com/swapnilpuri/masd-project-service/pull/3), follow-up [#4](https://github.com/swapnilpuri/masd-project-service/pull/4) | success |
+| masd-web | `ec9c650` | [#4](https://github.com/swapnilpuri/masd-web/pull/4), follow-up [#5](https://github.com/swapnilpuri/masd-web/pull/5) | success |
+| masd-infrastructure | `94302a8` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4), follow-up [#5](https://github.com/swapnilpuri/masd-infrastructure/pull/5) | success |
+| MultiAgentSoftwareDelivery | `6e0961a` | [#7](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/7), [#8](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/8), follow-up [#9](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/9) | success |
+
+Every follow-up PR was merged by the human owner with `--match-head-commit` at its verified head, with green `validate` and Sourcery checks. The follow-ups address the 37 Sourcery findings left on the final heads of the original M2 PRs (M3 baseline gap G2) and three further review rounds: fixes with regression tests, or evidence-based dispositions. All 37 original threads are resolved after merge.
+
+| Post-merge check (merged `main`, isolated masd-m2 stack rebuilt) | Result |
+| --- | --- |
+| `uv run --frozen python -m scripts.check` in all seven repos | PASS: central 40; contracts 52; Gateway 50; Agent 76; Project 85 + 5 PostgreSQL-only skips; web 22 Python + 57 Angular + production build + `npm audit` 0; infrastructure 70 + 1 POSIX-only skip |
+| `scripts.verify_m2 postgres` (identity-checked target) | PASS: 90 Project tests on real PostgreSQL 17, 0 skipped |
+| Chromium M1/M2 browser suite (runbook command) | PASS: expected 4, skipped 0, unexpected 0, flaky 0 |
+| `scripts.verify_m2_restart` | PASS: paused-Agent interruption, PostgreSQL and four service restarts; checkpoint, history, decisions and approved baseline preserved; interrupted key rejected; explicit retry recovered |
+| `scripts.verify_m2 visual` | PASS: desktop and 390px mobile, no horizontal overflow; screenshots inspected |
+| `scripts.verify_m2 runtime-secrets` | PASS: complete pinned log prefixes contain no generated credential; Agent has no DB/human configuration |
+
+Disputed threads, open for the owner's decision (AC-26): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
+
+Known limits are unchanged: development-only authentication with production startup refused, no live commercial or Ollama generation, and no container-image vulnerability scan or cloud deployment.
+
+**Pre-merge checkpoint (superseded by the post-merge result above, retained):**
 
 This is a **pre-push implementation checkpoint**, not milestone acceptance or merge authorization. M2 implementation and local acceptance pass at the exact source snapshots below. Required final AI review/current-head CI remain pending: **27 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED** across29 criteria. **M3 NOT READY.** Final live results must be reconciled after this documentation head is published; no unchecked future CI or unavailable review is claimed passed.
 
@@ -31,8 +60,8 @@ Evidence, exact source/PR matrix and limits: [M2_FINAL_VERIFICATION_REPORT.md](M
 | AC-23 | The full deterministic end-to-end discovery-to-approval workflow is verified. | Full e2e/m2-requirements.spec.ts plus scripts.verify_m2_restart | T3/T4 and twenty-step matrix below | PASS | Actual discovery-to-human-test-principal approval, stale/mutation/access negatives and container recovery executed. |
 | AC-24 | Services remain independently buildable and deployable. | Four independent runtime Dockerfiles, optional m2 Compose profile and isolated volume | T7 CI image builds; actual compose up --build --wait | PASS | All five isolated services healthy; Agent has no database/human-account environment or database network. |
 | AC-25 | CI and AIEngineeringStandards validation pass. | Seven standards manifests and scripts.check entry points | T1; exact-head CI matrix | PASS | All seven configured local standards/quality/security gates pass at the exact tested sources. Live final-head GitHub CI is separately gated by AC-27. |
-| AC-26 | PR review comments and required conversations are appropriately resolved. | M2_REQUIREMENTS.md §18; configured Sourcery reviewer replacing removed CodeRabbit | Current submitted reviews, inline threads and reviewer checks | BLOCKED | Pre-push checkpoint: actual Sourcery reviews exist; individually evidenced follow-up closure/re-review is being reconciled. Do not infer completion from a guide or old successful check. |
-| AC-27 | Required CI checks pass on all affected PRs. | Independent .github/workflows/ci.yml and final PR heads | T7 exact-head validate checks | BLOCKED | Pre-push checkpoint: final containing documentation head must pass required validate workflows. Current-head results are authoritative; no future check is marked passed. |
+| AC-26 | PR review comments and required conversations are appropriately resolved. | M2_REQUIREMENTS.md §18; configured Sourcery reviewer replacing removed CodeRabbit | Current submitted reviews, inline threads and reviewer checks | BLOCKED | Post-merge: all actionable Sourcery findings across the original and follow-up PRs are fixed with regressions or dispositioned with evidence; all 37 original final-head threads are resolved. Three disputed threads (agent-service #2, project-service #4, web #5) stay open for owner confirmation, the only remaining item. |
+| AC-27 | Required CI checks pass on all affected PRs. | Independent .github/workflows/ci.yml and final PR heads | T7 exact-head validate checks | PASS | Post-merge: every merged PR had successful exact-head `validate` and Sourcery checks; merged `main` CI is successful in all seven repositories (SHAs above). |
 | AC-28 | M2 handoff and completion evidence are accurate. | Current handoff/completion/final-verification records with retained history | Documentation consistency, source-SHA and test-count review; central gates | PASS | Fresh implementation evidence supersedes historical missing-runtime verdict without erasing it; human acceptance remains pending. |
 | AC-29 | No autonomous coding or deployment activity is introduced in M2. | PM graph has no tools/approval API; no M3/runtime coding/deployment agent added | Agent no-tools regression; source inspection; isolated local testing only | PASS | No autonomous development or cloud deployment feature. Human explicitly authorized repository and isolated test environment creation. |
 

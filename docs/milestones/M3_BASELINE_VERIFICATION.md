@@ -11,6 +11,14 @@ Governing prompt (version-controlled copy of the authorized package, byte-identi
 | [M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md](M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md) | `11a466f2688aaf352496181b017dc2ba2da69937ed95b370d94708f7d2e7251a` |
 | [M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md](M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md) | `d411e6edc17f11d81b8cf18301ae63d7931eb364c46d5e42227cca695b4dae1d` |
 
+## Post-merge update — 2026-11-24
+
+- **G1 closed:** masd-contracts #4 was human-merged (`2f2bc3d` on `main`).
+- **G2 closed:** the 37 findings were addressed in follow-up PRs (gateway #3, agent-service #2, project-service #4, web #5, infrastructure #5, central #9). These were human-merged and all 37 threads are resolved. Three disputed follow-up threads are open for owner confirmation.
+- **G3 technical part closed:** the full post-merge acceptance set passed on merged `main` (see M2_HANDOFF.md). Remaining: the owner's confirmation of the three disputed threads (AC-26) and **explicit human M2 milestone acceptance**.
+
+Classification stays **PARTIAL** until that human acceptance is recorded. After it, it becomes VERIFIED_ACCEPTED and M3-A can start from the `main` heads listed in M2_HANDOFF.md. M3 is not started.
+
 ## Decision
 
 **M2 baseline classification: PARTIAL.** Only VERIFIED_ACCEPTED is an eligible M3 baseline (M3 §2.4), so **M3 runtime and UI implementation have not started** and stop at this gate. No branch was merged, amended or rewritten; no review thread was resolved or dismissed; no settings were changed.
