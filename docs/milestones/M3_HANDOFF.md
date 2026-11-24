@@ -1,21 +1,20 @@
 # M3 handoff
 
-Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **READY_FOR_HUMAN_APPROVAL** (42/44 PASS; 2 human governance gates). M2 baseline VERIFIED_ACCEPTED. No merges performed; M4 not started.
+Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **READY_FOR_HUMAN_APPROVAL** (44/44 PASS). M2 baseline VERIFIED_ACCEPTED. No merges performed; M4 not started.
 
 | Repository | Branch | Evidence head | PR |
 |---|---|---|---|
-| masd-contracts | feature/m3-architect-agent-solution-studio | `074f39e` | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) |
-| masd-project-service | feature/m3-architect-agent-solution-studio | `103d963` | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) |
-| masd-agent-service | feature/m3-architect-agent-solution-studio | `72bf7e2` | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) |
-| masd-web | feature/m3-architect-agent-solution-studio | `54b97ef` | [#6](https://github.com/swapnilpuri/masd-web/pull/6) |
+| masd-contracts | feature/m3-architect-agent-solution-studio | `e98ecf6` | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) |
+| masd-project-service | feature/m3-architect-agent-solution-studio | `1af95a7` | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) |
+| masd-agent-service | feature/m3-architect-agent-solution-studio | `249b922` | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) |
+| masd-web | feature/m3-architect-agent-solution-studio | `3cbff8e` | [#6](https://github.com/swapnilpuri/masd-web/pull/6) |
 | masd-infrastructure | feature/m3-architect-agent-solution-studio | `9fbc13e` | [#6](https://github.com/swapnilpuri/masd-infrastructure/pull/6) |
-| MultiAgentSoftwareDelivery | feature/m3-architect-agent-solution-studio | this commit | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) |
+| MultiAgentSoftwareDelivery | feature/m3-architect-agent-solution-studio | `52d275d` | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) |
 
 ## Human actions
 
-1. Decide the disputed thread on contracts #5 ("Focus target is not displayed").
-2. Review, then merge with `--match-head-commit`, in this order: contracts → project-service → agent-service → web → infrastructure → central.
-3. Accept M3.
+1. Review, then merge with `--match-head-commit`, in this order: contracts → project-service → agent-service → web → infrastructure → central.
+2. Accept M3.
 
 ## Reproduce the evidence
 

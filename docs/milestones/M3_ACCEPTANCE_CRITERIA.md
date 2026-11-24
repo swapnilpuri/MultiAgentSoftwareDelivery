@@ -2,21 +2,21 @@
 
 Statuses: PASS, FAIL, BLOCKED, NOT_EXECUTED, NOT_APPLICABLE. A criterion passes only on executed evidence. Evidence was produced at the PR heads below, on 2026-11-24, on the isolated local stack built from those branches.
 
-**Tally: 42 PASS / 0 FAIL / 2 BLOCKED / 0 NOT_EXECUTED.** Both BLOCKED items are human governance gates, not implementation gaps: one disputed review thread awaits the owner's decision (AC-40), and the central PR's own configured review is pending until it leaves draft (AC-39).
+**Tally: 44 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED.** Human merge approval and M3 acceptance remain with the owner (AC-43).
 
 | Repository | PR | Evidence head | CI | Sourcery (final head) |
 |---|---|---|---|---|
-| masd-contracts | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) | `074f39e` | success | success |
-| masd-project-service | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) | `103d963` | success | success |
-| masd-agent-service | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) | `72bf7e2` | success | success |
-| masd-web | [#6](https://github.com/swapnilpuri/masd-web/pull/6) | `54b97ef` | success | success |
+| masd-contracts | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) | `e98ecf6` | success | success |
+| masd-project-service | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) | `1af95a7` | success | success |
+| masd-agent-service | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) | `249b922` | success | success |
+| masd-web | [#6](https://github.com/swapnilpuri/masd-web/pull/6) | `3cbff8e` | success | success |
 | masd-infrastructure | [#6](https://github.com/swapnilpuri/masd-infrastructure/pull/6) | `9fbc13e` | success | success |
-| MultiAgentSoftwareDelivery | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) | this commit | success | pending (draft until now) |
+| MultiAgentSoftwareDelivery | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) | `52d275d` | success | success |
 | masd-llm-gateway | none | `687db1b` (main) | success | not applicable: no change required |
 
 Evidence keys:
-- **G** = repository gates (`uv run --frozen python -m scripts.check`): contracts 78, Project Service 163 (+5 PostgreSQL-only skips), agent 103, web 22 Python + 88 Angular + production build, infrastructure 74 (+1 POSIX-only skip).
-- **PG** = Project Service suite on real PostgreSQL 17: 168 passed, 0 skipped.
+- **G** = repository gates (`uv run --frozen python -m scripts.check`): contracts 78, Project Service 165 (+6 PostgreSQL-only skips), agent 103, web 22 Python + 91 Angular + production build, infrastructure 74 (+1 POSIX-only skip).
+- **PG** = Project Service suite on real PostgreSQL 17: 171 passed, 0 skipped.
 - **E2E** = Chromium suite: 5 expected, 0 skipped, 0 unexpected, 0 flaky. That is M0, M1×2, M2 and the M3 workflow `e2e/m3-architecture.spec.ts`.
 - **RS** = `scripts.verify_m3_restart` PASS.
 - **SEC** = `scripts.verify_m2 runtime-secrets` PASS (also checks that the Agent has no database or human configuration).
@@ -26,7 +26,7 @@ Evidence keys:
 | M3-AC-01 | M2 baseline independently verified and accepted | PASS | M3_BASELINE_VERIFICATION.md: VERIFIED_ACCEPTED (owner, 2026-11-24) |
 | M3-AC-02 | Existing microservice boundaries preserved | PASS | No new service (ADR 0006); Agent stateless with no DB (SEC); browser→Project Service only; G |
 | M3-AC-03 | Architecture Studio available in Angular | PASS | E2E opens it from the main navigation and the project route |
-| M3-AC-04 | Approved PRD can be selected | PASS | E2E source selection; `test_only_an_approved_prd_can_be_selected` |
+| M3-AC-04 | Approved PRD can be selected | PASS | E2E source selection, then the source PRD evidence panel shows its requirements and a matching approval record (revision and hash); `test_only_an_approved_prd_can_be_selected` |
 | M3-AC-05 | Unapproved PRD is rejected | PASS | Same test (422 for unapproved); Agent rejects a tampered PRD hash (`test_tampered_or_unapproved_prd_snapshot_is_rejected`) |
 | M3-AC-06 | Architect Agent uses LLM Gateway | PASS | E2E generation through the real Gateway `test/structured` path; agent graph tests; no provider SDK in the Agent |
 | M3-AC-07 | LangGraph architecture execution works | PASS | `tests/test_architect.py` (graph nodes, repair, interrupt, replay); E2E |
@@ -41,7 +41,7 @@ Evidence keys:
 | M3-AC-16 | Deployment architecture generated | PASS | `deployment` (`is_proposal`); Studio |
 | M3-AC-17 | Security architecture generated | PASS | Trust boundaries, controls, threats→mitigations; security quality rules |
 | M3-AC-18 | C4 System Context diagram generated and rendered | PASS | E2E renders the context view as SVG; PlantUML/Mermaid tests |
-| M3-AC-19 | C4 Container diagram generated and rendered | PASS | E2E container view and C4-PlantUML download |
+| M3-AC-19 | C4 Container diagram generated and rendered | PASS | E2E container view with its focus drawn as a system boundary, relationship inspection, and C4-PlantUML download (`System_Boundary`) |
 | M3-AC-20 | C4 Component diagram supported | PASS | E2E component view; level-element rules |
 | M3-AC-21 | ADR proposals generated | PASS | ADRs stay proposed unless set by an authorized human; E2E shows proposed, and approved shows accepted |
 | M3-AC-22 | Architecture revisions persisted | PASS | PG (migration 0004, append-only triggers); E2E |
@@ -57,12 +57,12 @@ Evidence keys:
 | M3-AC-32 | Versioned platform API contracts validated | PASS | masd-contracts 0.4.0 (schema, validator, two OpenAPI documents, SSE); runtime-equality snapshot tests; 0.3.0 byte-identical |
 | M3-AC-33 | No direct cross-service database access | PASS | SEC: the Agent has no DB or human configuration; Project Service is the only DB owner |
 | M3-AC-34 | All applicable unit and integration tests pass | PASS | G and PG |
-| M3-AC-35 | Frontend tests and build pass | PASS | Web gate: 88 Angular tests, production build, ESLint, `tsc`, Prettier, `npm audit` 0 |
-| M3-AC-36 | Deterministic end-to-end architecture workflow passes | PASS | E2E (Chromium, 0 skips), with a 390px no-overflow check |
+| M3-AC-35 | Frontend tests and build pass | PASS | Web gate: 91 Angular tests, production build, ESLint, `tsc`, Prettier, `npm audit` 0 |
+| M3-AC-36 | Deterministic end-to-end architecture workflow passes | PASS | E2E (Chromium, 0 skips), with keyboard operation (canvas zoom/reset, relationship list, inspector, evidence disclosure) and a 390px no-overflow check |
 | M3-AC-37 | Security, standards and regression checks pass | PASS | Governance/standards validators, secret scans, dependency audits in every gate; M0–M2 browser regressions in E2E; SEC. Limitation: no container image vulnerability scan |
 | M3-AC-38 | Independent service build/deployment boundaries preserved | PASS | Each image built from its own repository context (`m2_compose up --build`); independent CI per repository |
-| M3-AC-39 | Configured AI PR reviews completed | BLOCKED | Sourcery success on all five component PR heads; central #11 review pending once it is marked ready |
-| M3-AC-40 | Actionable PR feedback addressed and required threads resolved | BLOCKED | Every actionable finding fixed with regressions. One disputed thread is open for the owner: [contracts #5 "Focus target is not displayed"](https://github.com/swapnilpuri/masd-contracts/pull/5) (a C4 focus is a scope, not a drawn node) |
+| M3-AC-39 | Configured AI PR reviews completed | PASS | Sourcery success on all six PR heads, including central #11 |
+| M3-AC-40 | Actionable PR feedback addressed and required threads resolved | PASS | Every actionable finding fixed with regressions or answered with evidence, and every thread resolved. The former focus dispute (contracts #5) was resolved by implementing the focus as a rendered C4 boundary |
 | M3-AC-41 | Required PR CI checks pass | PASS | `validate` success on every PR head |
 | M3-AC-42 | M3 documentation, completion evidence and handoff are accurate | PASS | This file, M3_COMPLETION_REPORT.md, M3_HANDOFF.md, M3_DESIGN.md corrections |
 | M3-AC-43 | Human merge approval remains mandatory | PASS | No PR merged; all PRs await human review |

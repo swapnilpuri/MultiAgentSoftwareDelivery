@@ -2,11 +2,9 @@
 
 ## 1. Milestone status
 
-**READY_FOR_HUMAN_APPROVAL**, pending two human governance items:
-- the central PR's configured review after it leaves draft (AC-39);
-- the owner's decision on one disputed review thread (AC-40).
+**READY_FOR_HUMAN_APPROVAL**. Merging and M3 acceptance remain human decisions.
 
-Implementation and verification are complete: 42 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). No PR is merged, and M4 is not started.
+Implementation and verification are complete: 44 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). No PR is merged, and M4 is not started.
 
 ## 2. Scope completed
 
@@ -38,11 +36,11 @@ Design: [M3_DESIGN.md](M3_DESIGN.md).
 
 | Repository | Branch | Base | Evidence head | PR |
 |---|---|---|---|---|
-| MultiAgentSoftwareDelivery | feature/m3-architect-agent-solution-studio | `9cfcc49` | this commit | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) |
-| masd-contracts | feature/m3-architect-agent-solution-studio | `2f2bc3d` | `074f39e` | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) |
-| masd-project-service | feature/m3-architect-agent-solution-studio | `08e45ac` | `103d963` | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) |
-| masd-agent-service | feature/m3-architect-agent-solution-studio | `9bd7ad5` | `72bf7e2` | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) |
-| masd-web | feature/m3-architect-agent-solution-studio | `ec9c650` | `54b97ef` | [#6](https://github.com/swapnilpuri/masd-web/pull/6) |
+| MultiAgentSoftwareDelivery | feature/m3-architect-agent-solution-studio | `9cfcc49` | `52d275d` | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) |
+| masd-contracts | feature/m3-architect-agent-solution-studio | `2f2bc3d` | `e98ecf6` | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) |
+| masd-project-service | feature/m3-architect-agent-solution-studio | `08e45ac` | `1af95a7` | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) |
+| masd-agent-service | feature/m3-architect-agent-solution-studio | `9bd7ad5` | `249b922` | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) |
+| masd-web | feature/m3-architect-agent-solution-studio | `ec9c650` | `3cbff8e` | [#6](https://github.com/swapnilpuri/masd-web/pull/6) |
 | masd-infrastructure | feature/m3-architect-agent-solution-studio | `94302a8` | `9fbc13e` | [#6](https://github.com/swapnilpuri/masd-infrastructure/pull/6) |
 | masd-llm-gateway | — (no change) | `687db1b` | — | — |
 
@@ -66,16 +64,17 @@ Exact commands are in M3_HANDOFF.md.
 
 | Check | Result |
 |---|---|
-| Gates (`scripts.check`) | contracts 78; Project Service 163 (+5 PostgreSQL-only skips); agent 103; web 22 Python + 88 Angular + build; infrastructure 74 (+1 POSIX-only skip). All with governance, lint, types, secret scan and audit |
-| Real PostgreSQL 17 | 168 passed, 0 skipped |
+| Gates (`scripts.check`) | contracts 78; Project Service 165 (+6 PostgreSQL-only skips); agent 103; web 22 Python + 91 Angular + build; infrastructure 74 (+1 POSIX-only skip). All with governance, lint, types, secret scan and audit |
+| Real PostgreSQL 17 | 171 passed, 0 skipped |
 | Chromium | 5/5 (M0, M1×2, M2, M3); 0 skipped, unexpected or flaky; 390px no-overflow |
 | Restart (`verify_m3_restart`) | PASS |
-| Runtime secrets | PASS (452 KB of pinned logs clean; Agent has no DB or human configuration) |
+| Runtime secrets | PASS (489 KB of pinned logs clean; Agent has no DB or human configuration) |
 | Visual | Desktop and 390px mobile Studio screenshots inspected (`artifacts/m3-implementation/`) |
+| Accessibility | Keyboard operation of the diagram canvas, relationship list, inspector and source PRD disclosure asserted in Chromium |
 
 ## 9. Acceptance matrix
 
-See [M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md): 42 PASS, 2 BLOCKED (human gates).
+See [M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md): 44 PASS, 0 BLOCKED.
 
 ## 10. Security validation
 
@@ -99,7 +98,7 @@ Three "cannot occur" dispositions were resolved with evidence instead of code:
 - the startup sweep and the readiness pin (two project-service threads): both rest on the tested single-replica runtime guard;
 - cross-process replay (one agent-service thread): Project Service owns durable idempotency, per ADR 0005/0006.
 
-One design dispute remains open for the owner (C4 focus semantics).
+The former C4 focus dispute was closed by implementing the focus as a rendered scope boundary, in C4-PlantUML and in the SVG preview.
 
 Several review findings uncovered real defects that were fixed:
 - the session start blocked by the Studio's own leave guard;
@@ -110,13 +109,11 @@ Several review findings uncovered real defects that were fixed:
 
 ## 13. Unresolved issues
 
-- **Owner decision:** contracts #5 thread "Focus target is not displayed".
-- **Central PR #11:** needs its configured review after leaving draft.
+None.
 
 ## 14. Human approval dependencies
 
 - Review and merge the six PRs in order.
-- Decide the disputed thread.
 - Accept M3.
 
 ## 15. Known limitations
