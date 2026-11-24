@@ -20,7 +20,7 @@ CHUNK = 65536
 CONTAINER_ID = re.compile(r"^[0-9a-f]{64}$")
 # Cluster identity plus the connected database name, read through both paths.
 SYSTEM_IDENTIFIER = (
-    "select system_identifier::text || ':' || current_database() from pg_control_system()"
+    "select system_identifier::text || chr(58) || current_database() from pg_control_system()"
 )
 HOST_IDENTITY = (
     "import os, sqlalchemy\n"
@@ -71,20 +71,32 @@ def inspect(service: str) -> dict[str, Any]:
     return container
 
 
-def verify_database_target(
-    workspace: Path, port: int, env: dict[str, str], user: str, database: str
-) -> str:
+def verify_database_target(workspace: Path, port: int, env: dict[str, str], database: str) -> str:
     """Require that the test URL reaches the M2 PostgreSQL database; return its container."""
     local_docker()
     container = inspect("postgres")
     bindings = (container["NetworkSettings"].get("Ports") or {}).get("5432/tcp") or []
     if not any(b.get("HostIp") == "127.0.0.1" and b.get("HostPort") == str(port) for b in bindings):
         raise RuntimeError("Configured database port is not published by the M2 PostgreSQL")
+    # Static argv: the fixed container name, with psql using the container's own configured
+    # user and database. The pinned container ID is re-checked around the call.
     inside = subprocess.check_output(
-        [*DOCKER, "exec", container["Id"], "psql", "-U", user, "-d", database, "-tAc"]
-        + [SYSTEM_IDENTIFIER],
+        [
+            "docker",
+            "--context",
+            "default",
+            "exec",
+            "masd-m2-postgres-1",
+            "sh",
+            "-c",
+            'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc '
+            '"select system_identifier::text || chr(58) || current_database() '
+            'from pg_control_system()"',
+        ],
         text=True,
     ).strip()
+    if inspect("postgres")["Id"] != container["Id"]:
+        raise RuntimeError("The M2 PostgreSQL container changed during verification")
     through_url = subprocess.check_output(
         ["uv", "run", "--frozen", "python", "-c", HOST_IDENTITY],
         cwd=workspace / "masd-project-service",
@@ -118,7 +130,7 @@ def postgres(workspace: Path) -> None:
         for k, v in {**os.environ, "MASD_TEST_DATABASE_URL": url}.items()
         if k not in {"PYTEST_ADDOPTS", "PYTEST_PLUGINS"}
     }
-    verified = verify_database_target(workspace, port, env, raw_user, raw_database)
+    verified = verify_database_target(workspace, port, env, raw_database)
     print("Running Project tests against isolated PostgreSQL temporary schemas", flush=True)
     subprocess.run(
         ["uv", "run", "--frozen", "pytest", "-q", "--tb=short"],
@@ -127,7 +139,7 @@ def postgres(workspace: Path) -> None:
         check=True,
     )
     # The same container must still serve the target afterwards; otherwise the run is void.
-    if verify_database_target(workspace, port, env, raw_user, raw_database) != verified:
+    if verify_database_target(workspace, port, env, raw_database) != verified:
         raise RuntimeError("The M2 PostgreSQL target changed during the test run")
 
 

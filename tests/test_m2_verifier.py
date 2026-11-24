@@ -210,7 +210,7 @@ def test_scan_fails_when_credentials_rotate_during_the_scan(stack, tmp_path, mon
         verify_m2.runtime_secrets(tmp_path)
 
 
-def test_postgres_identity_uses_the_configured_user_and_database(monkeypatch, tmp_path):
+def test_postgres_identity_uses_static_argv_and_the_configured_database(monkeypatch, tmp_path):
     calls = _database(monkeypatch, tmp_path, inside="7300:product", through="7300:product")
     monkeypatch.setattr(
         verify_m2,
@@ -218,14 +218,13 @@ def test_postgres_identity_uses_the_configured_user_and_database(monkeypatch, tm
         lambda root: {
             "DATABASE_PORT": "5434",
             "POSTGRES_PASSWORD": secrets.token_urlsafe(24),
-            "POSTGRES_USER": "owner",
             "POSTGRES_DB": "product",
         },
     )
     verify_m2.postgres(tmp_path)
     exec_call = next(call for call in calls if "exec" in call)
-    assert exec_call[exec_call.index("-U") + 1] == "owner"
-    assert exec_call[exec_call.index("-d") + 1] == "product"
+    assert exec_call[:5] == ["docker", "--context", "default", "exec", "masd-m2-postgres-1"]
+    assert '"$POSTGRES_USER"' in exec_call[-1] and '"$POSTGRES_DB"' in exec_call[-1]
 
 
 def test_postgres_run_is_void_if_the_target_changes(monkeypatch, tmp_path):
