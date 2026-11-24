@@ -7,10 +7,17 @@ import pytest
 
 from scripts import verify_m2
 
+ids = {
+    name: format(index + 1, "064x")
+    for index, name in enumerate(
+        ["project-service", "llm-gateway", "agent-service", "web", "postgres", "recreated"]
+    )
+}
+
 
 def container(service, identifier=None, project="masd-m2", port="5434"):
     return {
-        "Id": identifier or f"id-{service}",
+        "Id": identifier or ids[service],
         "Config": {
             "Labels": {
                 "com.docker.compose.project": project,
@@ -31,24 +38,23 @@ def stack(tmp_path, monkeypatch):
     login.write_text(json.dumps({"password": secrets.token_urlsafe(24)}))
     credential = secrets.token_urlsafe(24) + "+/"
     state = {"credential": credential, "logs": {}, "inspect": {}, "calls": [], "recreate": None}
-    monkeypatch.setattr(
-        verify_m2,
-        "configuration",
-        lambda root: {
-            "POSTGRES_PASSWORD": credential,
-            "MASD_GATEWAY_TOKEN": secrets.token_urlsafe(24),
-            "MASD_AGENT_TOKEN": secrets.token_urlsafe(24),
-        },
-    )
+    configured = {
+        "POSTGRES_PASSWORD": credential,
+        "MASD_GATEWAY_TOKEN": secrets.token_urlsafe(24),
+        "MASD_AGENT_TOKEN": secrets.token_urlsafe(24),
+    }
+    monkeypatch.setattr(verify_m2, "configuration", lambda root: dict(configured))
     inspected: dict[str, int] = {}
 
     def check_output(args, **kwargs):
         state["calls"].append(list(args))
+        if "context" in args:
+            return state.get("endpoint", "npipe:////./pipe/docker_engine") + "\n"
         service = args[-1].removeprefix("masd-m2-").removesuffix("-1")
         inspected[service] = inspected.get(service, 0) + 1
         found = state["inspect"].get(service, container(service))
         if state["recreate"] == service and inspected[service] > 1:
-            found = container(service, "id-recreated")
+            found = container(service, ids["recreated"])
         return json.dumps([found]).encode()
 
     class Process:
@@ -77,7 +83,7 @@ def test_clean_scan_pins_context_project_and_container_ids(stack, tmp_path, caps
     verify_m2.runtime_secrets(tmp_path)
     assert all(call[:3] == ["docker", "--context", "default"] for call in stack["calls"])
     log_targets = [call[-1] for call in stack["calls"] if "logs" in call]
-    assert log_targets == [f"id-{service}" for service in verify_m2.SERVICES]
+    assert log_targets == [ids[service] for service in verify_m2.SERVICES]
     assert "PASS" in capsys.readouterr().out
 
 
@@ -85,14 +91,14 @@ def test_clean_scan_pins_context_project_and_container_ids(stack, tmp_path, caps
 def test_scan_detects_percent_encoded_credentials_in_any_escape_case(stack, tmp_path, encode):
     encoded = quote(stack["credential"], safe="")
     leaked = encoded.replace("%2B", encode("%2B")).replace("%2F", encode("%2F"))
-    stack["logs"]["id-web"] = f"request url={leaked}\n".encode()
+    stack["logs"][ids["web"]] = f"request url={leaked}\n".encode()
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
 
 
 def test_scan_detects_a_credential_split_across_stream_chunks(stack, tmp_path, monkeypatch):
     monkeypatch.setattr(verify_m2, "CHUNK", 7)
-    stack["logs"]["id-postgres"] = b"x" * 1000 + stack["credential"].encode() + b"y" * 1000
+    stack["logs"][ids["postgres"]] = b"x" * 1000 + stack["credential"].encode() + b"y" * 1000
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
 
@@ -126,7 +132,7 @@ def test_scan_fails_when_a_container_is_recreated_during_the_scan(stack, tmp_pat
         verify_m2.runtime_secrets(tmp_path)
 
 
-def _database(monkeypatch, tmp_path, port="5434", inside="7300", through="7300"):
+def _database(monkeypatch, tmp_path, port="5434", inside="7300:masd", through="7300:masd"):
     monkeypatch.setattr(
         verify_m2,
         "configuration",
@@ -136,6 +142,8 @@ def _database(monkeypatch, tmp_path, port="5434", inside="7300", through="7300")
 
     def check_output(args, **kwargs):
         calls.append(list(args))
+        if "context" in args:
+            return "unix:///var/run/docker.sock\n"
         if "inspect" in args:
             return json.dumps([container("postgres", port=port)]).encode()
         return inside + "\n" if "exec" in args else "uv warning\n" + through + "\n"
@@ -148,17 +156,88 @@ def _database(monkeypatch, tmp_path, port="5434", inside="7300", through="7300")
 def test_postgres_tests_run_only_against_the_m2_cluster(monkeypatch, tmp_path):
     calls = _database(monkeypatch, tmp_path)
     verify_m2.postgres(tmp_path)
-    assert calls[-1] == ["pytest"]
+    # Verified before pytest and re-verified after it.
+    position = calls.index(["pytest"])
+    assert any("exec" in call for call in calls[:position])
+    assert any("exec" in call for call in calls[position:])
     assert all(call[:3] == ["docker", "--context", "default"] for call in calls if "docker" in call)
 
 
 @pytest.mark.parametrize(
     ("override", "message"),
-    [({"port": "5433"}, "not published"), ({"through": "9999"}, "does not reach")],
-    ids=["other-port", "other-cluster"],
+    [
+        ({"port": "5433"}, "not published"),
+        ({"through": "9999:masd"}, "does not reach"),
+        ({"inside": "7300:other", "through": "7300:other"}, "does not reach"),
+    ],
+    ids=["other-port", "other-cluster", "other-database"],
 )
 def test_postgres_refuses_another_database_server(monkeypatch, tmp_path, override, message):
     calls = _database(monkeypatch, tmp_path, **override)
     with pytest.raises(RuntimeError, match=message):
         verify_m2.postgres(tmp_path)
     assert ["pytest"] not in calls
+
+
+@pytest.mark.parametrize("encoded", ["%2B", "%2b"])
+def test_scan_detects_partially_percent_encoded_credentials(stack, tmp_path, encoded):
+    credential = stack["credential"]
+    # Only some characters are escaped: the first one always, the "+" in either hex case.
+    partial = "%" + format(ord(credential[0]), "02X") + credential[1:].replace("+", encoded)
+    stack["logs"][ids["web"]] = f"url={partial}\n".encode()
+    with pytest.raises(RuntimeError, match="credential appeared"):
+        verify_m2.runtime_secrets(tmp_path)
+
+
+def test_scan_refuses_a_remote_default_docker_context(stack, tmp_path):
+    stack["endpoint"] = "tcp://remote.example:2376"
+    with pytest.raises(RuntimeError, match="not a local"):
+        verify_m2.runtime_secrets(tmp_path)
+    assert not any("logs" in call for call in stack["calls"])
+
+
+def test_scan_fails_when_credentials_rotate_during_the_scan(stack, tmp_path, monkeypatch):
+    original = verify_m2.read_credentials
+    reads = []
+
+    def rotating(workspace):
+        reads.append(True)
+        values = original(workspace)
+        return values if len(reads) == 1 else [*values[:-1], "rotated"]
+
+    monkeypatch.setattr(verify_m2, "read_credentials", rotating)
+    with pytest.raises(RuntimeError, match="credentials changed"):
+        verify_m2.runtime_secrets(tmp_path)
+
+
+def test_postgres_identity_uses_the_configured_user_and_database(monkeypatch, tmp_path):
+    calls = _database(monkeypatch, tmp_path, inside="7300:product", through="7300:product")
+    monkeypatch.setattr(
+        verify_m2,
+        "configuration",
+        lambda root: {
+            "DATABASE_PORT": "5434",
+            "POSTGRES_PASSWORD": secrets.token_urlsafe(24),
+            "POSTGRES_USER": "owner",
+            "POSTGRES_DB": "product",
+        },
+    )
+    verify_m2.postgres(tmp_path)
+    exec_call = next(call for call in calls if "exec" in call)
+    assert exec_call[exec_call.index("-U") + 1] == "owner"
+    assert exec_call[exec_call.index("-d") + 1] == "product"
+
+
+def test_postgres_run_is_void_if_the_target_changes(monkeypatch, tmp_path):
+    calls = _database(monkeypatch, tmp_path)
+    seen = []
+    original = verify_m2.verify_database_target
+
+    def changing(*args):
+        seen.append(original(*args))
+        return seen[0] if len(seen) == 1 else "f" * 64
+
+    monkeypatch.setattr(verify_m2, "verify_database_target", changing)
+    with pytest.raises(RuntimeError, match="target changed"):
+        verify_m2.postgres(tmp_path)
+    assert ["pytest"] in calls
