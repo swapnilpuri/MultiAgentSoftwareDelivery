@@ -1,3 +1,19 @@
+# Current final verification checkpoint — 2026-11-22
+
+Milestone: M2. Status: **PARTIAL**; 6 PASS / 22 FAIL / 1 BLOCKED / 0 NOT_EXECUTED. M3: **NOT READY** technically; governance acceptance outstanding. Verification only, no runtime changes or M3 implementation.
+
+Branch: feature/m2-final-acceptance-verification. Base: 32fa751f21700c813c7b3e5c411bdd4fdbb54a1c. Current commit: containing documentation commit/PR head (`git rev-parse HEAD`). Full six-repository SHA/CI matrix, source locations, exact commands, all 29 criteria and 20 workflow steps: [M2_FINAL_VERIFICATION_REPORT.md](M2_FINAL_VERIFICATION_REPORT.md).
+
+Completed: fetched/reconciled all accessible repositories and 12 M1/M2 PRs; confirmed M1 heads now on main and M2 #4 is documentation only. Agent Service absent. Inspected actual models/migration/UI/contracts. All six full gates PASS: 174 distinct Python + 13 Angular tests, audits/standards/contracts/build; 35 existing tests also PASS on real PostgreSQL; 3 real Chromium M1 tests PASS; three independent Docker builds PASS. Targeted browser inspection opens project, then confirms missing discovery and placeholder Planning/Approvals. M2 workflow fails at step 2; steps 3–20 NOT_EXECUTED. No live provider or service restart performed. Existing M0/M1 containers and user records preserved; browser-created acceptance projects retained. One upstream TestClient deprecation warning.
+
+Design decisions remain proposals in M2_DESIGN.md; ADR 0001–0004 service boundaries retained. No PM graph, PRD/version/story/quality models, M2 contracts, Agent image or human approval controls exist. Existing M1 tests are not M2 evidence. Missing runtime is a critical acceptance blocker. Required AI review remains BLOCKED: no submitted reviews/threads in 12 inspected PRs; bot results absent/skipped/limited/summary-only. Human merges observed; independent baseline acceptance not inferred. Central main is unprotected; private protection metadata unavailable (403); no permissions changed.
+
+Documentation PR: [#6](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/6), open against main; human review and merge remain required. Initial evidence commit: 9192ef708b5906cb840cf9bc968d270f5d71c131. Full central checks passed after the four-file documentation change (22 tests, governance/standards/lint/types/source scan/audit); initial GitHub push validate [passed](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/45119469460), with the separate PR run and delivery-link follow-up tracked on #6. No submitted review or AI review evidence at creation; review BLOCKED/NOT_EXECUTED, never inferred from CI. Historical checkpoint below is retained and superseded where it reports M1 integration still missing. Local raw logs/PR evidence: ignored artifacts/m2-final-verification.
+
+Next task: review this report, obtain actual baseline/review decisions, authorize focused M2 implementation and Agent Service repository/location, then execute M2_IMPLEMENTATION_PLAN.md. Do not begin M3. Resume: `git status --short --branch`; `git rev-parse HEAD`; `uv run --frozen python -m scripts.check`; `gh pr view 6 --repo swapnilpuri/MultiAgentSoftwareDelivery --json statusCheckRollup,reviews,comments`; consult final report for per-repository test commands. Do not merge automatically.
+
+## Historical baseline-gate handoff (retained verbatim)
+
 # M2 handoff
 
 Milestone: M2 — AI Product Manager Agent and Requirements Engineering Studio.
