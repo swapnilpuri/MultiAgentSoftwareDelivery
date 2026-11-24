@@ -2,19 +2,28 @@
 
 Date: 2026-11-23 (America/Chicago). Verifier: Claude Code (implementation agent). Scope: M3 prompt §2 (Steps 2.1–2.4), executed before any M3 runtime/UI work.
 
+Governing prompt (version-controlled copy of the authorized package, byte-identical to the originals supplied in `masd-infrastructure/docs/milestones/M3_PROMPT/`):
+
+| File | SHA-256 |
+|---|---|
+| [M3_PROMPT/00_START_HERE.md](M3_PROMPT/00_START_HERE.md) | `34a9eb436e9d0a155f3955997398410e7a1ac716f559296739f2c3dc39ac8af5` |
+| [M3_PROMPT/01_ARCHITECTURE_AND_MODEL.md](M3_PROMPT/01_ARCHITECTURE_AND_MODEL.md) (§2 baseline gate) | `007d691bf25dd2fe68c2f1cbde4af6a2369b997b6510eef17d13a38d23e3cecf` |
+| [M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md](M3_PROMPT/02_AGENT_UI_AND_GOVERNANCE.md) | `11a466f2688aaf352496181b017dc2ba2da69937ed95b370d94708f7d2e7251a` |
+| [M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md](M3_PROMPT/03_DELIVERY_AND_ACCEPTANCE.md) | `d411e6edc17f11d81b8cf18301ae63d7931eb364c46d5e42227cca695b4dae1d` |
+
 ## Decision
 
 **M2 baseline classification: PARTIAL.** Only VERIFIED_ACCEPTED is an eligible M3 baseline (M3 §2.4), so **M3 runtime and UI implementation have not started** and stop at this gate. No branch was merged, amended or rewritten; no review thread was resolved or dismissed; no settings were changed.
 
-M2 implementation itself is substantially present on `main`: six of seven exact-tested M2 source snapshots are ancestors of `main`, and post-merge `main` CI passes in all seven repositories. The gate fails on three governance/integration gaps, not on missing runtime features.
+M2 implementation itself is substantially present on `main`: six of seven exact-tested M2 source snapshots are ancestors of `main`, and post-merge `main` CI passes in those six repositories. masd-contracts `main` CI is green only for its M1 content, because M2 is not merged there (G1). The gate fails on three governance/integration gaps, not on missing runtime features.
 
 ## Gaps blocking VERIFIED_ACCEPTED
 
 | # | Gap | Evidence | Affected M2 criteria | Owner of fix |
 |---|---|---|---|---|
-| G1 | **masd-contracts PR #4 is OPEN, not merged.** M2 contracts 0.3.0 (requirements/approval OpenAPI, typed SSE/checkpoint/identity schemas) are absent from contracts `main` (`9829c8d`, the M1 merge). Exact-tested source `87c452c` is not an ancestor of `main`. Consumers on `main` (Project Service, Agent, web) were built against an unpublished contract release. | `gh pr view 4 -R swapnilpuri/masd-contracts`: state OPEN, mergeable, head `32f4487`, checks validate×2 + Sourcery SUCCESS, review APPROVED, 21/21 threads resolved. The PR's own `M2_HANDOFF.md` records it as the "remaining contracts merge gate". | AC-21 (contracts published), AC-27 | Human: merge #4 (runbook `--match-head-commit 32f4487416fdb38295ae069b1c8ebfed5bd5d675`) |
+| G1 | **masd-contracts PR #4 is OPEN, not merged.** M2 contracts 0.3.0 (requirements/approval OpenAPI, typed SSE/checkpoint/identity schemas) are absent from contracts `main` (`9829c8d`, the M1 merge). Exact-tested source `87c452c` is not an ancestor of `main`. Consumers on `main` (Project Service, Agent, web) were built against an unpublished contract release. | `gh pr view 4 -R swapnilpuri/masd-contracts`: state OPEN, mergeable, head `32f4487`, checks validate×2 + Sourcery SUCCESS, review APPROVED, 21/21 threads resolved. The PR's own `M2_HANDOFF.md` records it as the "remaining contracts merge gate". | AC-21 (contracts published) | Human: merge #4 (runbook `--match-head-commit 32f4487416fdb38295ae069b1c8ebfed5bd5d675`) |
 | G2 | **37 unanswered Sourcery findings on the final heads of six merged PRs.** All are current (not outdated), have zero replies, were posted 2026-11-24 ~02:47–02:50Z (after the final central head `70bc0c3`, committed 01:14Z) and before the ~05:05Z merges. None is referenced by ID or title in any repository's `main` docs. | GraphQL `reviewThreads` per PR (table below). The Sourcery check reported SUCCESS; per M2_REQUIREMENTS §18 and M3 §21, a passing check does not resolve actionable conversations. | AC-26 | Implementation agent: triage, fix or disposition each; human: accept |
-| G3 | **No post-merge all-`main` acceptance and no explicit human M2 milestone acceptance record.** M2_HANDOFF / M2_COMPLETION_REPORT / M2_ACCEPTANCE_CRITERIA on `main` still state "pre-push checkpoint … 27 PASS / 2 BLOCKED … M3 NOT READY" and require, after merges, a rerun of configured gates plus PostgreSQL, zero-skip Chromium, restart, visual and credential-log checks, followed by explicit human acceptance. Neither is recorded. A merge by the repository owner is not treated as milestone acceptance (consistent with the M2 report's own policy). | M2_HANDOFF.md §"Exact human actions"; `git log origin/main` in all repos shows no later reconciliation commit. | AC-26, AC-27, AC-28 (accuracy now stale) | Agent: rerun and reconcile after G1/G2; human: record acceptance |
+| G3 | **No post-merge all-`main` acceptance and no explicit human M2 milestone acceptance record.** M2_HANDOFF / M2_COMPLETION_REPORT / M2_ACCEPTANCE_CRITERIA on `main` still state "pre-push checkpoint … 27 PASS / 2 BLOCKED … M3 NOT READY" and require, after merges, a rerun of configured gates plus PostgreSQL, zero-skip Chromium, restart, visual and credential-log checks, followed by explicit human acceptance. Neither is recorded. A merge by the repository owner is not treated as milestone acceptance (consistent with the M2 report's own policy). | M2_HANDOFF.md §"Exact human actions"; `git log origin/main` in all repos shows no later reconciliation commit. | AC-26, AC-28 (accuracy now stale) | Agent: rerun and reconcile after G1/G2; human: record acceptance |
 
 ## Evidence matrix
 
@@ -30,9 +39,9 @@ Fetched 2026-11-23. "Tested source" = exact-tested snapshot recorded in M2_HANDO
 | masd-web | `87d1559` | [#4](https://github.com/swapnilpuri/masd-web/pull/4) | MERGED / swapnilpuri | `17c1043` yes | validate×2, Sourcery: SUCCESS | `87d1559` success | 58 / **9** | G2 |
 | masd-infrastructure | `c7c721d` | [#4](https://github.com/swapnilpuri/masd-infrastructure/pull/4) | MERGED / swapnilpuri | `ed6a3ab` yes | validate×2, Sourcery: SUCCESS | `c7c721d` success | 36 / **6** | G2 |
 
-Step 2.1: all seven expected repositories exist locally under `C:/Projects/msad` with `origin` on `github.com/swapnilpuri`; no additional repositories found (`relocation-logs` is a log folder, not a repository). Local `masd-contracts` is checked out on `feature/m2-pm-requirements-studio` at `32f4487` (PR head); all others on clean `main` equal to `origin/main`. The M3 prompt package exists only as untracked files in `masd-infrastructure/docs/milestones/M3_PROMPT/`.
+Step 2.1: all seven expected repositories exist locally under `C:/Projects/msad` with `origin` on `github.com/swapnilpuri`; no additional repositories found (`relocation-logs` is a log folder, not a repository). Local `masd-contracts` is checked out on `feature/m2-pm-requirements-studio` at `32f4487` (PR head); all others on clean `main` equal to `origin/main`. The M3 prompt package was supplied as untracked files in `masd-infrastructure/docs/milestones/M3_PROMPT/`. Those originals are left in place, and the four authoritative files are now versioned in this repository at `docs/milestones/M3_PROMPT/` (hashes above).
 
-Step 2.2: the 17 M2 capabilities and 29 criteria were reconciled individually in M2_FINAL_VERIFICATION_REPORT.md at the exact tested snapshots (27 PASS / 2 BLOCKED). Per the M3 efficiency rule this investigation was not repeated; this verification confirms those snapshots are on `main` (except contracts, G1), and that the two BLOCKED criteria (AC-26 review resolution, AC-27 exact-head CI) are still not closed. AC-27's CI half now has green exact-head and `main` results for all seven PRs; it stays open only for contracts' unmerged state.
+Step 2.2: the 17 M2 capabilities and 29 criteria were reconciled individually in M2_FINAL_VERIFICATION_REPORT.md at the exact tested snapshots (27 PASS / 2 BLOCKED). Per the M3 efficiency rule this investigation was not repeated; this verification confirms those snapshots are on `main` (except contracts, G1), and re-evaluates the two criteria that were BLOCKED there. AC-27 (required CI passes on affected PRs) is now satisfied by observation: all seven M2 PRs have green exact-head validate and Sourcery checks. The unmerged contracts release is tracked only under AC-21 (G1), not under AC-27. AC-26 (review conversations resolved) remains BLOCKED (G2).
 
 Step 2.3: implementation PRs, targets, merges, checks and threads are in the matrix. Branch protection was not re-queried (the M2 report records 404/403 limits); no settings were changed.
 
