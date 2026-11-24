@@ -1,6 +1,6 @@
 # M3 design — Architect Agent & Solution Architecture Studio
 
-Status: Slice 0 design for M3-A/B/C. Authorized by the M3 prompt ([M3_REQUIREMENTS.md](M3_REQUIREMENTS.md)); baseline VERIFIED_ACCEPTED. Decisions: [ADR 0006](../adr/0006-m3-architecture-package-ownership.md), [ADR 0007](../adr/0007-m3-c4-diagram-rendering.md). Diagrams: [docs/architecture/m3/](../architecture/m3/).
+Status: implemented as designed in M3-A/B/C, with the corrections noted in the API table (implementation evidence in M3_COMPLETION_REPORT.md). Authorized by the M3 prompt ([M3_REQUIREMENTS.md](M3_REQUIREMENTS.md)); baseline VERIFIED_ACCEPTED. Decisions: [ADR 0006](../adr/0006-m3-architecture-package-ownership.md), [ADR 0007](../adr/0007-m3-c4-diagram-rendering.md). Diagrams: [docs/architecture/m3/](../architecture/m3/).
 
 ## 1. Service responsibilities (no new microservice)
 
@@ -102,10 +102,10 @@ Model profiles reuse the Gateway catalog (provider, model, limits, streaming) an
 | create revision, clarify, resume, review | `POST /sessions/{id}/commands` and `/commands:stream` (SSE). Actions: analyze, answer, generate, revise, rebase, quality, save, finding, submit, decide. Idempotency-Key, expected_version |
 | traceability, diagrams, ADRs | `GET /sessions/{id}/revisions/{rev}/traceability`, `/views/{view}?format=plantuml|mermaid|json`, ADRs inside the revision document |
 | compare | `GET /sessions/{id}/compare?left&right` (ID-based structural diff per section) |
-| approved baseline | `GET /sessions/{id}/baseline`; `GET /architecture/approved?requirements_session=` for future agents |
+| approved baseline | `GET /sessions/{id}/baseline`: immutable package, content hash, approval evidence, source PRD binding and effective ADR statuses. This is the input for future agents |
 | drift | `GET /sessions/{id}/drift` |
 | export | `GET /sessions/{id}/revisions/{rev}/export?format=markdown|json|plantuml|mermaid` |
-| history | `GET /sessions/{id}/history` (cursor pagination) |
+| history | `GET /sessions/{id}/history`: cursor pagination pinned to one snapshot (`through_sequence`) |
 
 Errors follow the existing typed envelope, with 401/403/404/409/413/422/429/502/503/504. Input limits: package ≤ 300 000 UTF-8 bytes; list caps per section; enums validated.
 

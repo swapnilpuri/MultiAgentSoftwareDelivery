@@ -1,15 +1,37 @@
-# M3 handoff — checkpoint
+# M3 handoff
 
-Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **M3-A in progress — Slices 0–1 done, Slice 2 next**. The M2 baseline is VERIFIED_ACCEPTED (2026-11-24).
+Milestone: M3 Architect Agent & Solution Architecture Studio. Status: **READY_FOR_HUMAN_APPROVAL** (42/44 PASS; 2 human governance gates). M2 baseline VERIFIED_ACCEPTED. No merges performed; M4 not started.
 
-| Item | Value |
-|---|---|
-| Branch (all repos) | `feature/m3-architect-agent-solution-studio` |
-| Central base | `9cfcc49` (main after PR #10) |
-| Completed | Slice 0 (central #11, contracts #5: 0.4.0 schema, validator, Project Service OpenAPI 0.4.0); Slice 1 (project-service #5: canonical package, migration 0004, Architecture Studio API) |
-| Tests | Project Service gate 134 passed (+5 PG-only skips); real PostgreSQL 138 passed, 0 skipped; contracts gate 70 passed |
-| Next task | Slice 2–3: masd-agent-service Architect LangGraph `/api/v1/architect/run` (validate→analyze→clarify→generate→validate→repair→deterministic checks), deterministic fixture, Agent OpenAPI 0.4.0 + architecture SSE schema in contracts #5 |
-| Risks | Large cross-repo scope; reviewer non-convergence handled in bounded batches, as in M2 |
-| Blockers | None |
+| Repository | Branch | Evidence head | PR |
+|---|---|---|---|
+| masd-contracts | feature/m3-architect-agent-solution-studio | `074f39e` | [#5](https://github.com/swapnilpuri/masd-contracts/pull/5) |
+| masd-project-service | feature/m3-architect-agent-solution-studio | `103d963` | [#5](https://github.com/swapnilpuri/masd-project-service/pull/5) |
+| masd-agent-service | feature/m3-architect-agent-solution-studio | `72bf7e2` | [#3](https://github.com/swapnilpuri/masd-agent-service/pull/3) |
+| masd-web | feature/m3-architect-agent-solution-studio | `54b97ef` | [#6](https://github.com/swapnilpuri/masd-web/pull/6) |
+| masd-infrastructure | feature/m3-architect-agent-solution-studio | `9fbc13e` | [#6](https://github.com/swapnilpuri/masd-infrastructure/pull/6) |
+| MultiAgentSoftwareDelivery | feature/m3-architect-agent-solution-studio | this commit | [#11](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/11) |
 
-Resume: fetch all seven repos, check out the feature branch in each repo that has one, and continue from "Next task" using [M3_IMPLEMENTATION_PLAN.md](M3_IMPLEMENTATION_PLAN.md).
+## Human actions
+
+1. Decide the disputed thread on contracts #5 ("Focus target is not displayed").
+2. Review, then merge with `--match-head-commit`, in this order: contracts → project-service → agent-service → web → infrastructure → central.
+3. Accept M3.
+
+## Reproduce the evidence
+
+Run these on Windows, from each repository root, with frozen uv environments and Docker running:
+- **Gates:** `uv run --frozen python -m scripts.check`. Run masd-web from an uppercase `C:\` path, because of a Vitest runner quirk on this machine.
+- **Stack:** in masd-infrastructure, `uv run --frozen python -m scripts.m2_compose up --build --wait`. This is the isolated masd-m2 stack; Project Service applies migration `0004`.
+- **PostgreSQL:** from central, `uv run --frozen python -m scripts.verify_m2 postgres`.
+- **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE`, `M3_ACCEPTANCE_RECORD=<central>/artifacts/m3-implementation/architecture-baseline.json` and optionally `M3_SCREENSHOT_DIR`, then run `npx playwright test --reporter=json`. The result must be 5 expected and 0 skipped.
+- **Restart:** from infrastructure, `uv run --frozen python -m scripts.verify_m3_restart --record <M3_ACCEPTANCE_RECORD>`.
+- **Secrets:** from central, `uv run --frozen python -m scripts.verify_m2 runtime-secrets`.
+
+## Risks
+
+- Deterministic adapter only; no live-model quality claim.
+- Development-only identity.
+- Single Project Service replica.
+- The isolated database is at migration `0004`.
+
+Details are in [M3_COMPLETION_REPORT.md](M3_COMPLETION_REPORT.md).
