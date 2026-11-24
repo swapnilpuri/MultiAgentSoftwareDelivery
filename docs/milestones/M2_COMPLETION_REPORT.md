@@ -1,8 +1,10 @@
-# M2 completion report — merged, awaiting human acceptance
+# M2 completion report — accepted
 
-**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **28 PASS / 0 FAIL / 1 BLOCKED / 0 NOT_EXECUTED** across 29 criteria. The single BLOCKED item is AC-26, waiting only on the owner's confirmation of three disputed review threads (below). **Explicit human M2 milestone acceptance is still required. M3 is not started.**
+**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **29 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED** across 29 criteria (criterion-by-criterion reconciliation in M2_ACCEPTANCE_CRITERIA.md). On 2026-11-24 the owner resolved the three disputed review threads by accepting their documented dispositions and **explicitly accepted M2**. **Status: M2 ACCEPTED.**
 
-| Repository | Merged `main` | M2 PRs merged | `main` CI |
+The SHAs below identify the merged sources used for this acceptance run. Later work, including M3, must fetch and branch from the then-current `main` heads.
+
+| Repository | Acceptance-run `main` | M2 PRs merged | `main` CI |
 | --- | --- | --- | --- |
 | masd-contracts | `2f2bc3d` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) | success |
 | masd-llm-gateway | `687db1b` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2), follow-up [#3](https://github.com/swapnilpuri/masd-llm-gateway/pull/3) | success |
@@ -23,7 +25,7 @@ Every follow-up PR was merged by the human owner with `--match-head-commit` at i
 | `scripts.verify_m2 visual` | PASS: desktop and 390px mobile, no horizontal overflow; screenshots inspected |
 | `scripts.verify_m2 runtime-secrets` | PASS: complete pinned log prefixes contain no generated credential; Agent has no DB/human configuration |
 
-Disputed threads, open for the owner's decision (AC-26): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
+Disputed threads, resolved by owner decision on 2026-11-24 (dispositions accepted as documented): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
 
 Known limits are unchanged: development-only authentication with production startup refused, no live commercial or Ollama generation, and no container-image vulnerability scan or cloud deployment.
 

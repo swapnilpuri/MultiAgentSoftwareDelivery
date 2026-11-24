@@ -1,8 +1,10 @@
-# M2 acceptance criteria — post-merge result
+# M2 acceptance criteria — accepted
 
-**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **28 PASS / 0 FAIL / 1 BLOCKED / 0 NOT_EXECUTED** across 29 criteria. The single BLOCKED item is AC-26, waiting only on the owner's confirmation of three disputed review threads (below). **Explicit human M2 milestone acceptance is still required. M3 is not started.**
+**Post-merge acceptance — 2026-11-24 (America/Chicago).** All M2 implementation and follow-up PRs are human-merged and the full acceptance set was re-run on merged `main`: **29 PASS / 0 FAIL / 0 BLOCKED / 0 NOT_EXECUTED** across 29 criteria (criterion-by-criterion reconciliation in M2_ACCEPTANCE_CRITERIA.md). On 2026-11-24 the owner resolved the three disputed review threads by accepting their documented dispositions and **explicitly accepted M2**. **Status: M2 ACCEPTED.**
 
-| Repository | Merged `main` | M2 PRs merged | `main` CI |
+The SHAs below identify the merged sources used for this acceptance run. Later work, including M3, must fetch and branch from the then-current `main` heads.
+
+| Repository | Acceptance-run `main` | M2 PRs merged | `main` CI |
 | --- | --- | --- | --- |
 | masd-contracts | `2f2bc3d` | [#4](https://github.com/swapnilpuri/masd-contracts/pull/4) | success |
 | masd-llm-gateway | `687db1b` | [#2](https://github.com/swapnilpuri/masd-llm-gateway/pull/2), follow-up [#3](https://github.com/swapnilpuri/masd-llm-gateway/pull/3) | success |
@@ -23,9 +25,45 @@ Every follow-up PR was merged by the human owner with `--match-head-commit` at i
 | `scripts.verify_m2 visual` | PASS: desktop and 390px mobile, no horizontal overflow; screenshots inspected |
 | `scripts.verify_m2 runtime-secrets` | PASS: complete pinned log prefixes contain no generated credential; Agent has no DB/human configuration |
 
-Disputed threads, open for the owner's decision (AC-26): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
+Disputed threads, resolved by owner decision on 2026-11-24 (dispositions accepted as documented): [agent-service #2](https://github.com/swapnilpuri/masd-agent-service/pull/2): plaintext Gateway opt-in requires explicit `MASD_ENVIRONMENT=development` (kept, fail-closed). [project-service #4](https://github.com/swapnilpuri/masd-project-service/pull/4): the 1024-entry sign-in table fails closed when full (kept, so counters cannot be flushed). [web #5](https://github.com/swapnilpuri/masd-web/pull/5): an equal insert and remove before the pagination anchor is undetectable with offset pagination; keyset pagination is a Project Service contract change, recommended as backlog.
 
 Known limits are unchanged: development-only authentication with production startup refused, no live commercial or Ollama generation, and no container-image vulnerability scan or cloud deployment.
+
+### Post-merge criterion reconciliation (merged `main`, 2026-11-24)
+
+| ID | Criterion | Status | Merged-source evidence |
+| --- | --- | --- | --- |
+| AC-01 | Existing M0/M1 architecture and standards are preserved. | PASS | all seven `scripts.check` gates on merged `main` incl. governance/standards validators; M1 browser workflows in Chromium suite 4/4, 0 skipped |
+| AC-02 | PM Agent is implemented in its approved service boundary. | PASS | masd-agent-service `main` `9bd7ad5`: Agent has no DB or human configuration (`verify_m2 runtime-secrets`); Agent gate 76 passed |
+| AC-03 | PM Agent uses the existing LLM Gateway. | PASS | Agent→Gateway HTTP contract tests (SSE parser, catalog) in Agent gate; live stack generation via Gateway in Chromium suite 4/4, 0 skipped |
+| AC-04 | Requirements discovery is available through Angular. | PASS | Chromium suite 4/4, 0 skipped; web gate 57 Angular tests |
+| AC-05 | Users can respond to clarification questions. | PASS | Chromium suite 4/4, 0 skipped (answer/defer); Project gate |
+| AC-06 | Discovery state persists across application restarts. | PASS | `verify_m2_restart`: PostgreSQL + four service restarts, checkpoint and history preserved |
+| AC-07 | Structured PRD generation works. | PASS | Chromium suite 4/4, 0 skipped; Agent and Project gates |
+| AC-08 | PRD sections are editable. | PASS | Chromium suite 4/4, 0 skipped; web specs |
+| AC-09 | PRD revisions are persisted and distinguishable. | PASS | 90 Project tests on real PostgreSQL (`verify_m2 postgres`); Chromium suite 4/4, 0 skipped |
+| AC-10 | Epics and user stories can be generated. | PASS | Chromium suite 4/4, 0 skipped; Agent gate |
+| AC-11 | Stories trace to requirements. | PASS | contracts semantic validator (contracts gate 52); Project and Agent schema tests |
+| AC-12 | Acceptance criteria are structured and testable. | PASS | requirements 0.3.0 schema in masd-contracts `main` `2f2bc3d`; drift test pins the Project snapshot to the runtime model |
+| AC-13 | Requirements quality validation executes. | PASS | Chromium suite 4/4, 0 skipped; Project/Agent quality tests |
+| AC-14 | Unresolved assumptions and questions remain visible. | PASS | Chromium suite 4/4, 0 skipped; visual check (desktop/mobile) |
+| AC-15 | The approval workflow supports approved/rejected/changes-requested decisions. | PASS | 90 Project tests on real PostgreSQL (`verify_m2 postgres`) incl. any-prior-negative-hash resubmission regression; Chromium suite 4/4, 0 skipped |
+| AC-16 | Approved artifact versions are immutable. | PASS | 90 Project tests on real PostgreSQL (`verify_m2 postgres`) (immutability triggers); `verify_m2_restart` baseline unchanged |
+| AC-17 | Stale approval attempts are rejected. | PASS | 90 Project tests on real PostgreSQL (`verify_m2 postgres`); Chromium suite 4/4, 0 skipped |
+| AC-18 | PM Agent cannot approve its own output. | PASS | Project tests (service credentials cannot approve); Agent has no approval API or tools |
+| AC-19 | Project access boundaries are enforced to the extent supported by the authenticated runtime. | PASS | 90 Project tests on real PostgreSQL (`verify_m2 postgres`) incl. per-peer and account-wide sign-in limits; development-only identity, production startup refused |
+| AC-20 | Version comparison works. | PASS | Chromium suite 4/4, 0 skipped; Project compare tests |
+| AC-21 | API contracts are published and validated. | PASS | masd-contracts #4 merged (`2f2bc3d`); contracts gate 52 incl. five OpenAPI/SSE validations; consumer snapshot drift tests |
+| AC-22 | Unit, integration, and applicable frontend tests pass. | PASS | all seven `scripts.check` gates on merged `main`: central 40, contracts 52, Gateway 50, Agent 76, Project 85 (+90 on PostgreSQL), web 22 + 57 Angular, infrastructure 70 |
+| AC-23 | The full deterministic end-to-end discovery-to-approval workflow is verified. | PASS | Chromium suite 4/4, 0 skipped on the rebuilt merged-`main` stack; `verify_m2_restart` |
+| AC-24 | Services remain independently buildable and deployable. | PASS | five independently built containers healthy via `m2_compose up --build --wait`; web production build |
+| AC-25 | CI and AIEngineeringStandards validation pass. | PASS | `main` CI success in all seven repositories; governance/standards validators in every gate |
+| AC-26 | PR review comments and required conversations are appropriately resolved. | PASS | All 37 original final-head threads resolved after their follow-ups merged; every follow-up thread fixed or dispositioned; the three disputed threads resolved by owner decision 2026-11-24 |
+| AC-27 | Required CI checks pass on all affected PRs. | PASS | exact-head `validate` and Sourcery success on every merged PR (merged with `--match-head-commit`) |
+| AC-28 | M2 handoff and completion evidence are accurate. | PASS | this reconciliation; earlier reports labelled historical |
+| AC-29 | No autonomous coding or deployment activity is introduced in M2. | PASS | Agent no-tools regression; merges performed by the human owner's explicit instruction; no cloud deployment |
+
+The tables below this point are historical pre-merge checkpoints, retained verbatim.
 
 **Pre-merge checkpoint (superseded by the post-merge result above, retained):**
 
