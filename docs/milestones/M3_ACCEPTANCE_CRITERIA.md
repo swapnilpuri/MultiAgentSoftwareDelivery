@@ -65,7 +65,7 @@ Evidence keys:
 | M3-AC-40 | Actionable PR feedback addressed and required threads resolved | PASS | Every actionable finding fixed with regressions or answered with evidence, and every thread resolved. The former focus dispute (contracts #5) was resolved by implementing the focus as a rendered C4 boundary |
 | M3-AC-41 | Required PR CI checks pass | PASS | `validate` success on every PR head |
 | M3-AC-42 | M3 documentation, completion evidence and handoff are accurate | PASS | This file, M3_COMPLETION_REPORT.md, M3_HANDOFF.md, M3_DESIGN.md corrections |
-| M3-AC-43 | Human merge approval remains mandatory | PASS | No PR merged; all PRs await human review |
+| M3-AC-43 | Human merge approval remains mandatory | PASS | No agent merged on its own initiative: all six PRs were merged on 2026-11-24 only after the owner's explicit instruction, each pinned with `--match-head-commit` to its verified head |
 | M3-AC-44 | M3 does not perform autonomous target-application coding or deployment | PASS | Agent has no tools; no-tools prompt test; Architect returns proposals only; no deployment capability |
 
 Limitations (not hidden as passes): generation quality was verified only with the deterministic `test/structured` adapter through the real Gateway; there was no live commercial or Ollama generation. Authentication is development-only (production startup refused). There was no container image vulnerability scan and no cloud deployment.

@@ -1,6 +1,6 @@
 # M3 requirements — Architect Agent & Solution Architecture Studio
 
-Status: authorized specification; implementation and verification complete, **READY_FOR_HUMAN_APPROVAL** (see [M3_COMPLETION_REPORT.md](M3_COMPLETION_REPORT.md)). M2 baseline VERIFIED_ACCEPTED on 2026-11-24 ([M3_BASELINE_VERIFICATION.md](M3_BASELINE_VERIFICATION.md)).
+Status: authorized specification; implementation and verification complete; all PRs merged and re-verified on `main`, **awaiting the owner's M3 acceptance** (see [M3_COMPLETION_REPORT.md](M3_COMPLETION_REPORT.md)). M2 baseline VERIFIED_ACCEPTED on 2026-11-24 ([M3_BASELINE_VERIFICATION.md](M3_BASELINE_VERIFICATION.md)).
 
 ## Authoritative source
 
