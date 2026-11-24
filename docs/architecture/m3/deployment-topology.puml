@@ -1,0 +1,18 @@
+@startuml m3-deployment-topology
+title M3 local deployment topology (isolated Compose profile; no cloud deployment)
+node "Developer workstation (Docker)" {
+  node "network: edge" {
+    component "web (nginx + Angular)\n127.0.0.1:4400" as web
+  }
+  node "network: service (internal)" {
+    component "project-service\n127.0.0.1:8200" as ps
+    component "agent-service\n(no DB credentials)" as as
+    component "llm-gateway" as gw
+    database "postgres 17\n127.0.0.1:5434, own volume" as pg
+  }
+}
+web --> ps : same-origin /api proxy
+ps --> pg
+ps --> as : bearer service token
+as --> gw : bearer gateway token (HTTP only with explicit\nMASD_ENVIRONMENT=development)
+@enduml

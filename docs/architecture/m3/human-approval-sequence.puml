@@ -1,0 +1,17 @@
+@startuml m3-human-approval-sequence
+title Human approval of an architecture revision
+actor Reviewer
+participant "masd-web" as Web
+participant "Project Service" as PS
+database PostgreSQL as DB
+Reviewer -> Web : Approve (comment)
+Web -> PS : decide {approved, revision_id, expected_hash, expected_version}
+PS -> PS : human principal with approval permission?\n(service credentials refused)
+PS -> DB : lock session; submitted == current revision?\nhash/version match? source PRD approval valid?\nsource is latest approved PRD?
+alt any check fails
+  PS --> Web : 403 / 409 (stale, unauthorized, out of date)
+else all checks pass
+  PS -> DB : append approval record + set approved pointer (one transaction)
+  PS --> Web : APPROVED, immutable baseline
+end
+@enduml
