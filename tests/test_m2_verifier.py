@@ -280,3 +280,23 @@ def test_single_sign_on_secrets_in_keycloak_logs_fail_the_scan(stack, tmp_path):
     stack["logs"]["masd-m2-keycloak-1"] = f"client secret={secret}\n".encode()
     with pytest.raises(RuntimeError, match="credential appeared"):
         verify_m2.runtime_secrets(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "MASD_OPENAI_API_KEY",
+        "MASD_ANTHROPIC_API_KEY",
+        "MASD_GEMINI_API_KEY",
+        "MASD_OPENAI_COMPATIBLE_API_KEY",
+    ],
+)
+def test_provider_keys_held_by_the_gateway_fail_the_scan_if_logged(stack, tmp_path, name):
+    # M3.1 B5: provider credentials are only in the gateway's environment, never in a file.
+    key = secrets.token_urlsafe(24)
+    gateway = container("llm-gateway")
+    gateway["Config"]["Env"] = [f"{name}={key}"]
+    stack["inspect"]["llm-gateway"] = gateway
+    stack["logs"]["masd-m2-llm-gateway-1"] = f"provider error for key {key}\n".encode()
+    with pytest.raises(RuntimeError, match="credential appeared"):
+        verify_m2.runtime_secrets(tmp_path)
