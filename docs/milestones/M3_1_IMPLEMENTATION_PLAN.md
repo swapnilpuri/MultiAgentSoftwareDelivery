@@ -222,3 +222,43 @@ Found and fixed during live verification:
 | Chromium, rebuilt `masd-m2` stack | **10/10**. The new journey checks four things: the limit read from `/capabilities` is shown; an over-limit paste stays intact, with the overflow shown and the send disabled; the server returns 422 to a client that skips the UI; and a message exactly at the limit is answered |
 | `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS (the scan now also covers the four provider keys) |
 | Live-provider smoke test | Not run: no provider credentials were supplied |
+
+#### B5 review round 1 (33 Sourcery findings: llm-gateway 15, project-service 6, contracts 4, web 4, infrastructure 2, central 2)
+
+Fixed with regression tests:
+- **Gateway: transport and retries.**
+  - Plain `http` is accepted only for local or private hosts; any other host requires `https`. Invalid ports are rejected.
+  - An unusable URL marks its provider unavailable instead of failing the whole catalog.
+  - LiteLLM retries are off. The gateway retries only provider refusals (429 and 503), so an ambiguous failure can never run, and bill, a second generation.
+- **Gateway: discovery.**
+  - Listings follow Anthropic and Gemini pagination, bounded at 10 pages.
+  - Gemini's HTTP 400 `API_KEY_INVALID` counts as invalid credentials, and HTTP 400 and 422 map to `INVALID_REQUEST`.
+  - Ollama `/api/show` calls run concurrently, one per model, and one failed lookup no longer hides later models.
+  - A configured Ollama model that cannot complete is no longer selectable, and `:latest` aliases are not discovered twice.
+  - Configured counts exclude auto-discovered models, and an empty catalog is cached for the TTL.
+- **Provider status.** It is closed in both services, rejects contradictory combinations, and has exactly one entry per provider.
+- **Project Service.**
+  - Text over the published ceiling gets the explicit length message, and other validation errors never echo input.
+  - The configured chat limit is checked before the gateway, so invalid input gets a 422 even during an outage.
+  - Capability schemas are closed and bounded by the request ceilings.
+  - A separate `providers_available` flag is added, and failed gateway listings are logged.
+  - A test now covers a project context far longer than 2,000 characters.
+- **Web.**
+  - A server refusal (400, 413 or 422) no longer leaves the composer locked. The text is kept, and the corrected message is sent with a new key.
+  - The conversation title, studio answers and review comments use counters instead of `maxlength`.
+  - Overlapping capability refreshes resolve in order, so the latest wins.
+  - Capability errors are shown in both studios and in Settings, including stale values after a failed refresh.
+- **Infrastructure README.** After editing `.env.m2`, containers must be recreated (`up`, not `restart`). Out-of-range limits are refused at startup.
+
+Answered without a code change, with the reasons given in each thread:
+- **Characters vs tokens.** The character budget is a deliberate trade-off. Text that tokenizes unusually densely gets the provider's classified `CONTEXT_LENGTH` error, never truncation. The gateway README now says so.
+- **Rolling upgrades.** Project Service is single-replica, and the B5 deployment note already requires deploying the gateway and Project Service together.
+- **Central "critical" finding.** It is incorrect: `read_credentials` never reads provider keys, which come only from the running container's environment. Real provider keys are far longer than the 12-character noise floor.
+
+| Check after round 1 | Result |
+|---|---|
+| llm-gateway / contracts / infrastructure | 116 / 98 / 89 passed |
+| project-service, real PostgreSQL 17 | 255 passed / 7 skipped; **262 passed, 0 skipped** |
+| web | 174 Angular tests, lint, build |
+| Chromium, rebuilt stack | 10/10 |
+| `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |

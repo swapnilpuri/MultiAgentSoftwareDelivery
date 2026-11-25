@@ -20,7 +20,7 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 |---|---|---|---|---|---|
 | #9 `717f794` | #4 `6fc025a` | #9 `ab05843` | #10 `633188b` | #10 `7cef8d5` | #17 |
 
-All six PRs are open, awaiting CI and review.
+All six PRs are open. CI is green. Review round 1 (33 findings) is fixed or answered; see the plan, B5 review round 1. The heads have moved past the table above.
 - **Merge order:** contracts, llm-gateway, project-service, web, then infrastructure.
 - **Deploy** the gateway and Project Service together.
 - **Central:** the B5 branch is stacked on #16, so merge #16 first.
@@ -51,7 +51,7 @@ Deployment notes for B5:
 
 ## Next task: B5 review, then B6 (rich AI Workspace)
 
-1. Work through the CI results and review findings on the six B5 PRs.
+1. Check for a further Sourcery round on the new heads.
 2. B6: rich AI Workspace and profiles (R2). Then B7 (upload and import), B8 (promotion) and B9 (acceptance).
 
 Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
@@ -75,10 +75,10 @@ Run on Windows, from each repository root:
 
 | Check | Result |
 |---|---|
-| project-service | 242 passed / 7 skipped; real PostgreSQL 17: 249 passed, 0 skipped |
-| llm-gateway | 80 passed |
-| web | 163 Angular tests and build |
-| contracts | 95 passed |
+| project-service | 255 passed / 7 skipped; real PostgreSQL 17: 262 passed, 0 skipped |
+| llm-gateway | 116 passed |
+| web | 174 Angular tests and build |
+| contracts | 98 passed |
 | infrastructure | 89 passed |
 | Chromium (with Keycloak) | 10/10 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
