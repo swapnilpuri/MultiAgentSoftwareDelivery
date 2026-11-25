@@ -4,29 +4,33 @@ Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, wor
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause and lifecycle design: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
-## Open PRs (as of 2026-11-25)
+## PR status (2026-11-25)
 
-All PRs below pass CI and Sourcery, with every review thread resolved. **None is merged.** `main` in every repository still equals the M3 merge.
+**B1/B2 and the plan are merged** on the owner's instruction. Each merge was pinned to the head commit verified on GitHub.
 
-| Batch | Repository | Branch | PR | Base |
-|---|---|---|---|---|
-| B1 | masd-contracts | feature/m3.1-durable-operations | #6 | main |
-| B1 | masd-project-service | feature/m3.1-durable-operations | #6 | main |
-| B2 | masd-web | feature/m3.1-durable-operations | #7 | main |
-| B1/B2 | masd-infrastructure | feature/m3.1-durable-operations | #7 | main |
-| plan | MultiAgentSoftwareDelivery | feature/m3.1-plan | #13 | main |
-| B3 | masd-contracts | feature/m3.1-architecture-operations | #7 | B1 branch |
-| B3 | masd-project-service | feature/m3.1-architecture-operations | #7 | B1 branch |
-| B3 | masd-web | feature/m3.1-architecture-operations | #8 | B2 branch |
-| B3 | masd-infrastructure | feature/m3.1-architecture-operations | #8 | B1 branch |
+| Batch | Repository | PR | Merge commit on `main` |
+|---|---|---|---|
+| B1 | masd-contracts | #6 | `9029150` |
+| B1 | masd-project-service | #6 | `ead2c0f` |
+| B2 | masd-web | #7 | `fdfbc13` |
+| B1/B2 | masd-infrastructure | #7 | `7fba040` |
+| plan | MultiAgentSoftwareDelivery | #13 | `4846b29` |
 
-Merge order inside each batch: contracts → project-service → web → infrastructure → central. Merge B1/B2 first. Then retarget each B3 PR to `main` (`gh pr edit <n> --base main`) and merge B3. Agents never merge.
+**B3 is open and retargeted to `main`.** Every B3 PR is mergeable, clean and Sourcery-clean, with all threads resolved. Merge them in this order:
+
+| Batch | Repository | Branch | PR |
+|---|---|---|---|
+| B3 | masd-contracts | feature/m3.1-architecture-operations | #7 |
+| B3 | masd-project-service | feature/m3.1-architecture-operations | #7 |
+| B3 | masd-web | feature/m3.1-architecture-operations | #8 |
+| B3 | masd-infrastructure | feature/m3.1-architecture-operations | #8 |
+
+Merge order: contracts → project-service → web → infrastructure → central. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
 ## Human actions
 
-1. Merge the B1/B2 PRs. The owner reported doing this on 2026-11-25, but GitHub still showed them open, so check on GitHub.
-2. After step 1, retarget the B3 PRs to `main`, review, and merge.
-3. Live-provider credentials (optional smoke test only) are still open.
+1. Review and merge B3, or tell the agent to merge it.
+2. Optionally, supply live-provider credentials for the smoke test.
 
 ## Decisions
 
