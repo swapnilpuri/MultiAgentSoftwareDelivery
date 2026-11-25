@@ -49,6 +49,15 @@ The fix keeps the existing architecture: Project Service stays authoritative and
   - This is covered by `test_cancel_and_completion_cannot_both_win`.
 - **Backstops.** `finalize_if_running` and background `ensure_terminal` record outcomes the worker could not persist. Startup recovery reconciles any row that is still `running`.
 
+### Deployment order for migrations 0005 and 0006
+
+Project Service runs as a **single replica**. The runtime ownership guard (`runtime_guard.py`, unchanged since M2) refuses to serve while another instance holds ownership, and readiness pins the exact required revision. Upgrades are therefore **stop, then migrate, then start**:
+1. Stop the old instance. Its running operations are marked `INTERRUPTED` with a reason at shutdown, or at the next startup.
+2. Start the new image, which applies the additive migration.
+3. Wait for readiness.
+
+A rolling upgrade with mixed versions is not supported. Both migrations only add nullable columns, so `downgrade` restores the previous schema if a rollback is needed. The `masd-m2` compose stack and the restart verifiers use exactly this order.
+
 ## 3. Gap analysis
 
 | Req | Gap | Batch |
