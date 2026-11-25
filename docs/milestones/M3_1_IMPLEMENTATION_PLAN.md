@@ -80,7 +80,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B1 | project-service, contracts | Durable requirements operations: migration `0005`, an app-owned runner that is independent of the request, observe/attach on replay, operation GET/list/cancel, failure reasons, startup reconciliation, regenerated 0.5.0 OpenAPI |
 | B2 | web | Requirements Studio: non-blocking generation, reconnect after a reload, an operation status panel, explicit retry, no navigation lock while the server is running |
 | B3 | project-service, web | Apply the B1/B2 pattern to Architecture operations; add a project-level Operations/Activity page |
-| B4 | web, project-service | Application shell plus unified login; Chat on the human principal |
+| B4 | contracts, project-service, infrastructure, web, central | Application shell plus unified login (Keycloak in the dev stack, OIDC through Project Service, contract 0.7.0); Chat on the human principal |
 | B5 | llm-gateway, project-service, web | Providers (Gemini, OpenAI-compatible), capability endpoint, limits UI |
 | B6 | web, project-service | Rich AI Workspace, profiles, versions |
 | B7 | project-service, web, infrastructure | Upload and import with security controls |

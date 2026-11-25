@@ -255,13 +255,42 @@ def read_credentials(workspace: Path) -> list[str]:
     return credentials
 
 
+# Secret-bearing variables, read from the running containers as well as from .env.m2:
+# a secret rotated in the file but not yet recreated is still the one a container can leak.
+CONTAINER_SECRETS = frozenset(
+    {
+        "POSTGRES_PASSWORD",
+        "MASD_GATEWAY_TOKEN",
+        "MASD_AGENT_TOKEN",
+        "MASD_OIDC_CLIENT_SECRET",
+        "MASD_SESSION_SECRET",
+        "KC_BOOTSTRAP_ADMIN_PASSWORD",
+        "MASD_DEVELOPER_PASSWORD",
+        "MASD_REVIEWER_PASSWORD",
+        "MASD_OUTSIDER_PASSWORD",
+    }
+)
+
+
+def container_secrets() -> set[str]:
+    values = set()
+    for service in SERVICES:
+        for entry in inspect(service)["Config"].get("Env") or []:
+            key, _, value = entry.partition("=")
+            # Very short values cannot be generated credentials and would match noise.
+            if key in CONTAINER_SECRETS and len(value) >= 12:
+                values.add(value)
+    return values
+
+
 def runtime_secrets(workspace: Path) -> None:
     local_docker()
     # Pin container IDs first, then read credentials; both are re-checked after the scan,
     # so neither a recreated container nor a rotated credential can produce a false PASS.
     pinned = {service: inspect(service)["Id"] for service in SERVICES}
     credentials = read_credentials(workspace)
-    forms = credential_forms(credentials)
+    active = container_secrets()
+    forms = credential_forms([*credentials, *sorted(active)])
     total = 0
     # Each fixed container's complete log prefix at scan time; the pinned IDs are compared
     # again afterwards, so a recreated container cannot substitute its logs.

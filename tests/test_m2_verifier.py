@@ -264,6 +264,17 @@ def test_postgres_run_is_void_if_the_target_changes(monkeypatch, tmp_path):
     assert ["pytest"] in calls
 
 
+def test_a_secret_held_by_a_running_container_is_scanned_even_after_rotation(stack, tmp_path):
+    # The file was rotated but the container still runs with the previous client secret.
+    previous = secrets.token_urlsafe(24)
+    keycloak = container("keycloak")
+    keycloak["Config"]["Env"] = [f"MASD_OIDC_CLIENT_SECRET={previous}"]
+    stack["inspect"]["keycloak"] = keycloak
+    stack["logs"]["masd-m2-keycloak-1"] = f"client secret={previous}\n".encode()
+    with pytest.raises(RuntimeError, match="credential appeared"):
+        verify_m2.runtime_secrets(tmp_path)
+
+
 def test_single_sign_on_secrets_in_keycloak_logs_fail_the_scan(stack, tmp_path):
     secret = stack["configured"]["MASD_OIDC_CLIENT_SECRET"]
     stack["logs"]["masd-m2-keycloak-1"] = f"client secret={secret}\n".encode()
