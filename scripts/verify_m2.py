@@ -12,7 +12,7 @@ from urllib.parse import quote, unquote_to_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "masd-m2"
-SERVICES = ("project-service", "llm-gateway", "agent-service", "web", "postgres")
+SERVICES = ("project-service", "llm-gateway", "agent-service", "web", "postgres", "keycloak")
 CHUNK = 65536
 CONTAINER_ID = re.compile(r"^[0-9a-f]{64}$")
 
@@ -46,6 +46,9 @@ INSPECT = {
     "postgres": lambda: subprocess.check_output(
         ["docker", "--context", "default", "inspect", "masd-m2-postgres-1"]
     ),
+    "keycloak": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-keycloak-1"]
+    ),
 }
 LOGS = {
     "project-service": lambda: subprocess.Popen(
@@ -70,6 +73,11 @@ LOGS = {
     ),
     "postgres": lambda: subprocess.Popen(
         ["docker", "--context", "default", "logs", "masd-m2-postgres-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "keycloak": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-keycloak-1"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     ),
@@ -230,6 +238,18 @@ def read_credentials(workspace: Path) -> list[str]:
         values[k] for k in ("POSTGRES_PASSWORD", "MASD_GATEWAY_TOKEN", "MASD_AGENT_TOKEN")
     ]
     credentials.append(login["password"])
+    # M3.1 B4 single sign-on secrets: client secret, session key, provider admin and the
+    # extra test accounts must never appear in any runtime log either.
+    credentials += [
+        values[k]
+        for k in (
+            "MASD_OIDC_CLIENT_SECRET",
+            "MASD_SESSION_SECRET",
+            "KEYCLOAK_ADMIN_PASSWORD",
+            "MASD_REVIEWER_PASSWORD",
+            "MASD_OUTSIDER_PASSWORD",
+        )
+    ]
     if not all(credentials):
         raise ValueError("Isolated test credentials must be configured")
     return credentials

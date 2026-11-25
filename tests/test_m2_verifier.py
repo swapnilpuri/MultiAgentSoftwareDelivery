@@ -10,7 +10,15 @@ from scripts import verify_m2
 ids = {
     name: format(index + 1, "064x")
     for index, name in enumerate(
-        ["project-service", "llm-gateway", "agent-service", "web", "postgres", "recreated"]
+        [
+            "project-service",
+            "llm-gateway",
+            "agent-service",
+            "web",
+            "postgres",
+            "keycloak",
+            "recreated",
+        ]
     )
 }
 
@@ -42,7 +50,18 @@ def stack(tmp_path, monkeypatch):
         "POSTGRES_PASSWORD": credential,
         "MASD_GATEWAY_TOKEN": secrets.token_urlsafe(24),
         "MASD_AGENT_TOKEN": secrets.token_urlsafe(24),
+        **{
+            key: secrets.token_urlsafe(24)
+            for key in (
+                "MASD_OIDC_CLIENT_SECRET",
+                "MASD_SESSION_SECRET",
+                "KEYCLOAK_ADMIN_PASSWORD",
+                "MASD_REVIEWER_PASSWORD",
+                "MASD_OUTSIDER_PASSWORD",
+            )
+        },
     }
+    state["configured"] = configured
     monkeypatch.setattr(verify_m2, "configuration", lambda root: dict(configured))
     inspected: dict[str, int] = {}
 
@@ -243,3 +262,10 @@ def test_postgres_run_is_void_if_the_target_changes(monkeypatch, tmp_path):
     with pytest.raises(RuntimeError, match="target changed"):
         verify_m2.postgres(tmp_path)
     assert ["pytest"] in calls
+
+
+def test_single_sign_on_secrets_in_keycloak_logs_fail_the_scan(stack, tmp_path):
+    secret = stack["configured"]["MASD_OIDC_CLIENT_SECRET"]
+    stack["logs"]["masd-m2-keycloak-1"] = f"client secret={secret}\n".encode()
+    with pytest.raises(RuntimeError, match="credential appeared"):
+        verify_m2.runtime_secrets(tmp_path)

@@ -96,10 +96,11 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 
 | Batch | Branch | PRs | Status |
 |---|---|---|---|
-| B1 | feature/m3.1-durable-operations | [contracts#6](https://github.com/swapnilpuri/masd-contracts/pull/6), [project-service#6](https://github.com/swapnilpuri/masd-project-service/pull/6), [infrastructure#7](https://github.com/swapnilpuri/masd-infrastructure/pull/7) | PR open, awaiting CI and review |
-| B2 | feature/m3.1-durable-operations | [web#7](https://github.com/swapnilpuri/masd-web/pull/7) | PR open, awaiting CI and review |
-| B3 | feature/m3.1-architecture-operations (stacked on B1/B2) | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | PR open, awaiting CI and review |
-| B4–B9 | — | — | not started |
+| B1 | feature/m3.1-durable-operations | [contracts#6](https://github.com/swapnilpuri/masd-contracts/pull/6), [project-service#6](https://github.com/swapnilpuri/masd-project-service/pull/6), [infrastructure#7](https://github.com/swapnilpuri/masd-infrastructure/pull/7) | merged |
+| B2 | feature/m3.1-durable-operations | [web#7](https://github.com/swapnilpuri/masd-web/pull/7) | merged |
+| B3 | feature/m3.1-architecture-operations | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | merged |
+| B4 | feature/m3.1-shell-auth | contracts, project-service, web, infrastructure, central (see the handoff) | PRs open, awaiting CI and review |
+| B5–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -128,3 +129,33 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | Operations page visual check | 1280 px and 390 px; no overflow |
 
 Not yet demonstrated live: a browser reload during a *long* generation. The deterministic adapter answers too fast for that, so it is covered by the service disconnect test and the web unit tests. It is scheduled for the B9 acceptance run.
+
+### B4 design (unified login and application shell, R1 and R8)
+
+| Decision | Choice and reason |
+|---|---|
+| Login flow | OIDC authorization code with PKCE S256, completed by Project Service as a backend-for-frontend with a confidential client. No token reaches the browser, and the existing httpOnly `masd_human` session and owner checks are reused. |
+| Provider exposure | Keycloak is served on the web origin at `/auth` through the nginx proxy, so cookies and the callback stay first-party. Project Service uses an internal backchannel URL, and the issuer stays public. |
+| Principal | `preferred_username` (username editing is disabled), so existing `owner_id` data stays valid. Sign-in requires `masd-user`, approval requires `masd-approver`, and the tenant comes from the `masd_tenant` claim. Project access checks both owner and tenant (migration `0007`). |
+| Session | The refresh token is encrypted at rest. A sliding renewal re-checks the provider every 5 minutes: role changes apply, and a revoked account ends the session. An outage defers renewal only within the 30-minute idle expiry, with a 10-hour absolute limit. Logout also ends the provider SSO session. |
+| Single entry point | Password sign-in exists only when OIDC is not configured (unit tests, `ng serve`). With SSO configured it returns 403, and existing password sessions end. |
+| Contract | 0.7.0. Its only non-additive change is that workspace routes (AI Workspace) require the session; the single consumer migrates in this batch. 0.1.0–0.6.0 are byte-identical. |
+| Shell | Six sections, with the project context remembered by ID only, breadcrumbs, titles, per-section help, navigation loading and error states, a responsive menu, and redirects from retired roadmap URLs. |
+
+### B4 evidence (2026-11-25, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 89 passed; 10 OpenAPI documents; 0.1.0–0.6.0 untouched |
+| project-service `scripts.check` / real PostgreSQL 17 | 219 passed / 7 skipped; **226 passed, 0 skipped** |
+| web `scripts.check` (from `C:\`) | 141 Angular tests, lint, build (initial bundle 372 kB) |
+| infrastructure `scripts.check` | 83 passed (+1 POSIX-only skip) |
+| Chromium, rebuilt `masd-m2` stack with Keycloak 26.4.7 | 9/9. Covers: one sign-in across all six sections, reload, no credential in browser storage, an httpOnly strict cookie, deep-link return, central sign-out (provider asks again), reviewer cannot approve, outsider refused, and the M1–M3 journeys through SSO |
+| `verify_m2_restart` / `verify_m3_restart` | PASS / PASS, signed in through the real Keycloak form |
+| `verify_m2 runtime-secrets` | PASS. Now also scans Keycloak logs and the B4 secrets (client secret, session secret, provider admin, test accounts) |
+| Shell visual check | 1280 px and 390 px; no horizontal overflow |
+
+Found and fixed during live verification:
+- **Bootstrap dependency cycle** (Router → TitleStrategy → ProjectContext → WorkspaceApi → Auth → Router). A production-provider test now guards it.
+- **Studios swallowed navigation silently** while their initial read was loading (`canLeave` refused any `busy` state). This predates B4. Reads no longer block leaving, and a real block now explains itself.
+- **OIDC client deadlock.** A non-reentrant lock was held across metadata and JWKS loading.
