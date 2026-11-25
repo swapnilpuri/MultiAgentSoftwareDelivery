@@ -49,7 +49,11 @@ After B4: B5 (Gemini and OpenAI-compatible providers, capability/limits endpoint
 
 Run on Windows, from each repository root:
 - **Gates:** `uv run --frozen python -m scripts.check`. Run masd-web from an uppercase `C:\` path, because of a Vitest quirk.
-- **Real PostgreSQL** (project-service): start a throwaway container with `docker run -d --rm --name m31-pg-test -e POSTGRES_PASSWORD=pgtestonly -e POSTGRES_DB=masd -p 127.0.0.1:55432:5432 postgres:17`. Then run `MASD_TEST_DATABASE_URL=postgresql+psycopg://postgres:pgtestonly@127.0.0.1:55432/masd uv run --frozen pytest -q`.
+- **Real PostgreSQL** (project-service):
+  1. Generate a one-off password, for example with `PW=$(python -c "import secrets;print(secrets.token_hex(12))")`.
+  2. Start a throwaway `postgres:17` container on `127.0.0.1:55432` with `POSTGRES_PASSWORD=$PW` and `POSTGRES_DB=masd`.
+  3. Point `MASD_TEST_DATABASE_URL` at it with the `postgresql+psycopg` driver, built from `$PW` at run time and never written to a file.
+  4. Run `uv run --frozen pytest -q`, then stop the container.
 - **Stack:** in infrastructure, `uv run --frozen python -m scripts.m2_compose up --build --wait`. The stack builds the sibling checkouts as they are.
 - **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
