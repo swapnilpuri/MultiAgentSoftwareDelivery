@@ -136,24 +136,40 @@ Not yet demonstrated live: a browser reload during a *long* generation. The dete
 |---|---|
 | Login flow | OIDC authorization code with PKCE S256, completed by Project Service as a backend-for-frontend with a confidential client. No token reaches the browser, and the existing httpOnly `masd_human` session and owner checks are reused. |
 | Provider exposure | Keycloak is served on the web origin at `/auth` through the nginx proxy, so cookies and the callback stay first-party. Project Service uses an internal backchannel URL, and the issuer stays public. |
-| Principal | `preferred_username` (username editing is disabled), so existing `owner_id` data stays valid. Sign-in requires `masd-user`, approval requires `masd-approver`, and the tenant comes from the `masd_tenant` claim. Project access checks both owner and tenant (migration `0007`). |
+| Principal | `preferred_username` (username editing is disabled), so existing `owner_id` data stays valid. Migration `0008` binds each username to its provider subject on first sign-in, so a re-created account that reuses the name is refused (`identity_conflict`) instead of inheriting projects. If the pre-B4 `MASD_LOCAL_USER_ID` differs from the SSO username, `python -m project_service.ownership --from-owner … --to-owner …` transfers the projects; it is a dry run without `--apply`. Sign-in requires `masd-user`, approval requires `masd-approver`, and the tenant comes from the `masd_tenant` claim. Project access checks both owner and tenant (migration `0007`). |
 | Session | The refresh token is encrypted at rest. A sliding renewal re-checks the provider every 5 minutes: role changes apply, and a revoked account ends the session. An outage defers renewal only within the 30-minute idle expiry, with a 10-hour absolute limit. Logout also ends the provider SSO session. |
 | Single entry point | Password sign-in exists only when OIDC is not configured (unit tests, `ng serve`). With SSO configured it returns 403, and existing password sessions end. |
 | Contract | 0.7.0. Its only non-additive change is that workspace routes (AI Workspace) require the session; the single consumer migrates in this batch. 0.1.0–0.6.0 are byte-identical. |
 | Shell | Six sections, with the project context remembered by ID only, breadcrumbs, titles, per-section help, navigation loading and error states, a responsive menu, and redirects from retired roadmap URLs. |
 
-### B4 evidence (2026-11-25, branch heads)
+### B4 evidence (2026-11-25, branch heads after review round 1)
 
 | Check | Result |
 |---|---|
-| contracts `scripts.check` | 89 passed; 10 OpenAPI documents; 0.1.0–0.6.0 untouched |
-| project-service `scripts.check` / real PostgreSQL 17 | 219 passed / 7 skipped; **226 passed, 0 skipped** |
-| web `scripts.check` (from `C:\`) | 141 Angular tests, lint, build (initial bundle 372 kB) |
-| infrastructure `scripts.check` | 83 passed (+1 POSIX-only skip) |
+| contracts `scripts.check` | 91 passed; 10 OpenAPI documents; 0.1.0–0.6.0 untouched |
+| project-service `scripts.check` / real PostgreSQL 17 | 231 passed / 7 skipped; **238 passed, 0 skipped** |
+| web `scripts.check` (from `C:\`) | 154 Angular tests, lint, build (initial bundle 372 kB) |
+| infrastructure `scripts.check` | 89 passed (+1 POSIX-only skip) |
 | Chromium, rebuilt `masd-m2` stack with Keycloak 26.4.7 | 9/9. Covers: one sign-in across all six sections, reload, no credential in browser storage, an httpOnly strict cookie, deep-link return, central sign-out (provider asks again), reviewer cannot approve, outsider refused, and the M1–M3 journeys through SSO |
 | `verify_m2_restart` / `verify_m3_restart` | PASS / PASS, signed in through the real Keycloak form |
 | `verify_m2 runtime-secrets` | PASS. Now also scans Keycloak logs and the B4 secrets (client secret, session secret, provider admin, test accounts) |
 | Shell visual check | 1280 px and 390 px; no horizontal overflow |
+
+Review round 1 (37 Sourcery findings: contracts 5, project-service 14, web 10, infrastructure 8) was fixed with regression tests. The main changes:
+- **Session renewal:** serialized and re-read under a row lock. A rotated refresh token survives a failed commit or a signing-key outage, and an outage backs off for 60 s.
+- **Sign-in flow:** each attempt has its own state cookie, the issuer must match exactly, `azp` is required with multiple audiences, and usernames are bound to subjects.
+- **Logout:** the local session is committed first, and an expired session can still sign out.
+- **Project access:** owner and tenant are checked before the row lock.
+- **Web:**
+  - sign-out success is shown only when the server confirmed it;
+  - a late identity lookup cannot revive a signed-out session;
+  - the previous human's operations are cleared when a different human signs in;
+  - a same-origin API is required;
+  - recovery markers are scoped to their human;
+  - the project context survives transient errors and follows renames;
+  - unsaved project forms are guarded.
+- **Infrastructure:** the SSO account file always derives from `.env.m2`, blank or commented settings are refused, and sign-in reads have a total deadline.
+- Two findings were addressed differently from their suggestion, and the replies explain why. The callback `state` stays optional in the schema so that a provider error still ends in the friendly redirect; its rule is documented instead. The `browser.newPage()` baseURL finding did not reproduce, but `baseURL` is now passed explicitly.
 
 Found and fixed during live verification:
 - **Bootstrap dependency cycle** (Router → TitleStrategy → ProjectContext → WorkspaceApi → Auth → Router). A production-provider test now guards it.

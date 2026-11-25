@@ -17,7 +17,7 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 
 Deployment notes for B4:
 1. **Existing `.env.m2`.** Run `python -m scripts.configure_m2 add-sso` once in infrastructure. It only appends keys, and the developer keeps the M2 password, now entered on the Keycloak page.
-2. **Migration `0007_unified_auth`.** It is additive; upgrade in the usual order: stop, migrate, start.
+2. **Migrations `0007_unified_auth` and `0008_principal_subjects`.** Both are additive; upgrade in the usual order: stop, migrate, start. If the pre-B4 `MASD_LOCAL_USER_ID` was not the SSO username, transfer the projects with `python -m project_service.ownership` (dry run first).
 3. **Breaking API change.** Workspace routes now require the session. masd-web migrates in the same batch, so deploy the web and Project Service changes together.
 
 ## Human actions
@@ -56,10 +56,10 @@ Run on Windows, from each repository root:
 
 | Check | Result |
 |---|---|
-| project-service | 219 passed / 7 skipped; real PostgreSQL 17: 226 passed, 0 skipped |
-| web | 141 Angular tests and build |
-| contracts | 89 passed |
-| infrastructure | 83 passed |
+| project-service | 231 passed / 7 skipped; real PostgreSQL 17: 238 passed, 0 skipped |
+| web | 154 Angular tests and build |
+| contracts | 91 passed |
+| infrastructure | 89 passed |
 | Chromium (with Keycloak) | 9/9 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
 
