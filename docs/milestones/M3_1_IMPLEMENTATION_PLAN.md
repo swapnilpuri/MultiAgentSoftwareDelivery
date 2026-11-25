@@ -80,7 +80,7 @@ The fix keeps the existing architecture: Project Service stays authoritative and
 
 ## 5. Owner decisions needed (non-blocking for B1–B3)
 
-1. **OIDC provider:** the options are a Keycloak container in the dev stack or an external IdP. Until the owner decides, B4 unifies the existing cookie session behind an OIDC-ready boundary.
+1. **OIDC provider:** decided 2026-11-24. The owner chose a **Keycloak** container in the dev stack, so B4 adds Keycloak and moves the single login onto OIDC.
 2. **Live-provider credentials:** these are needed only for the optional smoke test. Deterministic mock providers are used otherwise.
 
 ## 6. Progress
@@ -89,7 +89,8 @@ The fix keeps the existing architecture: Project Service stays authoritative and
 |---|---|---|---|
 | B1 | feature/m3.1-durable-operations | [contracts#6](https://github.com/swapnilpuri/masd-contracts/pull/6), [project-service#6](https://github.com/swapnilpuri/masd-project-service/pull/6), [infrastructure#7](https://github.com/swapnilpuri/masd-infrastructure/pull/7) | PR open, awaiting CI and review |
 | B2 | feature/m3.1-durable-operations | [web#7](https://github.com/swapnilpuri/masd-web/pull/7) | PR open, awaiting CI and review |
-| B3–B9 | — | — | not started |
+| B3 | feature/m3.1-architecture-operations (stacked on B1/B2) | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | PR open, awaiting CI and review |
+| B4–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -104,5 +105,17 @@ The fix keeps the existing architecture: Project Service stays authoritative and
 | `verify_m2_restart` / `verify_m3_restart` | PASS / PASS. M2 asserts that the replay names exactly the recorded `INTERRUPTED` reason |
 | `verify_m2 runtime-secrets` | PASS |
 | Review round 1 | 34 Sourcery findings (contracts 6, project-service 8, web 15, infrastructure 1, central 4). All were fixed with a regression test or a document change, then replied to and resolved |
+
+### B3 evidence (2026-11-24, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 85 passed; 9 OpenAPI documents; 0.1.0–0.5.0 byte-identical |
+| project-service `scripts.check` / real PostgreSQL 17 | 188 passed / 6 skipped; **194 passed, 0 skipped** |
+| web `scripts.check` | 110 Angular tests, build |
+| infrastructure `scripts.check` | 74 passed (+1 POSIX-only skip) |
+| Chromium, rebuilt `masd-m2` stack (all B3 branches) | 5/5 |
+| `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS (architecture now records `INTERRUPTED`) / PASS |
+| Operations page visual check | 1280 px and 390 px; no overflow |
 
 Not yet demonstrated live: a browser reload during a *long* generation. The deterministic adapter answers too fast for that, so it is covered by the service disconnect test and the web unit tests. It is scheduled for the B9 acceptance run.
