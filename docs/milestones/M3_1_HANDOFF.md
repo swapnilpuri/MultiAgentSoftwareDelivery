@@ -18,9 +18,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 
 | contracts | llm-gateway | project-service | web | infrastructure | central |
 |---|---|---|---|---|---|
-| `717f794` | `6fc025a` | `ab05843` | `633188b` | #10 `7cef8d5` | this branch |
+| #9 `717f794` | #4 `6fc025a` | #9 `ab05843` | #10 `633188b` | #10 `7cef8d5` | #17 |
 
-GitHub's API failed while the PRs were being opened (HTTP 502 and GraphQL errors, 2026-11-25), so only infrastructure #10 exists so far. Open the other PRs from the pushed branches; their descriptions are ready.
+All six PRs are open, awaiting CI and review.
 - **Merge order:** contracts, llm-gateway, project-service, web, then infrastructure.
 - **Deploy** the gateway and Project Service together.
 - **Central:** the B5 branch is stacked on #16, so merge #16 first.
@@ -51,7 +51,7 @@ Deployment notes for B5:
 
 ## Next task: B5 review, then B6 (rich AI Workspace)
 
-1. When GitHub recovers, open the remaining B5 PRs, then work through the CI and review findings.
+1. Work through the CI results and review findings on the six B5 PRs.
 2. B6: rich AI Workspace and profiles (R2). Then B7 (upload and import), B8 (promotion) and B9 (acceptance).
 
 Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
