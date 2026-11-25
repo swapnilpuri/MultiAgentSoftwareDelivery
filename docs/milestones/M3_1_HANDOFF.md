@@ -1,53 +1,43 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. Batches B1–B3 are implemented, reviewed and green. B4–B9 have not started. M4 is blocked until M3.1 is accepted.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B3 are merged. B4 is implemented, verified on a live stack and open for review. B5–B9 have not started. M4 is blocked until M3.1 is accepted.
 
-Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause and lifecycle design: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
+Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 design and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
 ## PR status (2026-11-25)
 
-**B1/B2 and the plan are merged** on the owner's instruction. Each merge was pinned to the head commit verified on GitHub.
+**Merged on the owner's instruction**, each pinned to its verified head commit:
 
-| Batch | Repository | PR | Merge commit on `main` |
-|---|---|---|---|
-| B1 | masd-contracts | #6 | `9029150` |
-| B1 | masd-project-service | #6 | `ead2c0f` |
-| B2 | masd-web | #7 | `fdfbc13` |
-| B1/B2 | masd-infrastructure | #7 | `7fba040` |
-| plan | MultiAgentSoftwareDelivery | #13 | `4846b29` |
+| Batch | contracts | project-service | web | infrastructure | central |
+|---|---|---|---|---|---|
+| B1/B2 | #6 `9029150` | #6 `ead2c0f` | #7 `fdfbc13` | #7 `7fba040` | plan #13 `4846b29` |
+| B3 | #7 `2b428bd` | #7 `2665234` | #8 `4d334c6` | #8 `b7bab9b` | #14 `c4b1fa6` |
 
-**B3 is open and retargeted to `main`.** Every B3 PR is mergeable, clean and Sourcery-clean, with all threads resolved. Merge them in this order:
+**B4 is open** on branch `feature/m3.1-shell-auth` in all five repositories. Merge in this order: contracts → project-service → infrastructure → web → central. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
-| Batch | Repository | Branch | PR |
-|---|---|---|---|
-| B3 | masd-contracts | feature/m3.1-architecture-operations | #7 |
-| B3 | masd-project-service | feature/m3.1-architecture-operations | #7 |
-| B3 | masd-web | feature/m3.1-architecture-operations | #8 |
-| B3 | masd-infrastructure | feature/m3.1-architecture-operations | #8 |
-
-Merge order: contracts → project-service → web → infrastructure → central. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
+Deployment notes for B4:
+1. **Existing `.env.m2`.** Run `python -m scripts.configure_m2 add-sso` once in infrastructure. It only appends keys, and the developer keeps the M2 password, now entered on the Keycloak page.
+2. **Migrations `0007_unified_auth` and `0008_principal_subjects`.** Both are additive; upgrade in the usual order: stop, migrate, start. If the pre-B4 `MASD_LOCAL_USER_ID` was not the SSO username, transfer the projects with `python -m project_service.ownership` (dry run first).
+3. **Breaking API change.** Workspace routes now require the session. masd-web migrates in the same batch, so deploy the web and Project Service changes together.
 
 ## Human actions
 
-1. Review and merge B3, or tell the agent to merge it.
+1. Review and merge the B4 PRs, or tell the agent to merge them.
 2. Optionally, supply live-provider credentials for the smoke test.
 
 ## Decisions
 
-- **OIDC provider:** Keycloak in the dev stack (owner, 2026-11-24).
+- **OIDC provider:** Keycloak in the dev stack (owner, 2026-11-24). B4 serves it on the web origin at `/auth`, and Project Service completes the flow as a backend-for-frontend (plan §6, B4 design).
 - **Deployment:** Project Service is single-replica, so upgrades are stop → migrate → start (plan §2a).
-- **Contracts:** 0.5.0 (B1) and 0.6.0 (B3) are additive. Earlier versions stay byte-identical.
+- **Contracts:** 0.5.0 (B1) and 0.6.0 (B3) are additive. 0.7.0 (B4) adds SSO and requires the session on workspace routes, its one non-additive change. Earlier versions stay byte-identical.
 
-## Next task: B4 (shell and unified login)
+## Next task: B5 (providers and limits)
 
-Scope: Requirements R1 and R8.
-- Add Keycloak to the `masd-m2` compose stack (infrastructure).
-- Project Service OIDC (authorization code + PKCE through a server-side session/BFF). Keep the existing httpOnly cookie session and the per-project owner authorization. No tokens in browser storage.
-- One app-level login and an authenticated route guard. Remove the separate studio login forms (masd-web `requirements-studio`, `architecture-studio`). Move AI Chat (`workspace.py`, which uses `local_user_id`) onto the human principal.
-- Application shell with the six sections from R1 (AI Workspace, Requirements Studio, Architecture Studio, Delivery/Milestones, Operations/Activity, Administration/Settings), plus breadcrumbs, project context, page titles, help text, and loading/empty/error states.
-- Known gap from B3: the sidebar highlights "Projects" on `/projects/:id/...` pages.
+Scope: Requirements R5 and R9. Add the Gemini and OpenAI-compatible providers to the gateway, plus a capability and limits endpoint (`GET /api/v1/capabilities`) that drives the UI character counters and server-side enforcement. Credentials come only from server configuration.
 
-After B4: B5 (Gemini and OpenAI-compatible providers, capability/limits endpoint), B6 (rich AI Workspace), B7 (upload/import), B8 (promotion), B9 (acceptance).
+After B5: B6 (rich AI Workspace), B7 (upload and import), B8 (promotion), B9 (acceptance).
+
+Known minor gap from B4: on narrow screens, a breadcrumb separator can start a wrapped line.
 
 ## Reproduce the evidence
 
@@ -59,18 +49,18 @@ Run on Windows, from each repository root:
   3. Point `MASD_TEST_DATABASE_URL` at it with the `postgresql+psycopg` driver, built from `$PW` at run time and never written to a file.
   4. Run `uv run --frozen pytest -q`, then stop the container.
 - **Stack:** in infrastructure, `uv run --frozen python -m scripts.m2_compose up --build --wait`. The stack builds the sibling checkouts as they are.
-- **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`.
+- **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M31_SSO_USERS_FILE=<infra>/artifacts/m31-sso-users.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`; every journey signs in once through Keycloak.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
 
-## Last verified results (B3 heads)
+## Last verified results (B4 heads)
 
 | Check | Result |
 |---|---|
-| project-service | 190 passed / 7 skipped; real PostgreSQL 17: 197 passed, 0 skipped |
-| web | 126 Angular tests and build |
-| contracts | 85 passed |
-| infrastructure | 74 passed |
-| Chromium | 5/5 |
+| project-service | 231 passed / 7 skipped; real PostgreSQL 17: 238 passed, 0 skipped |
+| web | 154 Angular tests and build |
+| contracts | 91 passed |
+| infrastructure | 89 passed |
+| Chromium (with Keycloak) | 9/9 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
 
 ## Working notes

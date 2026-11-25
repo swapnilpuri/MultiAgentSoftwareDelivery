@@ -12,7 +12,7 @@ from urllib.parse import quote, unquote_to_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "masd-m2"
-SERVICES = ("project-service", "llm-gateway", "agent-service", "web", "postgres")
+SERVICES = ("project-service", "llm-gateway", "agent-service", "web", "postgres", "keycloak")
 CHUNK = 65536
 CONTAINER_ID = re.compile(r"^[0-9a-f]{64}$")
 
@@ -46,6 +46,9 @@ INSPECT = {
     "postgres": lambda: subprocess.check_output(
         ["docker", "--context", "default", "inspect", "masd-m2-postgres-1"]
     ),
+    "keycloak": lambda: subprocess.check_output(
+        ["docker", "--context", "default", "inspect", "masd-m2-keycloak-1"]
+    ),
 }
 LOGS = {
     "project-service": lambda: subprocess.Popen(
@@ -70,6 +73,11 @@ LOGS = {
     ),
     "postgres": lambda: subprocess.Popen(
         ["docker", "--context", "default", "logs", "masd-m2-postgres-1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    ),
+    "keycloak": lambda: subprocess.Popen(
+        ["docker", "--context", "default", "logs", "masd-m2-keycloak-1"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     ),
@@ -230,9 +238,49 @@ def read_credentials(workspace: Path) -> list[str]:
         values[k] for k in ("POSTGRES_PASSWORD", "MASD_GATEWAY_TOKEN", "MASD_AGENT_TOKEN")
     ]
     credentials.append(login["password"])
+    # M3.1 B4 single sign-on secrets: client secret, session key, provider admin and the
+    # extra test accounts must never appear in any runtime log either.
+    credentials += [
+        values[k]
+        for k in (
+            "MASD_OIDC_CLIENT_SECRET",
+            "MASD_SESSION_SECRET",
+            "KEYCLOAK_ADMIN_PASSWORD",
+            "MASD_REVIEWER_PASSWORD",
+            "MASD_OUTSIDER_PASSWORD",
+        )
+    ]
     if not all(credentials):
         raise ValueError("Isolated test credentials must be configured")
     return credentials
+
+
+# Secret-bearing variables, read from the running containers as well as from .env.m2:
+# a secret rotated in the file but not yet recreated is still the one a container can leak.
+CONTAINER_SECRETS = frozenset(
+    {
+        "POSTGRES_PASSWORD",
+        "MASD_GATEWAY_TOKEN",
+        "MASD_AGENT_TOKEN",
+        "MASD_OIDC_CLIENT_SECRET",
+        "MASD_SESSION_SECRET",
+        "KC_BOOTSTRAP_ADMIN_PASSWORD",
+        "MASD_DEVELOPER_PASSWORD",
+        "MASD_REVIEWER_PASSWORD",
+        "MASD_OUTSIDER_PASSWORD",
+    }
+)
+
+
+def container_secrets() -> set[str]:
+    values = set()
+    for service in SERVICES:
+        for entry in inspect(service)["Config"].get("Env") or []:
+            key, _, value = entry.partition("=")
+            # Very short values cannot be generated credentials and would match noise.
+            if key in CONTAINER_SECRETS and len(value) >= 12:
+                values.add(value)
+    return values
 
 
 def runtime_secrets(workspace: Path) -> None:
@@ -241,7 +289,8 @@ def runtime_secrets(workspace: Path) -> None:
     # so neither a recreated container nor a rotated credential can produce a false PASS.
     pinned = {service: inspect(service)["Id"] for service in SERVICES}
     credentials = read_credentials(workspace)
-    forms = credential_forms(credentials)
+    active = container_secrets()
+    forms = credential_forms([*credentials, *sorted(active)])
     total = 0
     # Each fixed container's complete log prefix at scan time; the pinned IDs are compared
     # again afterwards, so a recreated container cannot substitute its logs.
