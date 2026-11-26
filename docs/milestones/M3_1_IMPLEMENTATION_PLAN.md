@@ -419,7 +419,7 @@ Answered without a code change, with the reasons given in each thread:
 | Check | Result |
 |---|---|
 | contracts `scripts.check` | 114 passed (7 new); 0.10.0 validates; 0.9.0 and earlier untouched |
-| project-service `scripts.check` | 341 passed / 7 skipped (65 new: types and signatures, encrypted, scanned and damaged PDFs, parser isolation and timeout, owner and project isolation, rate limit, CSRF, clamd scanning, 12 SSRF destinations, redirect re-checks and pinning, size caps, share-link outcomes, paste, delimiting, excerpts within budget, no-room refusal, delete, regeneration, retention, migration, contract) |
+| project-service `scripts.check` / real PostgreSQL 17 | 341 passed / 7 skipped; **348 passed, 0 skipped** (65 new: types and signatures, encrypted, scanned and damaged PDFs, parser isolation and timeout, owner and project isolation, rate limit, CSRF, clamd scanning, 12 SSRF destinations, redirect re-checks and pinning, size caps, share-link outcomes, paste, delimiting, excerpts within budget, no-room refusal, delete, regeneration, retention, migration, contract) |
 | web `scripts.check` (from `C:\`) | 233 Angular tests (+29), lint, typecheck, build (initial bundle 385.6 kB), audit 0 |
 | infrastructure `scripts.check` | 90 passed (+1 POSIX-only skip) |
 | Stack | Rebuilt `masd-m2`. Project Service became ready on its live PostgreSQL database after migration `0010_sources` |
