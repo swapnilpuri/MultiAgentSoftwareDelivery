@@ -426,3 +426,42 @@ Answered without a code change, with the reasons given in each thread:
 | Chromium, rebuilt `masd-m2` stack | **12/12**. The new journey uploads a PDF with progress and attaches it; the message records "whole text"; a renamed non-PDF is refused (`SIGNATURE_MISMATCH`) and so is an `.exe` (in the browser); a metadata-address link is refused (`URL_BLOCKED`, with no paste offer); a private ChatGPT link is refused (`PRIVATE_CONVERSATION_URL`) and the prefilled paste fallback saves a transcript; a direct API call gets 415; after delete and reload the message still names its source |
 | `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
 | Live share-link imports | Not run: deterministic tests use an in-memory site, and real ChatGPT, Claude and Gemini pages vary and may block automated access |
+
+#### B7 review round 1 (48 Sourcery findings: project-service 20, web 13, contracts 10, central 4, infrastructure 1)
+
+Fixed with regression tests:
+- **Project Service:**
+  - **Uploads:** the body is read only after sign-in, streamed with the cap, and refused with `TOO_LARGE`, which is audited. The file name moves to the `X-Source-Filename` header, so it stays out of URLs and logs.
+  - **Parser:** its output is bounded in the service, PDF extraction stops at the text limit, and a cancelled request kills its parser before the slot is released.
+  - **Model boundary:** source text is no longer in the system message; it opens the current user turn.
+  - **Retries and quota:** concurrent identical retries replay. The quota is checked before validation; rate-limit and key-conflict refusals are audited; inactive users are pruned.
+  - **Links:** malformed hosts get `URL_INVALID`, and stored links drop their query string.
+  - **Pastes:** the exact text is kept. Pastes that are empty after cleaning or over the text limit are refused, and the body limit fits JSON escapes.
+  - **Consistency:** attached sources take shared row locks and delete takes an exclusive one. Expiry events are recorded only for rows actually changed. The database constrains format and provider.
+- **Contracts (0.10.0, re-exported):** excerpt `maxLength`, `uniqueItems` on `source_ids`, `date-time` timestamps, the `SourceRef` hash pattern and non-negative sections, JSON exports documented as raw bytes, and the retry and conflict rules. The additivity test now also checks that every previously required field stays required.
+- **Web:**
+  - Panel state is scoped to the project, and paste keys are bound to the whole payload.
+  - List snapshots merge sources added meanwhile, and every page is loaded.
+  - Nothing is attached automatically until the limit is known.
+  - Attachments are re-checked before sending.
+  - Deletes are blocked while a message is being sent and reconciled when unanswered.
+  - Uploads and deletes have timeouts.
+  - The source-use note names the sections and pages, and the progress display has a test.
+- **Docs:** enabling scanning needs both settings. The paste fallback excludes SSRF refusals, the PR links are added, and the delimiters are described as defense in depth.
+
+Answered without a code change, with the reasons in each thread:
+- Process-local limits and exact-revision readiness: Project Service is single-replica, and upgrades are stop, migrate, start.
+- `MessageView.sources` stays optional-with-default, like the B6 fields.
+- Offset paging: the web client follows the pages and drops duplicates.
+- Malware scanning is off by default but stays visible.
+- An e2e test cannot observe server egress; the no-request guarantee is asserted in the Project Service tests.
+
+| Check after round 1 | Result |
+|---|---|
+| contracts / infrastructure | 115 / 90 passed |
+| project-service, SQLite / real PostgreSQL 17 | 355 passed, 7 skipped / **362 passed, 0 skipped** |
+| web (from `C:\`) | 242 Angular tests, lint, typecheck, build (initial 385.6 kB), audit 0 |
+| Chromium, rebuilt `masd-m2` stack | 12/12 |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+
+Found during verification: the rebuild re-created Keycloak, and its imported test realm gave the same usernames new subject IDs. Project Service then correctly refused them (`identity_conflict`, B4). The two dev-stack bindings were cleared so the test accounts could bind again. Also, the dev database was already at `0010_sources` before round 1, so it lacks the two CHECK constraints added to that unreleased migration; fresh databases get them.
