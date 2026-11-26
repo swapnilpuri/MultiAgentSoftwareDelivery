@@ -1,10 +1,10 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B6 are merged into `main`. B7 (upload and import) is implemented on `feature/m3.1-upload-import` and its PRs are open for review. B8–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8–B9 have not started; B8 (response-to-artifact promotion) is next. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
-## PR status (2026-11-25)
+## PR status (2026-11-26)
 
 **Merged on the owner's instruction**, each pinned to its verified head commit:
 
@@ -15,8 +15,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B4 | #8 `0bb590f` | #8 `586e7a6` | #9 `5aaefaa` | #9 `9faad49` | #15 `4acd6d0` |
 | B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 | B6 | #10 `4dcbdcd` | #10 `2dcc88d` | #11 `1c31f5a` | #11 `20f5b77` | #19 `d486376` |
+| B7 | #11 `1ebe098` | #11 `e500d59` | #12 `842a531` | #12 `9d93152` | #21 `ee7afa2` |
 
-B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At merge, each `main` tree was identical to the head verified in the plan's B6 review round 1; later central commits change only documentation. No M3.1 component PRs are open.
+B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At each merge, every `main` tree was identical to the head verified in that batch's latest review round (B6 round 1, B7 round 1). Central commits between batches change only documentation. No M3.1 component PRs are open.
 
 **B6 merged 2026-11-25** on the owner's instruction, after review round 1 (all threads resolved; Sourcery re-ran on every head with no new findings). Deploy the gateway and Project Service together.
 
@@ -50,10 +51,18 @@ Deployment notes for B6:
 3. **Behaviour change.** Answers are no longer cut off at 60–90 s, 64,000 characters, or 1,024–2,048 tokens. Commercial-provider cost per Comprehensive answer rises accordingly. `MASD_MAX_OUTPUT_TOKENS` lowers it.
 4. **`MASD_PROVIDER_TIMEOUT` is now an idle limit.** A deployment that relied on it as a total cap sets `MASD_GENERATION_MAX_SECONDS` instead. `MASD_MAX_ACTIVE_GENERATIONS` (default 16) caps concurrent generations in the gateway.
 
-## Current task: B7 (upload and import) in review
+## B7 (upload and import): merged 2026-11-26
+
+Merged on the owner's instruction after review round 1 (48 Sourcery findings, all answered and resolved; Sourcery re-ran on every head with no new findings), each pinned to its verified head. At merge, each `main` tree was identical to the head verified in the plan's B7 review round 1. llm-gateway was not changed.
+
+## Next task: B8 (response-to-artifact promotion, R3)
+
+Start from current `main`. Read the plan (gap analysis R3 and section 4) and the B7 design. After B8: B9 (acceptance).
+
+### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. Next, after the owner merges B7: B8 (promotion), then B9 (acceptance).
+2. B7 is merged; B8 (promotion) is next, then B9 (acceptance).
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 
