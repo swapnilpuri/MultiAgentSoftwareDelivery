@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B4 are merged into `main`. B5 is implemented and verified on `feature/m3.1-providers-limits`, and awaits review. B6–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B5 are merged into `main`. B6–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 and B5 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -13,17 +13,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B1/B2 | #6 `9029150` | #6 `ead2c0f` | #7 `fdfbc13` | #7 `7fba040` | plan #13 `4846b29` |
 | B3 | #7 `2b428bd` | #7 `2665234` | #8 `4d334c6` | #8 `b7bab9b` | #14 `c4b1fa6` |
 | B4 | #8 `0bb590f` | #8 `586e7a6` | #9 `5aaefaa` | #9 `9faad49` | #15 `4acd6d0` |
+| B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 
-**B5 is open for review.** Every repository has the branch `feature/m3.1-providers-limits`, pushed at these verified heads:
-
-| contracts | llm-gateway | project-service | web | infrastructure | central |
-|---|---|---|---|---|---|
-| #9 `717f794` | #4 `6fc025a` | #9 `ab05843` | #10 `633188b` | #10 `7cef8d5` | #17 |
-
-All six PRs are open. CI is green. Review round 1 (33 findings) is fixed or answered; see the plan, B5 review round 1. The heads have moved past the table above.
-- **Merge order:** contracts, llm-gateway, project-service, web, then infrastructure.
-- **Deploy** the gateway and Project Service together.
-- **Central:** the B5 branch is stacked on #16, so merge #16 first.
+B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. Each `main` tree is identical to the head verified in the plan's B5 review round 1. No M3.1 component PRs are open.
 
 Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
@@ -49,10 +41,9 @@ Deployment notes for B5:
 3. **Behaviour change.** A commercial model is available only when its provider answers and lists it. Before, it was available whenever a key was set.
 4. **Provider keys are optional** and go in `.env.m2`; see the infrastructure README. Nothing is generated.
 
-## Next task: B5 review, then B6 (rich AI Workspace)
+## Next task: B6 (rich AI Workspace)
 
-1. Check for a further Sourcery round on the new heads.
-2. B6: rich AI Workspace and profiles (R2). Then B7 (upload and import), B8 (promotion) and B9 (acceptance).
+Start from `main` in every repository on a new branch. B6 covers the rich AI Workspace and response profiles (R2). Then come B7 (upload and import), B8 (promotion) and B9 (acceptance).
 
 Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
 
@@ -71,7 +62,7 @@ Run on Windows, from each repository root:
 - **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M31_SSO_USERS_FILE=<infra>/artifacts/m31-sso-users.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`; every journey signs in once through Keycloak.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
 
-## Last verified results (B5 branch heads)
+## Last verified results (B5, merged)
 
 | Check | Result |
 |---|---|
