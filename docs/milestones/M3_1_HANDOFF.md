@@ -1,8 +1,8 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B4 are merged into `main`. B5–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B4 are merged into `main`. B5 is implemented and verified on `feature/m3.1-providers-limits`, and awaits review. B6–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
-Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 design and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
+Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 and B5 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
 ## PR status (2026-11-25)
 
@@ -14,7 +14,18 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B3 | #7 `2b428bd` | #7 `2665234` | #8 `4d334c6` | #8 `b7bab9b` | #14 `c4b1fa6` |
 | B4 | #8 `0bb590f` | #8 `586e7a6` | #9 `5aaefaa` | #9 `9faad49` | #15 `4acd6d0` |
 
-No M3.1 component PRs are open. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
+**B5 is open for review.** Every repository has the branch `feature/m3.1-providers-limits`, pushed at these verified heads:
+
+| contracts | llm-gateway | project-service | web | infrastructure | central |
+|---|---|---|---|---|---|
+| #9 `717f794` | #4 `6fc025a` | #9 `ab05843` | #10 `633188b` | #10 `7cef8d5` | #17 |
+
+All six PRs are open. CI is green. Review round 1 (33 findings) is fixed or answered; see the plan, B5 review round 1. The heads have moved past the table above.
+- **Merge order:** contracts, llm-gateway, project-service, web, then infrastructure.
+- **Deploy** the gateway and Project Service together.
+- **Central:** the B5 branch is stacked on #16, so merge #16 first.
+
+Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
 Deployment notes for B4:
 1. **Existing `.env.m2`.** Run `python -m scripts.configure_m2 add-sso` once in infrastructure. It only appends keys, and the developer keeps the M2 password, now entered on the Keycloak page.
@@ -32,13 +43,18 @@ Deployment notes for B4:
 - **Deployment:** Project Service is single-replica, so upgrades are stop → migrate → start (plan §2a).
 - **Contracts:** 0.5.0 (B1) and 0.6.0 (B3) are additive. 0.7.0 (B4) adds SSO and requires the session on workspace routes, its one non-additive change. Earlier versions stay byte-identical.
 
-## Next task: B5 (providers and limits)
+Deployment notes for B5:
+1. **No migration.** The Project Service 0.8.0 and llm-gateway 0.3.0 contracts are additive.
+2. **Deploy llm-gateway and Project Service together.** Project Service 0.8.0 tolerates a gateway without `/providers`, but an older Project Service rejects the new provider values.
+3. **Behaviour change.** A commercial model is available only when its provider answers and lists it. Before, it was available whenever a key was set.
+4. **Provider keys are optional** and go in `.env.m2`; see the infrastructure README. Nothing is generated.
 
-Start from `main` in every repository, on a new branch `feature/m3.1-providers-limits`.
+## Next task: B5 review, then B6 (rich AI Workspace)
 
-Scope: Requirements R5 and R9. Add the Gemini and OpenAI-compatible providers to the gateway, plus a capability and limits endpoint (`GET /api/v1/capabilities`) that drives the UI character counters and server-side enforcement. Credentials come only from server configuration.
+1. Check for a further Sourcery round on the new heads.
+2. B6: rich AI Workspace and profiles (R2). Then B7 (upload and import), B8 (promotion) and B9 (acceptance).
 
-After B5: B6 (rich AI Workspace), B7 (upload and import), B8 (promotion), B9 (acceptance).
+Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
 
 Known minor gap from B4: on narrow screens, a breadcrumb separator can start a wrapped line.
 
@@ -55,15 +71,16 @@ Run on Windows, from each repository root:
 - **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M31_SSO_USERS_FILE=<infra>/artifacts/m31-sso-users.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`; every journey signs in once through Keycloak.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
 
-## Last verified results (B4 heads, merged)
+## Last verified results (B5 branch heads)
 
 | Check | Result |
 |---|---|
-| project-service | 231 passed / 7 skipped; real PostgreSQL 17: 238 passed, 0 skipped |
-| web | 154 Angular tests and build |
-| contracts | 91 passed |
+| project-service | 255 passed / 7 skipped; real PostgreSQL 17: 262 passed, 0 skipped |
+| llm-gateway | 116 passed |
+| web | 174 Angular tests and build |
+| contracts | 98 passed |
 | infrastructure | 89 passed |
-| Chromium (with Keycloak) | 9/9 |
+| Chromium (with Keycloak) | 10/10 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
 
 ## Working notes

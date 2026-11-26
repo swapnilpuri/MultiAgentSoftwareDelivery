@@ -268,6 +268,11 @@ CONTAINER_SECRETS = frozenset(
         "MASD_DEVELOPER_PASSWORD",
         "MASD_REVIEWER_PASSWORD",
         "MASD_OUTSIDER_PASSWORD",
+        # M3.1 B5: model provider credentials held by the gateway container.
+        "MASD_OPENAI_API_KEY",
+        "MASD_ANTHROPIC_API_KEY",
+        "MASD_GEMINI_API_KEY",
+        "MASD_OPENAI_COMPATIBLE_API_KEY",
     }
 )
 

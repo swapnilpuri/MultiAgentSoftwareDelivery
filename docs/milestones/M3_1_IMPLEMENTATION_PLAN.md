@@ -100,7 +100,8 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B2 | feature/m3.1-durable-operations | [web#7](https://github.com/swapnilpuri/masd-web/pull/7) | merged |
 | B3 | feature/m3.1-architecture-operations | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | merged |
 | B4 | feature/m3.1-shell-auth | [contracts#8](https://github.com/swapnilpuri/masd-contracts/pull/8), [project-service#8](https://github.com/swapnilpuri/masd-project-service/pull/8), [infrastructure#9](https://github.com/swapnilpuri/masd-infrastructure/pull/9), [web#9](https://github.com/swapnilpuri/masd-web/pull/9), [central#15](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/15) | merged |
-| B5–B9 | — | — | not started |
+| B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | PRs open, awaiting CI and review |
+| B6–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -175,3 +176,89 @@ Found and fixed during live verification:
 - **Bootstrap dependency cycle** (Router → TitleStrategy → ProjectContext → WorkspaceApi → Auth → Router). A production-provider test now guards it.
 - **Studios swallowed navigation silently** while their initial read was loading (`canLeave` refused any `busy` state). This predates B4. Reads no longer block leaving, and a real block now explains itself.
 - **OIDC client deadlock.** A non-reentrant lock was held across metadata and JWKS loading.
+
+### B5 design (providers and limits, R5 and R9)
+
+**Providers (llm-gateway 0.3.0).** `gemini` and `openai_compatible` join `openai`, `anthropic`, `ollama` and `test`. All of them go through LiteLLM and must be configured explicitly in `MASD_MODELS`.
+- **Credentials** come only from the gateway environment and travel in headers. The OpenAI-compatible endpoint has its own optional key and never receives the OpenAI key.
+- **Availability is verified, not assumed.** Each catalog refresh (single-flight, `MASD_CATALOG_TTL` 30 s) lists models with the configured credential, in parallel, with a 3 s timeout. A model is `available` only when it is enabled, its provider answered, and the provider lists it. Otherwise `unavailable_reason` gives a code. An unavailable provider affects only its own models.
+- **Discovered limits.** Gemini's reported token limits fill an unconfigured `context_limit` or `output_limit`.
+- **Provider status.** `GET /api/v1/providers` reports each provider's status without URLs or keys.
+- **Retries** (`MASD_PROVIDER_RETRIES`, default 1) happen only while opening a stream.
+- **Usage and errors.** Usage is requested from OpenAI and Gemini. Error classes add `CONTENT_FILTERED`, `INVALID_REQUEST` and an HTTP-status fallback.
+
+**Limits (Project Service 0.8.0).** `GET /api/v1/capabilities` (session) returns the enforced text limits, each available model's `prompt_max_chars`, the provider status, `catalog_available` and the long-input policy.
+- **Single source.** `project_service/limits.py` holds the Pydantic ceilings (the published `maxLength`), the configured limits, which may only lower them, and `prompt_limit()`. The endpoint and chat submit both use `prompt_limit()`.
+- **Per-model limit.** `min(chat limit, budget − project-context reserve (≤ 2 000) − 128)`, where `budget = min(MASD_CONTEXT_BUDGET, context − output − 256)`.
+- **Enforcement.** An over-limit chat message or requirements description gets a 422 that names both numbers, before any turn or session is created.
+
+**Long-input strategy.** Reject, never truncate.
+- Each turn sends the project context (capped at 2 000 characters), then completed turns, newest first, while they fit. The turn records the IDs of the messages it included.
+- Both services now count characters instead of UTF-8 bytes. Characters are a conservative token proxy, and they match the counter.
+- Long documents are handled by the B7 extraction pipeline.
+
+**Defects found during design.**
+- With the default `MASD_CONTEXT_BUDGET=6000`, the UI accepted 12 000 characters, but the server rejected anything over about 3 900 bytes after the user submitted.
+- Adding a new provider would have broken `/models`, because Project Service's `ModelInfo.provider` was a closed enum.
+
+**Web.**
+- A `Capabilities` service never throws, and it loads independently of the model list.
+- A reusable `app-char-counter` shows the count and the limit, the remaining characters or the overflow, and an explicit alert.
+- Prompt fields drop `maxlength`, because the browser silently cut pasted text. Submission is disabled over the limit instead.
+- Counting uses code points, matching Python `len`.
+- The AI Workspace shows the selected model's limits, and lists allowed models that are unavailable, with the reason.
+- Settings shows the provider status, the limits and the policy.
+
+### B5 evidence (2026-11-25, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 95 passed; 12 OpenAPI documents; 0.1.0–0.7.0 and llm-gateway 0.2.0 untouched |
+| llm-gateway `scripts.check` | 80 passed (30 new) |
+| project-service `scripts.check` / real PostgreSQL 17 | 242 passed / 7 skipped; **249 passed, 0 skipped** |
+| web `scripts.check` (from `C:\`) | 163 Angular tests (+9), lint, typecheck, build, audit |
+| infrastructure `scripts.check` | 89 passed (+1 POSIX-only skip) |
+| central | `test_m2_verifier.py` 24 passed (4 new: a provider key in gateway logs fails the scan) |
+| Chromium, rebuilt `masd-m2` stack | **10/10**. The new journey checks four things: the limit read from `/capabilities` is shown; an over-limit paste stays intact, with the overflow shown and the send disabled; the server returns 422 to a client that skips the UI; and a message exactly at the limit is answered |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS (the scan now also covers the four provider keys) |
+| Live-provider smoke test | Not run: no provider credentials were supplied |
+
+#### B5 review round 1 (33 Sourcery findings: llm-gateway 15, project-service 6, contracts 4, web 4, infrastructure 2, central 2)
+
+Fixed with regression tests:
+- **Gateway: transport and retries.**
+  - Plain `http` is accepted only for local or private hosts; any other host requires `https`. Invalid ports are rejected.
+  - An unusable URL marks its provider unavailable instead of failing the whole catalog.
+  - LiteLLM retries are off. The gateway retries only provider refusals (429 and 503), so an ambiguous failure can never run, and bill, a second generation.
+- **Gateway: discovery.**
+  - Listings follow Anthropic and Gemini pagination, bounded at 10 pages.
+  - Gemini's HTTP 400 `API_KEY_INVALID` counts as invalid credentials, and HTTP 400 and 422 map to `INVALID_REQUEST`.
+  - Ollama `/api/show` calls run concurrently, one per model, and one failed lookup no longer hides later models.
+  - A configured Ollama model that cannot complete is no longer selectable, and `:latest` aliases are not discovered twice.
+  - Configured counts exclude auto-discovered models, and an empty catalog is cached for the TTL.
+- **Provider status.** It is closed in both services, rejects contradictory combinations, and has exactly one entry per provider.
+- **Project Service.**
+  - Text over the published ceiling gets the explicit length message, and other validation errors never echo input.
+  - The configured chat limit is checked before the gateway, so invalid input gets a 422 even during an outage.
+  - Capability schemas are closed and bounded by the request ceilings.
+  - A separate `providers_available` flag is added, and failed gateway listings are logged.
+  - A test now covers a project context far longer than 2,000 characters.
+- **Web.**
+  - A server refusal (400, 413 or 422) no longer leaves the composer locked. The text is kept, and the corrected message is sent with a new key.
+  - The conversation title, studio answers and review comments use counters instead of `maxlength`.
+  - Overlapping capability refreshes resolve in order, so the latest wins.
+  - Capability errors are shown in both studios and in Settings, including stale values after a failed refresh.
+- **Infrastructure README.** After editing `.env.m2`, containers must be recreated (`up`, not `restart`). Out-of-range limits are refused at startup.
+
+Answered without a code change, with the reasons given in each thread:
+- **Characters vs tokens.** The character budget is a deliberate trade-off. Text that tokenizes unusually densely gets the provider's classified `CONTEXT_LENGTH` error, never truncation. The gateway README now says so.
+- **Rolling upgrades.** Project Service is single-replica, and the B5 deployment note already requires deploying the gateway and Project Service together.
+- **Central "critical" finding.** It is incorrect: `read_credentials` never reads provider keys, which come only from the running container's environment. Real provider keys are far longer than the 12-character noise floor.
+
+| Check after round 1 | Result |
+|---|---|
+| llm-gateway / contracts / infrastructure | 116 / 98 / 89 passed |
+| project-service, real PostgreSQL 17 | 255 passed / 7 skipped; **262 passed, 0 skipped** |
+| web | 174 Angular tests, lint, build |
+| Chromium, rebuilt stack | 10/10 |
+| `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
