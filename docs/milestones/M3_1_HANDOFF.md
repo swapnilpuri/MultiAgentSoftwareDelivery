@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B3 are merged. B4 is implemented, verified on a live stack and open for review. B5–B9 have not started. M4 is blocked until M3.1 is accepted.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B4 are merged into `main`. B5–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 design and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -12,8 +12,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 |---|---|---|---|---|---|
 | B1/B2 | #6 `9029150` | #6 `ead2c0f` | #7 `fdfbc13` | #7 `7fba040` | plan #13 `4846b29` |
 | B3 | #7 `2b428bd` | #7 `2665234` | #8 `4d334c6` | #8 `b7bab9b` | #14 `c4b1fa6` |
+| B4 | #8 `0bb590f` | #8 `586e7a6` | #9 `5aaefaa` | #9 `9faad49` | #15 `4acd6d0` |
 
-**B4 is open** on branch `feature/m3.1-shell-auth` in all five repositories. Merge in this order: contracts → project-service → infrastructure → web → central. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
+No M3.1 component PRs are open. Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
 Deployment notes for B4:
 1. **Existing `.env.m2`.** Run `python -m scripts.configure_m2 add-sso` once in infrastructure. It only appends keys, and the developer keeps the M2 password, now entered on the Keycloak page.
@@ -22,7 +23,7 @@ Deployment notes for B4:
 
 ## Human actions
 
-1. Review and merge the B4 PRs, or tell the agent to merge them.
+1. Review and merge each batch's PRs, or tell the agent to merge them.
 2. Optionally, supply live-provider credentials for the smoke test.
 
 ## Decisions
@@ -32,6 +33,8 @@ Deployment notes for B4:
 - **Contracts:** 0.5.0 (B1) and 0.6.0 (B3) are additive. 0.7.0 (B4) adds SSO and requires the session on workspace routes, its one non-additive change. Earlier versions stay byte-identical.
 
 ## Next task: B5 (providers and limits)
+
+Start from `main` in every repository, on a new branch `feature/m3.1-providers-limits`.
 
 Scope: Requirements R5 and R9. Add the Gemini and OpenAI-compatible providers to the gateway, plus a capability and limits endpoint (`GET /api/v1/capabilities`) that drives the UI character counters and server-side enforcement. Credentials come only from server configuration.
 
@@ -52,7 +55,7 @@ Run on Windows, from each repository root:
 - **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M31_SSO_USERS_FILE=<infra>/artifacts/m31-sso-users.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`; every journey signs in once through Keycloak.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
 
-## Last verified results (B4 heads)
+## Last verified results (B4 heads, merged)
 
 | Check | Result |
 |---|---|
