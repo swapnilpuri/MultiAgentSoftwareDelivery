@@ -83,7 +83,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B4 | contracts, project-service, infrastructure, web, central | Application shell plus unified login (Keycloak in the dev stack, OIDC through Project Service, contract 0.7.0); Chat on the human principal |
 | B5 | llm-gateway, project-service, web | Providers (Gemini, OpenAI-compatible), capability endpoint, limits UI |
 | B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
-| B7 | project-service, web, infrastructure | Upload and import with security controls |
+| B7 | contracts, project-service, web, infrastructure, central | Upload and import with security controls |
 | B8 | project-service, web | Response→artifact promotion and traceability into Requirements and Architecture Studio |
 | B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
 
@@ -102,7 +102,8 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B4 | feature/m3.1-shell-auth | [contracts#8](https://github.com/swapnilpuri/masd-contracts/pull/8), [project-service#8](https://github.com/swapnilpuri/masd-project-service/pull/8), [infrastructure#9](https://github.com/swapnilpuri/masd-infrastructure/pull/9), [web#9](https://github.com/swapnilpuri/masd-web/pull/9), [central#15](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/15) | merged |
 | B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | merged |
 | B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | Merged 2026-11-25: contracts `4dcbdcd`, llm-gateway `4704e39`, project-service `2dcc88d`, web `1c31f5a`, infrastructure `20f5b77`, central `d486376` |
-| B7–B9 | — | — | not started |
+| B7 | feature/m3.1-upload-import | [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) | in review |
+| B8–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -365,3 +366,102 @@ Answered without a code change, with the reasons given in each thread:
 | web (from `C:\`) | 204 Angular tests, lint, typecheck, build, audit 0 |
 | Chromium, rebuilt `masd-m2` stack | 11/11 |
 | `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+
+### B7 design (upload and import, R4 with the R5 long-input strategy)
+
+**Inputs.** Each one creates a project source; the `Idempotency-Key` becomes the source ID, so a retry never duplicates one.
+
+| Input | Route | Accepted |
+|---|---|---|
+| Upload | `POST .../sources:upload` (raw body, `filename` query) | PDF with a text layer, `.txt`, `.md`, `.markdown`, and conversation-export `.json` (ChatGPT or Claude `conversations.json`, or a `{role, content}` list) |
+| Link | `POST .../sources:import` | Public web pages, text, Markdown and PDF links |
+| Share link | `POST .../sources:import` | `chatgpt.com/share/…`, `chat.openai.com/share/…`, `claude.ai/share/…`, `gemini.google.com/share/…`, `g.co/gemini/share/…` |
+| Paste | `POST .../sources:paste` | A transcript or other text, up to 200,000 characters: the fallback for share links that cannot be read. A link refused for safety (SSRF) gets no paste offer, but the Paste tab stays available |
+
+**Share links are best effort.** A share page is imported only when it embeds the conversation as data (for example ChatGPT's `__NEXT_DATA__`). Pages that render in the browser fail with `SHARE_NOT_READABLE`, and the reason names the fallback. Private conversation links (`/c/…`, `/chat/…`, `/app/…`) are refused before any request, with `PRIVATE_CONVERSATION_URL`. A sign-in redirect, 401 or 403 gives `SHARE_REQUIRES_SIGN_IN`, and 404 or 410 gives `SHARE_NOT_FOUND`. MASD never signs in to a provider, calls a private API, sends cookies or stores credentials.
+
+**Security controls.**
+
+| Control | Implementation |
+|---|---|
+| Type and signature | Allow-listed extension, a compatible declared media type, and matching content: `%PDF-` in the first 1 KB for PDFs; text must decode as UTF-8 (or UTF-16 with a BOM) with no binary signature or NUL bytes |
+| Size limits | `MASD_UPLOAD_MAX_BYTES` (10 MiB by default, ceiling 25 MiB), enforced in the HTTP middleware and the route; `MASD_SOURCE_MAX_CHARS` (1,000,000) and `MASD_PDF_MAX_PAGES` (500) after extraction. nginx accepts 26 MB on the upload route only |
+| Safe parsing | Every parser (pypdf, HTML, JSON exports, share pages) runs in a child process (`python -m project_service.extract`), with no service environment or secrets, 1 GiB address space and CPU rlimits on POSIX, a `MASD_EXTRACT_TIMEOUT` kill (30 s), and at most two at a time. Only extracted text and the SHA-256 of the original are stored |
+| Encrypted and scanned PDFs | Refused with `ENCRYPTED_PDF` and `NO_TEXT`. There is no OCR and no password prompt |
+| SSRF | http(s) on ports 80 and 443 only; no credentials in the URL; every resolved address must be public (`is_global`; private, loopback, link-local metadata, CGNAT, ULA and IPv4-mapped addresses are refused); the connection is pinned to the vetted address (Host and SNI keep the name, which defeats DNS rebinding); every redirect is re-checked, up to 5; total deadline `MASD_IMPORT_TIMEOUT` (20 s); the decoded body is capped while streaming; no proxy environment, cookies or auth headers |
+| Malware scanning | `MASD_MALWARE_SCANNER=clamav` streams every document to clamd `INSTREAM` before parsing, and fails closed (503 `SCAN_UNAVAILABLE`). The default `none` is shown on every source as "not malware-scanned" |
+| Prompt-injection boundary | Source text never enters the privileged system message. It is sent at the start of the current user turn, after a preamble that it is untrusted data to use as information and never to obey, inside `<source-{tag}>` markers with a random per-turn tag that content cannot forge. This is defense in depth, not a guarantee: a model can still be steered by injected text, so a response that used sources stays an AI response until a human reviews and promotes it (B8). Tests assert the structure (no source text in the system message, one unforgeable block); model behaviour against adversarial sources is part of the B9 live-provider smoke test |
+| Isolation | Owner and tenant are checked on the project for every route; sources are read only through their project; another project's source cannot be attached (422); archived projects refuse new sources |
+| Audit | `source_events` records every upload, import, paste, delete, expiry and refusal (actor, tenant, outcome code, file name or host; never content), and the same events are logged as JSON |
+| Retention | `MASD_SOURCE_RETENTION_DAYS` (90). Purged at startup and hourly. Delete and expiry remove the text and keep metadata and the hash |
+| Rate limit | 20 source requests a minute per user |
+
+**Long sources (R5): explicit, never silent.** Text is split into sections of about 1,200 characters on paragraph boundaries; PDF sections keep their page numbers. A message attaches up to five ready sources.
+- **Sources that fit the remaining context budget** are sent whole.
+- **Sources that do not fit:** each source's opening section is sent, then the sections most relevant to the message (BM25), in document order, with a gap marker between them.
+- **Budget.** Attached sources get the room left after the system text and the message. When the conversation has earlier turns, they get at most three quarters of it, so history keeps a share.
+- **No room.** If no section fits, the message is refused with 422 and the reason.
+- **Traceability.** Each turn stores `source_refs`: source ID, title, hash, strategy (`full`, `excerpts` or `omitted`), the sections and pages sent, and the characters sent out of the total. `MessageView.sources` returns them, and the UI shows them under "Sources used", including after the source is deleted. Regeneration re-selects the same sources for the chosen model, or refuses if one was deleted.
+
+**Contracts.** Project Service 0.10.0 is additive: five source routes, `SubmitMessage.source_ids`, `MessageView.sources` and the required `Capabilities.sources`. `pre_b7` keeps 0.9.0 and every earlier document byte-identical. Migration `0010_sources` is additive: three tables, plus `turns.source_refs` as a plain `ADD COLUMN`, so SQLite keeps the turn constraints.
+
+**Web.** A Sources panel in the AI Workspace has three tabs: Upload file (real upload progress), Import link (with each provider's share-link note) and Paste transcript (with a counter).
+- **Limits and formats** come from `/capabilities`. Type, size and emptiness are checked before any bytes are sent.
+- **Refusals** show the server's reason and code. Share-link refusals offer "Paste transcript instead", prefilled with the provider; SSRF refusals do not.
+- **Retries** of the same file, link or text reuse the idempotency key.
+- **Attaching.** A new source is attached automatically while there is room; attachments stay for follow-up messages and are dropped when a source stops being ready.
+- **Deleting** takes two steps and keeps the metadata.
+
+**Not supported (documented limitations).** DOCX and other office formats, OCR for scanned PDFs, password-protected PDFs, saved HTML files as uploads, and Gemini exports (Gemini has none). Share pages that render client-side need Paste. The stack ships no ClamAV container: its daemon needs a writable signature store and privileges that the read-only, capability-dropped services forbid, so `clamd` runs separately.
+
+### B7 evidence (2026-11-26, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 114 passed (7 new); 0.10.0 validates; 0.9.0 and earlier untouched |
+| project-service `scripts.check` / real PostgreSQL 17 | 341 passed / 7 skipped; **348 passed, 0 skipped** (65 new: types and signatures, encrypted, scanned and damaged PDFs, parser isolation and timeout, owner and project isolation, rate limit, CSRF, clamd scanning, 12 SSRF destinations, redirect re-checks and pinning, size caps, share-link outcomes, paste, delimiting, excerpts within budget, no-room refusal, delete, regeneration, retention, migration, contract) |
+| web `scripts.check` (from `C:\`) | 233 Angular tests (+29), lint, typecheck, build (initial bundle 385.6 kB), audit 0 |
+| infrastructure `scripts.check` | 90 passed (+1 POSIX-only skip) |
+| Stack | Rebuilt `masd-m2`. Project Service became ready on its live PostgreSQL database after migration `0010_sources` |
+| Chromium, rebuilt `masd-m2` stack | **12/12**. The new journey uploads a PDF with progress and attaches it; the message records "whole text"; a renamed non-PDF is refused (`SIGNATURE_MISMATCH`) and so is an `.exe` (in the browser); a metadata-address link is refused (`URL_BLOCKED`, with no paste offer); a private ChatGPT link is refused (`PRIVATE_CONVERSATION_URL`) and the prefilled paste fallback saves a transcript; a direct API call gets 415; after delete and reload the message still names its source |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+| Live share-link imports | Not run: deterministic tests use an in-memory site, and real ChatGPT, Claude and Gemini pages vary and may block automated access |
+
+#### B7 review round 1 (48 Sourcery findings: project-service 20, web 13, contracts 10, central 4, infrastructure 1)
+
+Fixed with regression tests:
+- **Project Service:**
+  - **Uploads:** the body is read only after sign-in, streamed with the cap, and refused with `TOO_LARGE`, which is audited. The file name moves to the `X-Source-Filename` header, so it stays out of URLs and logs.
+  - **Parser:** its output is bounded in the service, PDF extraction stops at the text limit, and a cancelled request kills its parser before the slot is released.
+  - **Model boundary:** source text is no longer in the system message; it opens the current user turn.
+  - **Retries and quota:** concurrent identical retries replay. The quota is checked before validation; rate-limit and key-conflict refusals are audited; inactive users are pruned.
+  - **Links:** malformed hosts get `URL_INVALID`, and stored links drop their query string.
+  - **Pastes:** the exact text is kept. Pastes that are empty after cleaning or over the text limit are refused, and the body limit fits JSON escapes.
+  - **Consistency:** attached sources take shared row locks and delete takes an exclusive one. Expiry events are recorded only for rows actually changed. The database constrains format and provider.
+- **Contracts (0.10.0, re-exported):** excerpt `maxLength`, `uniqueItems` on `source_ids`, `date-time` timestamps, the `SourceRef` hash pattern and non-negative sections, JSON exports documented as raw bytes, and the retry and conflict rules. The additivity test now also checks that every previously required field stays required.
+- **Web:**
+  - Panel state is scoped to the project, and paste keys are bound to the whole payload.
+  - List snapshots merge sources added meanwhile, and every page is loaded.
+  - Nothing is attached automatically until the limit is known.
+  - Attachments are re-checked before sending.
+  - Deletes are blocked while a message is being sent and reconciled when unanswered.
+  - Uploads and deletes have timeouts.
+  - The source-use note names the sections and pages, and the progress display has a test.
+- **Docs:** enabling scanning needs both settings. The paste fallback excludes SSRF refusals, the PR links are added, and the delimiters are described as defense in depth.
+
+Answered without a code change, with the reasons in each thread:
+- Process-local limits and exact-revision readiness: Project Service is single-replica, and upgrades are stop, migrate, start.
+- `MessageView.sources` stays optional-with-default, like the B6 fields.
+- Offset paging: the web client follows the pages and drops duplicates.
+- Malware scanning is off by default but stays visible.
+- An e2e test cannot observe server egress; the no-request guarantee is asserted in the Project Service tests.
+
+| Check after round 1 | Result |
+|---|---|
+| contracts / infrastructure | 115 / 90 passed |
+| project-service, SQLite / real PostgreSQL 17 | 355 passed, 7 skipped / **362 passed, 0 skipped** |
+| web (from `C:\`) | 242 Angular tests, lint, typecheck, build (initial 385.6 kB), audit 0 |
+| Chromium, rebuilt `masd-m2` stack | 12/12 |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+
+Found during verification: the rebuild re-created Keycloak, and its imported test realm gave the same usernames new subject IDs. Project Service then correctly refused them (`identity_conflict`, B4). The two dev-stack bindings were cleared so the test accounts could bind again. Also, the dev database was already at `0010_sources` before round 1, so it lacks the two CHECK constraints added to that unreleased migration; fresh databases get them.

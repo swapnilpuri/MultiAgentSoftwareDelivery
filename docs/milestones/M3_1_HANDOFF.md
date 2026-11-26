@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B6 are merged into `main`. B7–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B6 are merged into `main`. B7 (upload and import) is implemented on `feature/m3.1-upload-import` and its PRs are open for review. B8–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -50,12 +50,18 @@ Deployment notes for B6:
 3. **Behaviour change.** Answers are no longer cut off at 60–90 s, 64,000 characters, or 1,024–2,048 tokens. Commercial-provider cost per Comprehensive answer rises accordingly. `MASD_MAX_OUTPUT_TOKENS` lowers it.
 4. **`MASD_PROVIDER_TIMEOUT` is now an idle limit.** A deployment that relied on it as a total cap sets `MASD_GENERATION_MAX_SECONDS` instead. `MASD_MAX_ACTIVE_GENERATIONS` (default 16) caps concurrent generations in the gateway.
 
-## Next task: B7 (upload and import)
+## Current task: B7 (upload and import) in review
 
-1. B6 is merged.
-2. B7: upload and import (R4) with its security controls. After that: B8 (promotion) and B9 (acceptance).
+1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
+2. Next, after the owner merges B7: B8 (promotion), then B9 (acceptance).
 
-Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
+Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
+
+Deployment notes for B7:
+1. **Migration `0010_sources`** is additive. Upgrade as usual: stop, migrate, start.
+2. **Deploy Project Service 0.10.0 with the web client of the same release.** `Capabilities.sources` is required, and the nginx upload route accepts up to 26 MB.
+3. **Link import uses Project Service's outbound access.** Set `MASD_URL_IMPORT_ENABLED=false` to turn it off.
+4. **Malware scanning is off by default** (`MASD_MALWARE_SCANNER=none`), and each source shows "not malware-scanned". To enable it, set **both** `MASD_MALWARE_SCANNER=clamav` and `MASD_CLAMAV_HOST` (plus `MASD_CLAMAV_PORT` if not 3310) to a running `clamd`; the host alone does nothing, and `clamav` without a host is refused at startup. Once enabled, scanning fails closed.
 
 Known minor gap from B4: on narrow screens, a breadcrumb separator can start a wrapped line.
 
