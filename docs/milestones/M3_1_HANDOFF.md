@@ -52,7 +52,7 @@ Deployment notes for B6:
 
 ## Current task: B7 (upload and import) in review
 
-1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs are on `feature/m3.1-upload-import` in contracts, project-service, web, infrastructure and central.
+1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
 2. Next, after the owner merges B7: B8 (promotion), then B9 (acceptance).
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
@@ -61,7 +61,7 @@ Deployment notes for B7:
 1. **Migration `0010_sources`** is additive. Upgrade as usual: stop, migrate, start.
 2. **Deploy Project Service 0.10.0 with the web client of the same release.** `Capabilities.sources` is required, and the nginx upload route accepts up to 26 MB.
 3. **Link import uses Project Service's outbound access.** Set `MASD_URL_IMPORT_ENABLED=false` to turn it off.
-4. **Malware scanning is off by default** (`MASD_MALWARE_SCANNER=none`), and each source shows "not malware-scanned". Point `MASD_CLAMAV_HOST` at a running `clamd` to enable it; it fails closed.
+4. **Malware scanning is off by default** (`MASD_MALWARE_SCANNER=none`), and each source shows "not malware-scanned". To enable it, set **both** `MASD_MALWARE_SCANNER=clamav` and `MASD_CLAMAV_HOST` (plus `MASD_CLAMAV_PORT` if not 3310) to a running `clamd`; the host alone does nothing, and `clamav` without a host is refused at startup. Once enabled, scanning fails closed.
 
 Known minor gap from B4: on narrow screens, a breadcrumb separator can start a wrapped line.
 
