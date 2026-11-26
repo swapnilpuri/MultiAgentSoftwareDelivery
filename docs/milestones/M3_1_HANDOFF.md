@@ -15,9 +15,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B4 | #8 `0bb590f` | #8 `586e7a6` | #9 `5aaefaa` | #9 `9faad49` | #15 `4acd6d0` |
 | B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 
-B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. Each `main` tree is identical to the head verified in the plan's B5 review round 1. No M3.1 component PRs are open.
+B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. Each `main` tree is identical to the head verified in the plan's B5 review round 1. No B1–B5 PRs remain open; the B6 component PRs below are open for review.
 
-**B6, open for review** (branch `feature/m3.1-rich-workspace`): PR numbers are in the plan's §6 table. Merge order: contracts, llm-gateway, project-service, web, infrastructure, central. Deploy the gateway and Project Service together.
+**B6, open for review** (branch `feature/m3.1-rich-workspace`): contracts #10, llm-gateway #5, project-service #10, web #11, infrastructure #11 and central #19, linked with their CI in the plan's §6 table. Review round 1 is fixed and its threads resolved (plan, B6 review round 1). Merge order: contracts, llm-gateway, project-service, web, infrastructure, central. Deploy the gateway and Project Service together.
 
 Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
@@ -47,10 +47,11 @@ Deployment notes for B6:
 1. **Migration `0009_response_versions`** is additive. Upgrade as usual: stop, migrate, start. Existing turns become version 1, Standard profile.
 2. **Deploy llm-gateway 0.4.0 together with Project Service 0.9.0.** Project Service now asks for up to 8,192 output tokens by default, and an older gateway still accepts that, but the total and idle timeouts only work together.
 3. **Behaviour change.** Answers are no longer cut off at 60–90 s, 64,000 characters, or 1,024–2,048 tokens. Commercial-provider cost per Comprehensive answer rises accordingly. `MASD_MAX_OUTPUT_TOKENS` lowers it.
+4. **`MASD_PROVIDER_TIMEOUT` is now an idle limit.** A deployment that relied on it as a total cap sets `MASD_GENERATION_MAX_SECONDS` instead. `MASD_MAX_ACTIVE_GENERATIONS` (default 16) caps concurrent generations in the gateway.
 
 ## Next task: B6 review, then B7 (upload and import)
 
-1. Work through the CI results and review findings on the B6 PRs.
+1. B6 review round 1 is done. Merge the B6 PRs on the owner's instruction.
 2. B7: upload and import (R4) with its security controls. After that: B8 (promotion) and B9 (acceptance).
 
 Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
@@ -74,10 +75,10 @@ Run on Windows, from each repository root:
 
 | Check | Result |
 |---|---|
-| project-service | 268 passed / 7 skipped; real PostgreSQL 17: 275 passed, 0 skipped |
-| llm-gateway | 120 passed |
-| web | 193 Angular tests and build |
-| contracts | 103 passed |
+| project-service | 276 passed / 7 skipped; real PostgreSQL 17: 283 passed, 0 skipped |
+| llm-gateway | 127 passed |
+| web | 204 Angular tests and build |
+| contracts | 107 passed |
 | infrastructure | 89 passed |
 | Chromium (with Keycloak) | 11/11 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |

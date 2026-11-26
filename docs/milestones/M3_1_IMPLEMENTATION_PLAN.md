@@ -101,7 +101,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B3 | feature/m3.1-architecture-operations | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | merged |
 | B4 | feature/m3.1-shell-auth | [contracts#8](https://github.com/swapnilpuri/masd-contracts/pull/8), [project-service#8](https://github.com/swapnilpuri/masd-project-service/pull/8), [infrastructure#9](https://github.com/swapnilpuri/masd-infrastructure/pull/9), [web#9](https://github.com/swapnilpuri/masd-web/pull/9), [central#15](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/15) | merged |
 | B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | merged |
-| B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | PRs open, awaiting CI and review |
+| B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | CI green; review round 1 fixed and resolved |
 | B7–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
@@ -326,3 +326,42 @@ Found during verification:
 - **M3 Architecture journey flaked (1 in 3).** This is a pre-existing race. The command reply ("Saved. State: …") and the operation tracker's settlement ("… completed. Saved architecture is shown.") both report success, and either can arrive last. The journey now accepts either notice.
 - **Back-to-back repeats fail.** Running the generation-heavy journeys several times in a row exceeds the gateway's local limit of 30 requests per minute per user, and Project Service then returns 503. This is a test-environment effect, not a defect: runs spaced by a minute pass 11/11.
 - **Migration 0009 on SQLite.** Batch mode would have dropped the unnamed `turns.status` CHECK constraint. The migration now passes it explicitly, and a test asserts that it survives.
+
+#### B6 review round 1 (39 Sourcery findings: web 13, project-service 10, llm-gateway 8, contracts 6, central 2)
+
+Fixed with regression tests:
+- **Gateway.**
+  - An unauthorized POST is refused before its body is read, and a declared body over 500 KB is refused up front.
+  - The context check reserves the capped output, not the raw `max_tokens`. With an unknown context window, only the input must fit 8192.
+  - The total cap is a deadline checked between chunks, so a slow client still gets the `TIMEOUT` event. Cancelled provider calls are awaited before the request id is released.
+  - `MASD_MAX_ACTIVE_GENERATIONS` (default 16) caps concurrent generations, whatever `user_id` the caller sends. The README's older limits text now matches 0.4.0.
+- **Project Service.**
+  - Regeneration without a profile keeps the original one, and the key is bound to it.
+  - A key inserted concurrently elsewhere is a 409, not a 500.
+  - Finalization re-reads the turn under a row lock, so a cancel that lands after the done check still wins and a cancelled version never becomes active.
+  - History is filtered to shown, completed turns before its 200-row window.
+  - A model without `output_limit` gets the configured budget, at most half its window.
+  - `chat_result` logs record the profile.
+  - Tests now check independent profile guidance, a large-output model, and the CHECK constraint with a valid foreign key.
+- **Contracts (0.9.0, regenerated).** Both version routes document their conversation scope, their 404/409/422 failures (plus 429/503 for regenerate), and the idempotent replay. Regenerate shares the submit stream's `x-sse-events`. The tests pin the required headers.
+- **Web.**
+  - Stop cancels a regeneration on the server.
+  - Version choices are serialized, block sending, and are applied in place, so loaded history stays.
+  - Only the newest history snapshot applies, and a page split mid-turn is extended back to its prompt.
+  - A route change clears a running regeneration, and the current version stays visible while a new one streams.
+  - Regenerating with another model saves that model. The download URL is revoked later.
+  - Protocol-relative links count as external sources, and headings render inline Markdown.
+- **Central.** The handoff names the B6 PRs and no longer says no component PRs are open.
+
+Answered without a code change, with the reasons given in each thread:
+- **`Capabilities.profiles` is required.** Project Service is single-replica and ships with the web client of the same release, as with B5. The contracts README now says so.
+- **`MASD_PROVIDER_TIMEOUT` is an idle limit.** The redefinition is the B6 design. The README and B6 deployment note 4 give the upgrade path (`MASD_GENERATION_MAX_SECONDS`).
+- **Long chats and service resources.** Each conversation has one active generation, the gateway caps generations process-wide, and each user is limited to 30 requests a minute. At most 16 × 200,000 characters are buffered.
+
+| Check after round 1 | Result |
+|---|---|
+| contracts / llm-gateway / infrastructure | 107 / 127 / 89 passed |
+| project-service, SQLite / real PostgreSQL 17 | 276 passed, 7 skipped / **283 passed, 0 skipped** |
+| web (from `C:\`) | 204 Angular tests, lint, typecheck, build, audit 0 |
+| Chromium, rebuilt `masd-m2` stack | 11/11 |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
