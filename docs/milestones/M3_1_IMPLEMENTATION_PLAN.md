@@ -463,5 +463,6 @@ Answered without a code change, with the reasons in each thread:
 | web (from `C:\`) | 242 Angular tests, lint, typecheck, build (initial 385.6 kB), audit 0 |
 | Chromium, rebuilt `masd-m2` stack | 12/12 |
 | `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+| Review after round 1 | All 48 threads answered and resolved. On the round-1 heads (contracts `8332dcd`, project-service `431291d`, web `dccb6c3`, infrastructure `c2d2b30`, central `2b682c6`), CI `validate` passed and Sourcery re-ran with no new findings |
 
 Found during verification: the rebuild re-created Keycloak, and its imported test realm gave the same usernames new subject IDs. Project Service then correctly refused them (`identity_conflict`, B4). The two dev-stack bindings were cleared so the test accounts could bind again. Also, the dev database was already at `0010_sources` before round 1, so it lacks the two CHECK constraints added to that unreleased migration; fresh databases get them.
