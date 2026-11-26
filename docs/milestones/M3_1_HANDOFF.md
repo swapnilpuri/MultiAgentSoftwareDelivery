@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8 (response-to-artifact promotion) is implemented on `feature/m3.1-promotion` and in review; B9 (acceptance) follows once it merges. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B8 are merged into `main`. B9 (acceptance) is next. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -16,6 +16,7 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 | B6 | #10 `4dcbdcd` | #10 `2dcc88d` | #11 `1c31f5a` | #11 `20f5b77` | #19 `d486376` |
 | B7 | #11 `1ebe098` | #11 `e500d59` | #12 `842a531` | #12 `9d93152` | #21 `ee7afa2` |
+| B8 | #12 `ccbe920` | #12 `97c3192` | #13 `4367bdb` | — | #23 `0763029` |
 
 B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At each merge, every `main` tree was identical to the head verified in that batch's latest review round (B6 round 1, B7 round 1). Central commits between batches change only documentation. No M3.1 component PRs are open.
 
@@ -55,9 +56,13 @@ Deployment notes for B6:
 
 Merged on the owner's instruction after review round 1 (48 Sourcery findings, all answered and resolved; Sourcery re-ran on every head with no new findings), each pinned to its verified head. At merge, each `main` tree was identical to the head verified in the plan's B7 review round 1. llm-gateway was not changed.
 
-## B8 (response-to-artifact promotion, R3): in review
+## B8 (response-to-artifact promotion, R3): merged 2026-11-26
 
-Branch `feature/m3.1-promotion` in contracts, project-service, web and central. The design and evidence are in the plan (B8 design, B8 evidence). After B8 merges: B9 (acceptance).
+Merged on the owner's instruction after review round 1 (28 Sourcery findings, all answered and resolved; Sourcery re-ran on every head with no new findings), each pinned to its verified head. At merge, each `main` tree was identical to the head verified in the plan's B8 review round 1. Infrastructure and llm-gateway were not changed. The design and evidence are in the plan (B8 design, B8 evidence).
+
+## Next task: B9 (acceptance)
+
+Start from current `main`. Run the full acceptance scenario (requirements, Required Acceptance Scenario), including approving a promoted PRD and starting Architecture Studio from it, the final regression, the optional live-provider smoke test, and the completion report.
 
 Deployment notes for B8:
 1. **Migration `0011_promotions`** is additive and adds five tables. Upgrade as usual: stop, migrate, start.
@@ -67,7 +72,7 @@ Deployment notes for B8:
 ### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. B7 is merged. B8 (promotion) is in review, and B9 (acceptance) follows once it merges.
+2. B7 and B8 are merged; B9 (acceptance) is next.
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 
