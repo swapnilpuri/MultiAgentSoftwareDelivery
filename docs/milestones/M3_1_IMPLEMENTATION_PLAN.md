@@ -84,7 +84,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B5 | llm-gateway, project-service, web | Providers (Gemini, OpenAI-compatible), capability endpoint, limits UI |
 | B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
 | B7 | contracts, project-service, web, infrastructure, central | Upload and import with security controls |
-| B8 | project-service, web | Response→artifact promotion and traceability into Requirements and Architecture Studio |
+| B8 | contracts, project-service, web, central | Response→artifact promotion and traceability into Requirements and Architecture Studio |
 | B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
 
 ## 5. Owner decisions needed (non-blocking for B1–B3)
@@ -506,3 +506,41 @@ Found during verification: on PostgreSQL, the PRD promotion inserted its generat
 Not in B8:
 - Approving the promoted PRD and starting Architecture Studio from it are B9's acceptance scenario. The Architecture Studio lineage is covered by unit tests.
 - Artifacts other than PRDs have no downstream studio yet.
+
+#### B8 review round 1 (28 Sourcery findings: web 13, contracts 8, project-service 6, central 2)
+
+Fixed with regression tests:
+- **Project Service:**
+  - **Concurrent saves.** The artifact's locking read now refreshes a row the session already holds (`populate_existing`), so a stale version cannot pass the check and overwrite a newer draft.
+  - **Replays.** A command replay returns its stored original response (`artifact_events.result`), not the artifact's later state.
+  - **Promoting into an existing artifact** needs `expected_artifact_version`; a draft saved meanwhile is refused (`STALE_VERSION`), not replaced.
+  - **Response check.** The optional `expected_response_hash` refuses a response that differs from the one whose sections were listed (`RESPONSE_CHANGED`).
+  - **Downgrade.** Downgrading `0011` refuses to drop promotions or artifacts unless `MASD_ALLOW_DESTRUCTIVE_DOWNGRADE=1` (after a backup).
+- **Contracts (0.11.0, re-exported):**
+  - Request bodies are discriminated: `PromoteToPrd` or `PromoteToArtifact` by `target`, and `SaveArtifact`, `SubmitArtifact` or `DecideArtifact` by `action`, each with its own required fields.
+  - The identical-retry `200` is documented, and `CONCURRENT_CHANGE`, `STALE_VERSION` and `RESPONSE_CHANGED` are listed.
+  - The tests pin each path's verbs and the promotion's required identity fields.
+- **Web:**
+  - **Loading.** The artifact loads independently of its lineage, and a lineage failure is shown, not hidden. Opening another artifact clears the previous one, and late answers (revisions, commands, the promote navigation) never land on a different page.
+  - **Actions.** Submit and review are disabled while an older revision is shown.
+  - **Listings** follow every page.
+  - **Idempotency keys** survive a reload (session storage, payload fingerprint only, one day).
+  - **PRD drafts** without generation need no model.
+  - **Destinations.** A failed artifact-list lookup blocks a new artifact until it is retried.
+  - **Types.** Commands and promotions are typed as discriminated unions.
+- **Docs:** the B8 scope row lists all four repositories, and the handoff status lines agree.
+
+Answered without a code change, with the reasons in each thread:
+- **Rolling upgrades.** Project Service is single-replica, and upgrades are stop → migrate → start (§2a). Readiness pins the exact revision by design.
+- **A crash between commit and spawn.** Startup recovery marks the operation `INTERRUPTED`, and Requirements Studio offers the explicit retry with a new key: the B1 lifecycle. No await separates the commit from the spawn.
+- **Destination variants in `PromotionView`.** The database's `ck_promotions_destination` constraint guarantees that exactly one destination is set for the target, and the response stays a single schema for the web's lineage view.
+
+| Check after round 1 | Result |
+|---|---|
+| contracts | 122 passed |
+| project-service, SQLite / real PostgreSQL 17 | 379 passed, 7 skipped / **386 passed, 0 skipped** |
+| web (from `C:\`) | 273 Angular tests, lint, typecheck, build (initial 386.8 kB), audit 0 |
+| Chromium, rebuilt `masd-m2` stack | 13/13 |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+
+Found during verification: the dev database was already at `0011_promotions` from the first B8 run, so it lacked the new `artifact_events.result` column of the unreleased migration. The column was added to the dev database by hand; fresh databases get it from the migration.

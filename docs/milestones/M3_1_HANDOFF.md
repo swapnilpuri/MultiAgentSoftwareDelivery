@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8 (response-to-artifact promotion) is implemented on `feature/m3.1-promotion` and in review; B9 (acceptance) is next. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8 (response-to-artifact promotion) is implemented on `feature/m3.1-promotion` and in review; B9 (acceptance) follows once it merges. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -67,7 +67,7 @@ Deployment notes for B8:
 ### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. B7 is merged; B8 (promotion) is next, then B9 (acceptance).
+2. B7 is merged. B8 (promotion) is in review, and B9 (acceptance) follows once it merges.
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 
