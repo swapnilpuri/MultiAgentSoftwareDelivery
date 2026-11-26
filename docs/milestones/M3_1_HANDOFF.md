@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8–B9 have not started; B8 (response-to-artifact promotion) is next. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B7 are merged into `main`. B8 (response-to-artifact promotion) is implemented on `feature/m3.1-promotion` and in review; B9 (acceptance) follows once it merges. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -55,14 +55,19 @@ Deployment notes for B6:
 
 Merged on the owner's instruction after review round 1 (48 Sourcery findings, all answered and resolved; Sourcery re-ran on every head with no new findings), each pinned to its verified head. At merge, each `main` tree was identical to the head verified in the plan's B7 review round 1. llm-gateway was not changed.
 
-## Next task: B8 (response-to-artifact promotion, R3)
+## B8 (response-to-artifact promotion, R3): in review
 
-Start from current `main`. Read the plan (gap analysis R3 and section 4) and the B7 design. After B8: B9 (acceptance).
+Branch `feature/m3.1-promotion` in contracts, project-service, web and central. The design and evidence are in the plan (B8 design, B8 evidence). After B8 merges: B9 (acceptance).
+
+Deployment notes for B8:
+1. **Migration `0011_promotions`** is additive and adds five tables. Upgrade as usual: stop, migrate, start.
+2. **Deploy Project Service 0.11.0 with the web client of the same release.** The contract only adds routes and schemas. The web nginx config adds a 2 MB body limit for artifact saves.
+3. **New runtime dependency:** `markdown-it-py`, so the server splits sections exactly where the web does.
 
 ### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. B7 is merged; B8 (promotion) is next, then B9 (acceptance).
+2. B7 is merged. B8 (promotion) is in review, and B9 (acceptance) follows once it merges.
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 

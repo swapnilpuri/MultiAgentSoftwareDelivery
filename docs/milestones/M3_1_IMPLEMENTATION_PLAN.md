@@ -84,7 +84,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B5 | llm-gateway, project-service, web | Providers (Gemini, OpenAI-compatible), capability endpoint, limits UI |
 | B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
 | B7 | contracts, project-service, web, infrastructure, central | Upload and import with security controls |
-| B8 | project-service, web | Response→artifact promotion and traceability into Requirements and Architecture Studio |
+| B8 | contracts, project-service, web, central | Response→artifact promotion and traceability into Requirements and Architecture Studio |
 | B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
 
 ## 5. Owner decisions needed (non-blocking for B1–B3)
@@ -103,7 +103,8 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | merged |
 | B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | Merged 2026-11-25: contracts `4dcbdcd`, llm-gateway `4704e39`, project-service `2dcc88d`, web `1c31f5a`, infrastructure `20f5b77`, central `d486376` |
 | B7 | feature/m3.1-upload-import | [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) | Merged 2026-11-26: contracts `1ebe098`, project-service `e500d59`, web `842a531`, infrastructure `9d93152`, central `ee7afa2` |
-| B8–B9 | — | — | not started |
+| B8 | feature/m3.1-promotion | [contracts#12](https://github.com/swapnilpuri/masd-contracts/pull/12), [project-service#12](https://github.com/swapnilpuri/masd-project-service/pull/12), [web#13](https://github.com/swapnilpuri/masd-web/pull/13), [central#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) | in review |
+| B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -466,3 +467,80 @@ Answered without a code change, with the reasons in each thread:
 | Review after round 1 | All 48 threads answered and resolved. On the round-1 heads (contracts `8332dcd`, project-service `431291d`, web `dccb6c3`, infrastructure `c2d2b30`, central `2b682c6`), CI `validate` passed and Sourcery re-ran with no new findings |
 
 Found during verification: the rebuild re-created Keycloak, and its imported test realm gave the same usernames new subject IDs. Project Service then correctly refused them (`identity_conflict`, B4). The two dev-stack bindings were cleared so the test accounts could bind again. Also, the dev database was already at `0010_sources` before round 1, so it lacks the two CHECK constraints added to that unreleased migration; fresh databases get them.
+
+### B8 design (response-to-artifact promotion, R3)
+
+**Goal.** A user promotes a whole AI response, or selected sections of it, into a draft engineering artifact. A human then revises and approves it, and the chain stays traceable: Source input → Conversation → Response version → Promotion → Approved artifact → Downstream artifact.
+
+| Decision | Choice and reason |
+|---|---|
+| Targets | `prd` becomes a Requirements Studio session, because Architecture Studio already starts only from an approved PRD. `product_vision`, `architecture_spec`, `adr`, `implementation_plan` and `milestone` become Markdown **artifacts** with their own revisions and approvals, since they have no studio yet |
+| Server-side selection | The server splits the stored response into sections at level-2 headings outside code fences, the same boundaries the web uses for its collapsible sections. A new route lists the sections with their sizes, and the promotion names section indexes. The client never sends the promoted text, so the server knows exactly what was promoted |
+| Promotion record | An immutable `promotions` row holds the conversation, the response's root turn and the promoted version's turn, the version number, the SHA-256 of the whole response and of the promoted text, the section indexes and titles, the target, and generation metadata (model, provider, actual model, profile, usage). It also copies the turn's `source_refs`, so the source inputs stay named after a source is deleted |
+| PRD promotion | It creates a requirements session whose description is the promoted text, within the existing 12,000-character limit. A longer selection is refused with `PROMOTION_TOO_LONG`, and the reason names the size and the limit. By default it also starts the durable `generate` operation (B1), so progress, reload and retry work exactly as in Requirements Studio, and approval follows the existing PRD review |
+| Artifact lifecycle | `DRAFT` → `UNDER_REVIEW` → `APPROVED` or `CHANGES_REQUESTED`. Commands are `save` (a new revision), `submit` and `decide`, and `decide` needs the approver role. Each command carries `expected_version`, and `submit` and `decide` also carry the revision and hash, as in Requirements Studio. Revisions, decisions and events are immutable |
+| Never overwrite | The source response's versions are already immutable turns. Promoting into an existing artifact (`artifact_id`) adds a new **draft** revision. A save does the same. Neither changes the approved revision: the approved baseline stays pinned to its revision and hash until a new approval. Each promotion reports whether its response version is still the one shown (`current`) or has been replaced by another version (`superseded`) |
+| Traceability | `GET /promotions` filters by conversation, requirements session or artifact. Requirements Studio and Architecture Studio show the source PRD's promotion: conversation, response version, sections and sources. Architecture revisions already pin the PRD revision, its hash and its approval |
+| Idempotency | `POST /promotions` uses `Idempotency-Key`, and a same-key retry with the same body returns the same promotion. The PRD's generate operation key is derived from the promotion key, so a retry never starts a second generation. Artifact commands record their key in `artifact_events`. A replay returns the current artifact, and reusing a key for a different command gets 409 `KEY_CONFLICT` |
+| Isolation | Owner and tenant are checked on the project for every route. The conversation must belong to the project, and only a completed assistant response can be promoted. Archived projects refuse promotions and commands |
+
+**Contracts.** Project Service 0.11.0 adds only new routes and new schemas; `pre_b8` keeps 0.10.0 and earlier byte-identical. Migration `0011_promotions` is additive and adds five tables: `promotions`, `artifacts`, `artifact_revisions`, `artifact_approvals` and `artifact_events`.
+
+**Web.**
+- **AI Workspace.** Each completed response gets "Promote…". The dialog offers a target, a title, the whole response or chosen sections (listed by the server), a character count against the PRD limit, and the model for a PRD. It then opens the draft.
+- **Artifacts page.** A new project page lists artifacts and opens each one: rendered Markdown, an editor, its revisions, submit, the approval decisions and the lineage back to the response.
+- **Studios.** Requirements Studio opens a promoted session from a link and shows where it came from. Architecture Studio shows the same lineage for its source PRD.
+
+### B8 evidence (2026-11-26, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 121 passed (6 new); 0.11.0 validates; 0.10.0 and earlier untouched |
+| project-service `scripts.check` / real PostgreSQL 17 | 373 passed / 7 skipped; **380 passed, 0 skipped**. The 18 new tests cover the section split (fences, setext and quoted headings), whole and selected promotion, lineage and hashes, replay and `KEY_CONFLICT`, PRD seeding with durable generation and no second run on retry, the description limit, review and approval, the never-overwritten baseline, superseded responses, owner, tenant and archive checks, immutability and constraints, the migration round trip, and the contract |
+| web `scripts.check` (from `C:\`) | 264 Angular tests (+31), lint, typecheck, build (initial bundle 386.8 kB), audit 0 |
+| Chromium, rebuilt `masd-m2` stack | **13/13**. The new journey: selected sections become an ADR, which is edited, submitted and approved. A later promotion becomes revision 3 while the baseline stays revision 2. A regeneration marks the promotions superseded. Two sections become a draft PRD, whose generation finishes after a reload, with the lineage shown in Requirements Studio |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS. The stack upgraded its live database to `0011_promotions` |
+
+Found during verification: on PostgreSQL, the PRD promotion inserted its generate operation before the requirements session. These tables have no ORM relationships, so SQLAlchemy does not order the inserts, and SQLite does not enforce foreign keys. The session is now flushed first. The real-PostgreSQL run caught it.
+
+Not in B8:
+- Approving the promoted PRD and starting Architecture Studio from it are B9's acceptance scenario. The Architecture Studio lineage is covered by unit tests.
+- Artifacts other than PRDs have no downstream studio yet.
+
+#### B8 review round 1 (28 Sourcery findings: web 13, contracts 8, project-service 6, central 2)
+
+Fixed with regression tests:
+- **Project Service:**
+  - **Concurrent saves.** The artifact's locking read now refreshes a row the session already holds (`populate_existing`), so a stale version cannot pass the check and overwrite a newer draft.
+  - **Replays.** A command replay returns its stored original response (`artifact_events.result`), not the artifact's later state.
+  - **Promoting into an existing artifact** needs `expected_artifact_version`; a draft saved meanwhile is refused (`STALE_VERSION`), not replaced.
+  - **Response check.** The optional `expected_response_hash` refuses a response that differs from the one whose sections were listed (`RESPONSE_CHANGED`).
+  - **Downgrade.** Downgrading `0011` refuses to drop promotions or artifacts unless `MASD_ALLOW_DESTRUCTIVE_DOWNGRADE=1` (after a backup).
+- **Contracts (0.11.0, re-exported):**
+  - Request bodies are discriminated: `PromoteToPrd` or `PromoteToArtifact` by `target`, and `SaveArtifact`, `SubmitArtifact` or `DecideArtifact` by `action`, each with its own required fields.
+  - The identical-retry `200` is documented, and `CONCURRENT_CHANGE`, `STALE_VERSION` and `RESPONSE_CHANGED` are listed.
+  - The tests pin each path's verbs and the promotion's required identity fields.
+- **Web:**
+  - **Loading.** The artifact loads independently of its lineage, and a lineage failure is shown, not hidden. Opening another artifact clears the previous one, and late answers (revisions, commands, the promote navigation) never land on a different page.
+  - **Actions.** Submit and review are disabled while an older revision is shown.
+  - **Listings** follow every page.
+  - **Idempotency keys** survive a reload (session storage, payload fingerprint only, one day).
+  - **PRD drafts** without generation need no model.
+  - **Destinations.** A failed artifact-list lookup blocks a new artifact until it is retried.
+  - **Types.** Commands and promotions are typed as discriminated unions.
+- **Docs:** the B8 scope row lists all four repositories, and the handoff status lines agree.
+
+Answered without a code change, with the reasons in each thread:
+- **Rolling upgrades.** Project Service is single-replica, and upgrades are stop → migrate → start (§2a). Readiness pins the exact revision by design.
+- **A crash between commit and spawn.** Startup recovery marks the operation `INTERRUPTED`, and Requirements Studio offers the explicit retry with a new key: the B1 lifecycle. No await separates the commit from the spawn.
+- **Destination variants in `PromotionView`.** The database's `ck_promotions_destination` constraint guarantees that exactly one destination is set for the target, and the response stays a single schema for the web's lineage view.
+
+| Check after round 1 | Result |
+|---|---|
+| contracts | 122 passed |
+| project-service, SQLite / real PostgreSQL 17 | 379 passed, 7 skipped / **386 passed, 0 skipped** |
+| web (from `C:\`) | 273 Angular tests, lint, typecheck, build (initial 386.8 kB), audit 0 |
+| Chromium, rebuilt `masd-m2` stack | 13/13 |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
+
+Found during verification: the dev database was already at `0011_promotions` from the first B8 run, so it lacked the new `artifact_events.result` column of the unreleased migration. The column was added to the dev database by hand; fresh databases get it from the migration.
