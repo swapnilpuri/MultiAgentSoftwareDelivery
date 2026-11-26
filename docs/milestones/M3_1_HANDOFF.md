@@ -16,7 +16,7 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 | B6 | #10 `4dcbdcd` | #10 `2dcc88d` | #11 `1c31f5a` | #11 `20f5b77` | #19 `d486376` |
 
-B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). Each `main` tree is identical to the head verified in the plan's B6 review round 1. No M3.1 component PRs are open.
+B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At merge, each `main` tree was identical to the head verified in the plan's B6 review round 1; later central commits change only documentation. No M3.1 component PRs are open.
 
 **B6 merged 2026-11-25** on the owner's instruction, after review round 1 (all threads resolved; Sourcery re-ran on every head with no new findings). Deploy the gateway and Project Service together.
 
