@@ -82,7 +82,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B3 | project-service, web | Apply the B1/B2 pattern to Architecture operations; add a project-level Operations/Activity page |
 | B4 | contracts, project-service, infrastructure, web, central | Application shell plus unified login (Keycloak in the dev stack, OIDC through Project Service, contract 0.7.0); Chat on the human principal |
 | B5 | llm-gateway, project-service, web | Providers (Gemini, OpenAI-compatible), capability endpoint, limits UI |
-| B6 | web, project-service | Rich AI Workspace, profiles, versions |
+| B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
 | B7 | project-service, web, infrastructure | Upload and import with security controls |
 | B8 | project-service, web | Response→artifact promotion and traceability into Requirements and Architecture Studio |
 | B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
@@ -101,7 +101,8 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B3 | feature/m3.1-architecture-operations | [contracts#7](https://github.com/swapnilpuri/masd-contracts/pull/7), [project-service#7](https://github.com/swapnilpuri/masd-project-service/pull/7), [web#8](https://github.com/swapnilpuri/masd-web/pull/8), [infrastructure#8](https://github.com/swapnilpuri/masd-infrastructure/pull/8) | merged |
 | B4 | feature/m3.1-shell-auth | [contracts#8](https://github.com/swapnilpuri/masd-contracts/pull/8), [project-service#8](https://github.com/swapnilpuri/masd-project-service/pull/8), [infrastructure#9](https://github.com/swapnilpuri/masd-infrastructure/pull/9), [web#9](https://github.com/swapnilpuri/masd-web/pull/9), [central#15](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/15) | merged |
 | B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | merged |
-| B6–B9 | — | — | not started |
+| B6 | feature/m3.1-rich-workspace | contracts, llm-gateway, project-service, web, infrastructure, central (see the handoff) | PRs open, awaiting CI and review |
+| B7–B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -262,3 +263,66 @@ Answered without a code change, with the reasons given in each thread:
 | web | 174 Angular tests, lint, build |
 | Chromium, rebuilt stack | 10/10 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
+
+### B6 design (rich AI Workspace, R2)
+
+**No artificial short-answer limits.** Before B6, a long answer was cut off in four places:
+- the gateway's 60 s cap on the whole generation;
+- Project Service's 90 s cap;
+- a 64,000-character response cap;
+- output-token defaults of 1,024 (Project Service) and 2,048 (gateway), with an 8,192 ceiling.
+
+These limits are now:
+- **Idle timeout.** `MASD_PROVIDER_TIMEOUT` is an *idle* limit: the first chunk and every later chunk must arrive within it.
+- **Total time.** `MASD_GENERATION_MAX_SECONDS` (gateway) and `MASD_CHAT_MAX_SECONDS` (Project Service), both 900 s, bound a whole answer.
+- **Output size.** `max_tokens` may be up to 32,768 (default 8,192), and is bounded by each model's `output_limit`. Context messages may be up to 64,000 characters, and request bodies up to 500 KB.
+- **Contracts.** These widen llm-gateway to 0.4.0. Stored answers may be up to 200,000 characters.
+
+**Response profiles.** Concise, Standard (the default) and Comprehensive are generation preferences, not separate architectures. Each profile adds a short instruction (under 400 characters) to the system message and requests a number of output tokens:
+
+| Profile | Output tokens requested |
+|---|---|
+| Concise | up to 1,024 |
+| Standard | up to 4,096 |
+| Comprehensive | the model's full budget |
+
+The context budget always reserves the model's full output budget, so the message limit is the same for every profile. The profile is stored on each turn, and `GET /capabilities` lists the profiles.
+
+**Response versions.** Migration `0009_response_versions` adds four columns to `turns`: `profile`, `parent_turn_id`, `version` and `active`. Existing turns become version 1 of themselves. A regeneration is a new turn whose `parent_turn_id` is the root turn.
+- **New endpoint `regenerate:stream`.** It re-answers the latest user message, optionally with another allowed model or profile, and is idempotent.
+- **When a new version is shown.** A new version becomes active only when it completes, so a failed regeneration never replaces a good answer.
+- **New endpoint `active-version`.** It shows another completed version. Later turns use only the active version as context; unselected versions and partial text never enter it.
+- **Constraints.** Only the latest turn can be regenerated, so versions never reorder a conversation. Neither action is allowed while a response is running.
+- **Contracts.** Project Service 0.9.0 is additive. `pre_b6` keeps 0.8.0 and earlier byte-identical.
+
+**Rendering (web).**
+- **Sections.** Responses are split into collapsible sections at each level-2 heading, with Expand all and Collapse all controls.
+- **Tables** scroll horizontally.
+- **Code.** 15 highlight languages, plus aliases.
+- **Links.** External links open in a new tab with `noopener noreferrer nofollow` and are listed under Sources. Images and raw HTML stay inert.
+- **Mermaid.** Version 12.3 is loaded on first use as a lazy chunk, so the initial bundle stays at 383 kB. It runs with `securityLevel: 'strict'` (no HTML labels, DOMPurify-sanitised output). The SVG is shown in an iframe with an empty `sandbox`, so it has no scripts and no same-origin access. A diagram that fails to render, is still streaming, or is over 20,000 characters is shown as source.
+- **Long responses.** While streaming, rendering is throttled to once every 120 ms, and diagrams wait until the stream completes. `content-visibility: auto` lets off-screen sections of a long answer skip layout. A 100,000-character answer renders in well under a second in the unit test.
+
+**AI Workspace actions.**
+- A response-profile selector.
+- A "Version n of m" navigator, and "Use this version" for an inactive completed version.
+- Regenerate, on the latest turn only.
+- Copy, and Save as Markdown.
+- Every response carries an "AI response · not an approved artifact" badge, which distinguishes a helpful AI response from an approved engineering artifact. Promotion to a draft artifact comes in B8.
+
+### B6 evidence (2026-11-25, branch heads)
+
+| Check | Result |
+|---|---|
+| contracts `scripts.check` | 103 passed; 14 OpenAPI documents; 0.8.0 and llm-gateway 0.3.0 untouched |
+| llm-gateway `scripts.check` | 120 passed (4 new: idle vs total limits, widened bounds) |
+| project-service `scripts.check` / real PostgreSQL 17 | 268 passed / 7 skipped; **275 passed, 0 skipped** (13 new) |
+| web `scripts.check` (from `C:\`) | 193 Angular tests (+19), lint, typecheck, build (initial bundle 384 kB; Mermaid is a lazy chunk), audit 0 |
+| infrastructure `scripts.check` | 89 passed (+1 POSIX-only skip) |
+| Chromium, rebuilt `masd-m2` stack | **11/11**, twice. The new journey covers six things: a Comprehensive-profile answer with collapsible sections, a table and a Mermaid diagram drawn by the lazy chunk in an empty-sandbox frame; Save as Markdown; a Concise regeneration shown as "Version 2 of 2"; browsing back to version 1; "Use this version"; and a reload that keeps that choice |
+| `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS. The stack upgraded its live PostgreSQL database from 0008 to 0009 |
+
+Found during verification:
+- **M3 Architecture journey flaked (1 in 3).** This is a pre-existing race. The command reply ("Saved. State: …") and the operation tracker's settlement ("… completed. Saved architecture is shown.") both report success, and either can arrive last. The journey now accepts either notice.
+- **Back-to-back repeats fail.** Running the generation-heavy journeys several times in a row exceeds the gateway's local limit of 30 requests per minute per user, and Project Service then returns 503. This is a test-environment effect, not a defect: runs spaced by a minute pass 11/11.
+- **Migration 0009 on SQLite.** Batch mode would have dropped the unnamed `turns.status` CHECK constraint. The migration now passes it explicitly, and a test asserts that it survives.

@@ -1,8 +1,8 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B5 are merged into `main`. B6–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **IN PROGRESS**. B1–B5 are merged into `main`. B6 is implemented and verified on `feature/m3.1-rich-workspace` and awaits review. B7–B9 have not started. M4 is blocked until M3.1 is accepted. The owner will do manual verification once all of M3.1 is complete.
 
-Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4 and B5 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
+Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
 ## PR status (2026-11-25)
 
@@ -16,6 +16,8 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B5 | #9 `96dfd00` | #9 `c2985b5` | #10 `0570e3a` | #10 `8db43be` | #17 `d596db6` |
 
 B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. Each `main` tree is identical to the head verified in the plan's B5 review round 1. No M3.1 component PRs are open.
+
+**B6, open for review** (branch `feature/m3.1-rich-workspace`): PR numbers are in the plan's §6 table. Merge order: contracts, llm-gateway, project-service, web, infrastructure, central. Deploy the gateway and Project Service together.
 
 Agents merge only on an explicit owner instruction, pinned with `--match-head-commit`.
 
@@ -41,9 +43,15 @@ Deployment notes for B5:
 3. **Behaviour change.** A commercial model is available only when its provider answers and lists it. Before, it was available whenever a key was set.
 4. **Provider keys are optional** and go in `.env.m2`; see the infrastructure README. Nothing is generated.
 
-## Next task: B6 (rich AI Workspace)
+Deployment notes for B6:
+1. **Migration `0009_response_versions`** is additive. Upgrade as usual: stop, migrate, start. Existing turns become version 1, Standard profile.
+2. **Deploy llm-gateway 0.4.0 together with Project Service 0.9.0.** Project Service now asks for up to 8,192 output tokens by default, and an older gateway still accepts that, but the total and idle timeouts only work together.
+3. **Behaviour change.** Answers are no longer cut off at 60–90 s, 64,000 characters, or 1,024–2,048 tokens. Commercial-provider cost per Comprehensive answer rises accordingly. `MASD_MAX_OUTPUT_TOKENS` lowers it.
 
-Start from `main` in every repository on a new branch. B6 covers the rich AI Workspace and response profiles (R2). Then come B7 (upload and import), B8 (promotion) and B9 (acceptance).
+## Next task: B6 review, then B7 (upload and import)
+
+1. Work through the CI results and review findings on the B6 PRs.
+2. B7: upload and import (R4) with its security controls. After that: B8 (promotion) and B9 (acceptance).
 
 Two items remain open after B5. Upload size and format limits arrive with B7, and the live-provider smoke test still needs credentials.
 
@@ -62,16 +70,16 @@ Run on Windows, from each repository root:
 - **Browser:** in masd-web, set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, `M2_HUMAN_LOGIN_FILE=<infra>/artifacts/m2-human-login.json`, `M31_SSO_USERS_FILE=<infra>/artifacts/m31-sso-users.json`, `M2_ACCEPTANCE_RECORD` and `M3_ACCEPTANCE_RECORD`. Then run `npx playwright test`; every journey signs in once through Keycloak.
 - **Restart and secrets:** `scripts.verify_m2_restart --record …` and `scripts.verify_m3_restart --record …` (infrastructure), then `scripts.verify_m2 runtime-secrets` (central).
 
-## Last verified results (B5, merged)
+## Last verified results (B6 branch heads)
 
 | Check | Result |
 |---|---|
-| project-service | 255 passed / 7 skipped; real PostgreSQL 17: 262 passed, 0 skipped |
-| llm-gateway | 116 passed |
-| web | 174 Angular tests and build |
-| contracts | 98 passed |
+| project-service | 268 passed / 7 skipped; real PostgreSQL 17: 275 passed, 0 skipped |
+| llm-gateway | 120 passed |
+| web | 193 Angular tests and build |
+| contracts | 103 passed |
 | infrastructure | 89 passed |
-| Chromium (with Keycloak) | 10/10 |
+| Chromium (with Keycloak) | 11/11 |
 | `verify_m2_restart` / `verify_m3_restart` / runtime secrets | PASS / PASS / PASS |
 
 ## Working notes
