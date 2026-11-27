@@ -155,9 +155,9 @@ R10 coverage, by area:
 | B6 | [#10](https://github.com/swapnilpuri/masd-contracts/pull/10) `4dcbdcd` | [#10](https://github.com/swapnilpuri/masd-project-service/pull/10) `2dcc88d` | [#11](https://github.com/swapnilpuri/masd-web/pull/11) `1c31f5a` | [#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11) `20f5b77` | [#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5) `4704e39` | [#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) `d486376` |
 | B7 | [#11](https://github.com/swapnilpuri/masd-contracts/pull/11) `1ebe098` | [#11](https://github.com/swapnilpuri/masd-project-service/pull/11) `e500d59` | [#12](https://github.com/swapnilpuri/masd-web/pull/12) `842a531` | [#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12) `9d93152` | — | [#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) `ee7afa2` |
 | B8 | [#12](https://github.com/swapnilpuri/masd-contracts/pull/12) `ccbe920` | [#12](https://github.com/swapnilpuri/masd-project-service/pull/12) `97c3192` | [#13](https://github.com/swapnilpuri/masd-web/pull/13) `4367bdb` | — | — | [#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) `0763029` |
-| B9 | — | [#13](https://github.com/swapnilpuri/masd-project-service/pull/13) | [#14](https://github.com/swapnilpuri/masd-web/pull/14) | — | — | [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) |
+| B9 | — | [#13](https://github.com/swapnilpuri/masd-project-service/pull/13) `4748b15` | [#14](https://github.com/swapnilpuri/masd-web/pull/14) `85a0d22` | — | — | [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) `4423a3f` |
 
-Merged rows give each PR and its merge commit; the B9 row lists open PRs only. Central #16, #18, #20, #22 and #24 recorded the merges. Every merge was made on the owner's explicit instruction, pinned to the verified head commit. The B9 PRs are open for review.
+Each cell gives the PR and its merge commit. Central #16, #18, #20, #22 and #24 recorded the merges. Every merge was made on the owner's explicit instruction, pinned to the verified head commit. B9 merged on 2026-11-26 after review round 1.
 
 ## 11. Acceptance scenario results
 
