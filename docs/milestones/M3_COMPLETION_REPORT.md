@@ -2,9 +2,9 @@
 
 ## 1. Milestone status
 
-**READY_FOR_HUMAN_APPROVAL**. Merging and M3 acceptance remain human decisions.
+**MERGED_AND_VERIFIED_ON_MAIN; awaiting the owner's M3 acceptance.**
 
-Implementation and verification are complete: 44 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). No PR is merged, and M4 is not started.
+Implementation and verification are complete: 44 of 44 criteria PASS ([M3_ACCEPTANCE_CRITERIA.md](M3_ACCEPTANCE_CRITERIA.md)). All six PRs were merged on the owner's instruction (2026-11-24), and the full evidence passed again on `main` (post-merge section of the acceptance file). M4 is not started.
 
 ## 2. Scope completed
 
@@ -62,14 +62,16 @@ These are additive 0.4.0 contracts; 0.1.0–0.3.0 are byte-identical:
 
 Exact commands are in M3_HANDOFF.md.
 
+These are the post-merge results on `main` (2026-11-24). The earlier branch-head results are in the evidence keys of M3_ACCEPTANCE_CRITERIA.md.
+
 | Check | Result |
 |---|---|
-| Gates (`scripts.check`) | contracts 78; Project Service 165 (+6 PostgreSQL-only skips); agent 103; web 22 Python + 91 Angular + build; infrastructure 74 (+1 POSIX-only skip). All with governance, lint, types, secret scan and audit |
+| Gates (`scripts.check`) | contracts 78; Project Service 165 (+6 PostgreSQL-only skips); agent 103; Gateway 50; web 22 Python + 91 Angular + build; infrastructure 74 (+1 POSIX-only skip); central 40. All with governance, lint, types, secret scan and audit |
 | Real PostgreSQL 17 | 171 passed, 0 skipped |
 | Chromium | 5/5 (M0, M1×2, M2, M3); 0 skipped, unexpected or flaky; 390px no-overflow |
 | Restart (`verify_m3_restart`) | PASS |
-| Runtime secrets | PASS (489 KB of pinned logs clean; Agent has no DB or human configuration) |
-| Visual | Desktop and 390px mobile Studio screenshots inspected (`artifacts/m3-implementation/`) |
+| Runtime secrets | PASS before and after the restart run (730 KB of logs clean; Agent has no DB or human configuration) |
+| Visual | Desktop and 390px mobile Studio screenshots inspected (`artifacts/m3-post-merge/`) |
 | Accessibility | Keyboard operation of the diagram canvas, relationship list, inspector and source PRD disclosure asserted in Chromium |
 
 ## 9. Acceptance matrix
@@ -113,8 +115,8 @@ None.
 
 ## 14. Human approval dependencies
 
-- Review and merge the six PRs in order.
-- Accept M3.
+- ~~Review and merge the six PRs in order.~~ Done 2026-11-24 on the owner's instruction.
+- Accept M3 (the only open action).
 
 ## 15. Known limitations
 
