@@ -507,7 +507,7 @@ Not in B8:
 - Approving the promoted PRD and starting Architecture Studio from it are B9's acceptance scenario. The Architecture Studio lineage is covered by unit tests.
 - Artifacts other than PRDs have no downstream studio yet.
 
-#### B8 review round 1 (28 Sourcery findings: web 13, contracts 8, project-service 6, central 2)
+#### B8 review round 1 (28 Sourcery findings: web 12, contracts 8, project-service 6, central 2)
 
 Fixed with regression tests:
 - **Project Service:**
