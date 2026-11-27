@@ -2,7 +2,7 @@
 
 ## Status
 
-**READY_FOR_HUMAN_ACCEPTANCE.** All ten requirements are implemented in batches B1–B9. The Required Acceptance Scenario passes end to end on the rebuilt stack with deterministic mock providers, and the final regression passes. The owner's manual verification and M3.1 acceptance are the remaining human actions. **M4 has not started.**
+**READY_FOR_HUMAN_ACCEPTANCE.** All ten requirements are implemented in batches B1–B9. The Required Acceptance Scenario passes end to end on the rebuilt stack with deterministic mock providers, and the final regression passes. Steps 10 and 11 were observed with the generation already finished; the running state is covered by tests (section 11). The owner's manual verification and M3.1 acceptance are the remaining human actions. **M4 has not started.**
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, designs and per-batch evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md). Merge status: [M3_1_HANDOFF.md](M3_1_HANDOFF.md).
 
@@ -45,7 +45,7 @@ The providers are `openai`, `anthropic`, `gemini`, `openai_compatible`, `ollama`
 - **Configuration.** Models are configured explicitly in `MASD_MODELS`.
 - **Credentials.** Provider keys come only from the gateway environment (`.env.m2`; see the infrastructure README). They are sent only in request headers and never reach the browser or Project Service. The OpenAI-compatible endpoint has its own key.
 - **Availability is verified, not assumed.** A model is available only when its provider answers and lists it. Otherwise it shows a reason code.
-- **Where status is shown.** `GET /api/v1/providers` and `GET /capabilities` report provider status without URLs or keys. Settings and the AI Workspace show it.
+- **Where status is shown.** `GET /api/v1/providers` and `GET /api/v1/capabilities` report provider status without URLs or keys. Settings and the AI Workspace show it.
 - Details: llm-gateway README (B5, B6) and the plan's "B5 design".
 
 ## 5. Supported import methods and limitations
@@ -61,7 +61,7 @@ The providers are `openai`, `anthropic`, `gemini`, `openai_compatible`, `ollama`
 - **Formats.** No DOCX or other office formats, no OCR for scanned PDFs, no password-protected PDFs, and no Gemini exports (Gemini offers none). Share pages that render only in the browser need Paste.
 - **Malware scanning** is off by default, and each source is labelled "not malware-scanned". `clamd` runs outside the stack.
 - **Long sources** are never cut silently. A source that does not fit is sent as its opening section plus the most relevant sections, and the turn records exactly what it sent.
-- **Text limits** come from `GET /capabilities`. Over-limit text is refused with a 422 that names both numbers, never truncated.
+- **Text limits** come from `GET /api/v1/capabilities`. Over-limit text is refused with a 422 that names both numbers, never truncated.
 
 ## 6. Operation persistence and recovery design
 
@@ -84,7 +84,27 @@ There is one application login: OIDC authorization code with PKCE, through Keycl
 
 ## 8. Automated test results (final regression, B9)
 
-All gates were run on the B9 branch heads, which are current `main` plus the B9 changes.
+Tested revisions:
+
+| Repository | Revision |
+|---|---|
+| masd-web | `97a5459` (B9 PR head) |
+| masd-project-service | `9982e26` (B9 PR head) |
+| MultiAgentSoftwareDelivery | `docs/m3.1-acceptance` (the B9 PR) |
+| masd-contracts | `main` `ccbe920` |
+| masd-llm-gateway | `main` `4704e39` |
+| masd-agent-service | `main` `bb851aa` |
+| masd-infrastructure | `main` `9d93152` |
+
+Review round 1 then changed only the acceptance spec's assertions (web `910d78d`, where both acceptance tests passed again on the same stack) and documentation (project-service `0ac72d6`, central).
+
+The commands, run on Windows from each repository root, are:
+- **Gates:** `uv run --frozen python -m scripts.check`, with masd-web run from an uppercase `C:\` path.
+- **Real PostgreSQL 17:** `uv run --frozen pytest -q` in masd-project-service, with `MASD_TEST_DATABASE_URL` pointing at a throwaway `postgres:17` container that has a one-off password.
+- **Stack:** `uv run --frozen python -m scripts.m2_compose up --build --wait` in masd-infrastructure.
+- **Chromium:** `npx playwright test` in masd-web. Set `INTEGRATION_BASE_URL=http://127.0.0.1:4400`, set `M2_HUMAN_LOGIN_FILE` and `M31_SSO_USERS_FILE` to the files in infrastructure `artifacts/`, and set `M2_ACCEPTANCE_RECORD`, `M3_ACCEPTANCE_RECORD` and `M31_ACCEPTANCE_RECORD`.
+- **Restart verifiers:** `uv run --frozen python -m scripts.verify_m2_restart --record artifacts/m2-acceptance-record.json` and `uv run --frozen python -m scripts.verify_m3_restart --record artifacts/m3-acceptance-record.json`, both in masd-infrastructure.
+- **Runtime secrets:** `uv run --frozen python -m scripts.verify_m2 runtime-secrets` in the central repository.
 
 | Check | Result |
 |---|---|
@@ -137,7 +157,7 @@ R10 coverage, by area:
 | B8 | [#12](https://github.com/swapnilpuri/masd-contracts/pull/12) `ccbe920` | [#12](https://github.com/swapnilpuri/masd-project-service/pull/12) `97c3192` | [#13](https://github.com/swapnilpuri/masd-web/pull/13) `4367bdb` | — | — | [#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) `0763029` |
 | B9 | — | [#13](https://github.com/swapnilpuri/masd-project-service/pull/13) | [#14](https://github.com/swapnilpuri/masd-web/pull/14) | — | — | [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) |
 
-Each table cell gives the PR and its merge commit. Central #16, #18, #20, #22 and #24 recorded the merges. Every merge was made on the owner's explicit instruction, pinned to the verified head commit. The B9 PRs are open for review.
+Merged rows give each PR and its merge commit; the B9 row lists open PRs only. Central #16, #18, #20, #22 and #24 recorded the merges. Every merge was made on the owner's explicit instruction, pinned to the verified head commit. The B9 PRs are open for review.
 
 ## 11. Acceptance scenario results
 
@@ -154,8 +174,8 @@ The Required Acceptance Scenario is automated as `masd-web/e2e/m31-acceptance.sp
 | 7. Rich content renders | PASS | Four collapsible sections, a three-row table, and a Mermaid SVG in an empty-sandbox frame |
 | 8. Save the response | PASS | Stored on the server; Save as Markdown downloads `…-v1.md` |
 | 9. Promote selected content into a draft PRD | PASS | Sections Vision and Requirements become a Requirements Studio session, with its lineage shown |
-| 10. Progress visible while navigating | PASS | The operation panel shows the generation at once. Operations / Activity lists it after navigating away |
-| 11. Refresh and still inspect the operation | PASS | Operations / Activity after a reload; the studio's operation panel after a second reload |
+| 10. Progress visible while navigating | PASS for the finished state | The operation panel shows the generation at once, and Operations / Activity lists it after navigating away. With the deterministic model the generation had already completed, so no running stage was observed. The running state is covered by the B1–B3 service and unit tests (section 12) |
+| 11. Refresh and still inspect the operation | PASS for the finished state | Operations / Activity after a reload, and the studio's operation panel after a second reload. Re-attaching to a still-running operation after a reload is covered by B2's web unit tests and the B1 disconnect test, not by this run |
 | 12. Completes, or a recoverable error without freezing | PASS (both) | It completes. A second test fails a PRD generation on purpose: the reason and "Retry with a new request" are shown, navigation works, and the failure survives a reload |
 | 13. Open, review and approve the PRD | PASS | Stories generated, submitted, approved; "Approved requirements baseline" |
 | 14. Approved PRD traceably feeds Architecture Studio | PASS | The architecture session is bound to the approved PRD and shows "Source PRD traceability: promoted from the AI Workspace", with the conversation, response version and hash, sections and source. "Approved revision and hash match this session's source" |
@@ -169,7 +189,7 @@ The Required Acceptance Scenario is automated as `masd-web/e2e/m31-acceptance.sp
 
 - **Running state not observed live.** With the deterministic fixture, PRD generation finishes in about a second, so the running state is usually over before the user navigates; the journey saw the operation already `completed`. The panel and the Operations listing are the same for a running operation. Running-state behaviour is covered by the B1–B3 service and unit tests, and by `verify_m2_restart` and `verify_m3_restart`, which interrupt a running operation. A live provider would show the stages for longer.
 - **Live checks not run.** The live-provider smoke test was not run, and neither were live share-link imports, which depend on third-party pages.
-- **Formats.** The import formats in section 5 are not supported.
+- **Formats.** DOCX and other office formats, OCR for scanned PDFs, password-protected PDFs and Gemini exports are not supported. Share pages that render only in the browser need Paste.
 - **Malware scanning** is off by default.
 - **Artifact studios.** Promoted artifacts other than PRDs have no downstream studio yet.
 - **Single-replica Project Service.** Rolling upgrades are not supported.

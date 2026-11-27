@@ -84,7 +84,7 @@ Deployment notes for B8:
 ### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. B7 and B8 are merged; B9 (acceptance) is next.
+2. B7 and B8 are merged; B9 (acceptance) is open for review (see above).
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 

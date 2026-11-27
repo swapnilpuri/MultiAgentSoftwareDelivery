@@ -85,7 +85,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
 | B7 | contracts, project-service, web, infrastructure, central | Upload and import with security controls |
 | B8 | contracts, project-service, web, central | Response→artifact promotion and traceability into Requirements and Architecture Studio |
-| B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
+| B9 | web, project-service (README), central | E2E acceptance scenario, final regression, completion report |
 
 ## 5. Owner decisions needed (non-blocking for B1–B3)
 
