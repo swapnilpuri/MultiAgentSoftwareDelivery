@@ -85,7 +85,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B6 | web, project-service, llm-gateway, contracts, infrastructure | Rich AI Workspace, profiles, versions; removes the short-answer limits (gateway 0.4.0) |
 | B7 | contracts, project-service, web, infrastructure, central | Upload and import with security controls |
 | B8 | contracts, project-service, web, central | Response→artifact promotion and traceability into Requirements and Architecture Studio |
-| B9 | web, infrastructure, central | E2E acceptance scenario, final regression, completion report |
+| B9 | web, project-service (README), central | E2E acceptance scenario, final regression, completion report |
 
 ## 5. Owner decisions needed (non-blocking for B1–B3)
 
@@ -104,7 +104,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | Merged 2026-11-25: contracts `4dcbdcd`, llm-gateway `4704e39`, project-service `2dcc88d`, web `1c31f5a`, infrastructure `20f5b77`, central `d486376` |
 | B7 | feature/m3.1-upload-import | [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) | Merged 2026-11-26: contracts `1ebe098`, project-service `e500d59`, web `842a531`, infrastructure `9d93152`, central `ee7afa2` |
 | B8 | feature/m3.1-promotion | [contracts#12](https://github.com/swapnilpuri/masd-contracts/pull/12), [project-service#12](https://github.com/swapnilpuri/masd-project-service/pull/12), [web#13](https://github.com/swapnilpuri/masd-web/pull/13), [central#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) | Merged 2026-11-26: contracts `ccbe920`, project-service `97c3192`, web `4367bdb`, central `0763029` |
-| B9 | — | — | not started |
+| B9 | feature/m3.1-acceptance (web, project-service), docs/m3.1-acceptance (central) | web [#14](https://github.com/swapnilpuri/masd-web/pull/14), project-service [#13](https://github.com/swapnilpuri/masd-project-service/pull/13), central [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) | Open for review |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
@@ -544,3 +544,15 @@ Answered without a code change, with the reasons in each thread:
 | `verify_m2_restart` / `verify_m3_restart` / `verify_m2 runtime-secrets` | PASS / PASS / PASS |
 
 Found during verification: the dev database was already at `0011_promotions` from the first B8 run, so it lacked the new `artifact_events.result` column of the unreleased migration. The column was added to the dev database by hand; fresh databases get it from the migration.
+
+### B9 acceptance (2026-11-26)
+
+The Required Acceptance Scenario is automated in `masd-web/e2e/m31-acceptance.spec.ts`. It passed all 15 steps on the stack rebuilt from the B9 heads; the per-step evidence is in [M3_1_COMPLETION_REPORT.md](M3_1_COMPLETION_REPORT.md) §11. A second test checks step 12's alternative: a failed PRD generation shows its reason and retry, navigation keeps working, and the failure survives a reload.
+
+The run found one defect, now fixed in masd-web. When a promoted PRD's generation failed before Requirements Studio opened, the studio showed no failure, reason or retry. The Promote dialog now opens the session with `?operation=<id>`, so the studio follows that exact operation.
+
+B9 also adds documentation:
+- project-service README sections for durable operations, sources and promotions;
+- a masd-web README section on the M3.1 user workflows.
+
+The final regression results are in the completion report §8.
