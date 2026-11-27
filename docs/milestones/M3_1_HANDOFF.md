@@ -1,6 +1,6 @@
 # M3.1 handoff
 
-Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **READY FOR HUMAN ACCEPTANCE**. B1–B8 are merged into `main`. The B9 acceptance PRs are open, and the acceptance scenario and final regression pass ([M3_1_COMPLETION_REPORT.md](M3_1_COMPLETION_REPORT.md)). M4 is blocked until M3.1 is accepted. The owner's manual verification is next.
+Milestone: M3.1 (UX, rich AI responses, unified auth, multi-provider models, workflow reliability). Status: **READY FOR HUMAN ACCEPTANCE**. B1–B9 are merged into `main` (B9 on 2026-11-26). The acceptance scenario and final regression pass ([M3_1_COMPLETION_REPORT.md](M3_1_COMPLETION_REPORT.md)). M4 is blocked until M3.1 is accepted. The owner's manual verification is next.
 
 Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, root cause, lifecycle design, and the B4–B6 designs and evidence: [M3_1_IMPLEMENTATION_PLAN.md](M3_1_IMPLEMENTATION_PLAN.md).
 
@@ -17,9 +17,9 @@ Requirements: [M3_1_REQUIREMENTS.md](M3_1_REQUIREMENTS.md). Plan, gap analysis, 
 | B6 | #10 `4dcbdcd` | #10 `2dcc88d` | #11 `1c31f5a` | #11 `20f5b77` | #19 `d486376` |
 | B7 | #11 `1ebe098` | #11 `e500d59` | #12 `842a531` | #12 `9d93152` | #21 `ee7afa2` |
 | B8 | #12 `ccbe920` | #12 `97c3192` | #13 `4367bdb` | — | #23 `0763029` |
-| B9 | — | [#13](https://github.com/swapnilpuri/masd-project-service/pull/13) (open) | [#14](https://github.com/swapnilpuri/masd-web/pull/14) (open) | — | [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) (open) |
+| B9 | — | [#13](https://github.com/swapnilpuri/masd-project-service/pull/13) `4748b15` | [#14](https://github.com/swapnilpuri/masd-web/pull/14) `85a0d22` | — | [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) `4423a3f` |
 
-B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At each merge, every `main` tree was identical to the head verified in that batch's latest review round (B6 round 1, B7 round 1). Central commits between batches change only documentation. The B9 PRs are the only open M3.1 PRs.
+B5 also merged llm-gateway #4 (`8801f16`), and central #16 (`a7e882c`) recorded the B4 merge. B6 also merged llm-gateway #5 (`4704e39`). At each merge, every `main` tree was identical to the head verified in that batch's latest review round (B6 round 1, B7 round 1). Central commits between batches change only documentation. B9 merged after review round 1 (15 findings, all answered and resolved), each `main` tree identical to its reviewed head. No M3.1 PRs are open.
 
 **B6 merged 2026-11-25** on the owner's instruction, after review round 1 (all threads resolved; Sourcery re-ran on every head with no new findings). Deploy the gateway and Project Service together.
 
@@ -61,7 +61,7 @@ Merged on the owner's instruction after review round 1 (48 Sourcery findings, al
 
 Merged on the owner's instruction after review round 1 (28 Sourcery findings, all answered and resolved; Sourcery re-ran on every head with no new findings), each pinned to its verified head. At merge, each `main` tree was identical to the head verified in the plan's B8 review round 1. Infrastructure and llm-gateway were not changed. The design and evidence are in the plan (B8 design, B8 evidence).
 
-## B9 (acceptance): open for review
+## B9 (acceptance): merged 2026-11-26
 
 PRs, all from current `main`: web [#14](https://github.com/swapnilpuri/masd-web/pull/14), project-service [#13](https://github.com/swapnilpuri/masd-project-service/pull/13), central [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25).
 - **Acceptance.** All 15 steps of the Required Acceptance Scenario pass, plus a recoverable-failure test. The evidence is in the completion report §11.
@@ -72,9 +72,8 @@ PRs, all from current `main`: web [#14](https://github.com/swapnilpuri/masd-web/
 
 ## Next
 
-1. **Owner:** review and merge the B9 PRs, or tell the agent to merge them.
-2. **Owner:** manual verification, then M3.1 acceptance.
-3. **Optional:** supply provider credentials for the live smoke test.
+1. **Owner:** manual verification, then M3.1 acceptance.
+2. **Optional:** supply provider credentials for the live smoke test.
 
 Deployment notes for B8:
 1. **Migration `0011_promotions`** is additive and adds five tables. Upgrade as usual: stop, migrate, start.
@@ -84,7 +83,7 @@ Deployment notes for B8:
 ### B7 summary
 
 1. B7 implements R4 with its security controls and the R5 long-source strategy; the design is in the plan (B7 design). Its PRs, all on `feature/m3.1-upload-import`: [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21).
-2. B7 and B8 are merged; B9 (acceptance) is open for review (see above).
+2. B7 and B8 are merged; B9 (acceptance) is merged (see above).
 
 Upload size and format limits arrived with B7 (`Capabilities.sources`). The live-provider smoke test still needs credentials.
 

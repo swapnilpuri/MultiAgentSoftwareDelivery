@@ -1,6 +1,6 @@
 # M3.1 implementation plan — UX modernization, rich AI responses, unified auth, multi-provider models, workflow reliability
 
-Status: **IN PROGRESS** (started 2026-11-24). M4 is blocked until M3.1 is accepted.
+Status: **IMPLEMENTATION COMPLETE, AWAITING HUMAN ACCEPTANCE** (started 2026-11-24; B1–B9 merged by 2026-11-26). M4 is blocked until M3.1 is accepted.
 
 M3 status: the six M3 component PRs were merged into `main` on 2026-11-24 on the owner's instruction. Central PR #12 records that merge and the post-merge verification, but it is still open. Until it merges, the M3 completion report, handoff and acceptance files on `main` still describe the pre-merge state. M3 acceptance is the owner's only open M3 action.
 
@@ -104,7 +104,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | Merged 2026-11-25: contracts `4dcbdcd`, llm-gateway `4704e39`, project-service `2dcc88d`, web `1c31f5a`, infrastructure `20f5b77`, central `d486376` |
 | B7 | feature/m3.1-upload-import | [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) | Merged 2026-11-26: contracts `1ebe098`, project-service `e500d59`, web `842a531`, infrastructure `9d93152`, central `ee7afa2` |
 | B8 | feature/m3.1-promotion | [contracts#12](https://github.com/swapnilpuri/masd-contracts/pull/12), [project-service#12](https://github.com/swapnilpuri/masd-project-service/pull/12), [web#13](https://github.com/swapnilpuri/masd-web/pull/13), [central#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) | Merged 2026-11-26: contracts `ccbe920`, project-service `97c3192`, web `4367bdb`, central `0763029` |
-| B9 | feature/m3.1-acceptance (web, project-service), docs/m3.1-acceptance (central) | web [#14](https://github.com/swapnilpuri/masd-web/pull/14), project-service [#13](https://github.com/swapnilpuri/masd-project-service/pull/13), central [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) | Open for review |
+| B9 | feature/m3.1-acceptance (web, project-service), docs/m3.1-acceptance (central) | web [#14](https://github.com/swapnilpuri/masd-web/pull/14), project-service [#13](https://github.com/swapnilpuri/masd-project-service/pull/13), central [#25](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/25) | Merged 2026-11-26: project-service `4748b15`, web `85a0d22`, central `4423a3f` |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
 
