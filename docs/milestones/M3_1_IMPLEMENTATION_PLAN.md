@@ -103,7 +103,7 @@ A rolling upgrade with mixed versions is not supported. Both migrations only add
 | B5 | feature/m3.1-providers-limits | [contracts#9](https://github.com/swapnilpuri/masd-contracts/pull/9), [llm-gateway#4](https://github.com/swapnilpuri/masd-llm-gateway/pull/4), [project-service#9](https://github.com/swapnilpuri/masd-project-service/pull/9), [web#10](https://github.com/swapnilpuri/masd-web/pull/10), [infrastructure#10](https://github.com/swapnilpuri/masd-infrastructure/pull/10), [central#17](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/17) | merged |
 | B6 | feature/m3.1-rich-workspace | [contracts#10](https://github.com/swapnilpuri/masd-contracts/pull/10), [llm-gateway#5](https://github.com/swapnilpuri/masd-llm-gateway/pull/5), [project-service#10](https://github.com/swapnilpuri/masd-project-service/pull/10), [web#11](https://github.com/swapnilpuri/masd-web/pull/11), [infrastructure#11](https://github.com/swapnilpuri/masd-infrastructure/pull/11), [central#19](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/19) | Merged 2026-11-25: contracts `4dcbdcd`, llm-gateway `4704e39`, project-service `2dcc88d`, web `1c31f5a`, infrastructure `20f5b77`, central `d486376` |
 | B7 | feature/m3.1-upload-import | [contracts#11](https://github.com/swapnilpuri/masd-contracts/pull/11), [project-service#11](https://github.com/swapnilpuri/masd-project-service/pull/11), [web#12](https://github.com/swapnilpuri/masd-web/pull/12), [infrastructure#12](https://github.com/swapnilpuri/masd-infrastructure/pull/12), [central#21](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/21) | Merged 2026-11-26: contracts `1ebe098`, project-service `e500d59`, web `842a531`, infrastructure `9d93152`, central `ee7afa2` |
-| B8 | feature/m3.1-promotion | [contracts#12](https://github.com/swapnilpuri/masd-contracts/pull/12), [project-service#12](https://github.com/swapnilpuri/masd-project-service/pull/12), [web#13](https://github.com/swapnilpuri/masd-web/pull/13), [central#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) | in review |
+| B8 | feature/m3.1-promotion | [contracts#12](https://github.com/swapnilpuri/masd-contracts/pull/12), [project-service#12](https://github.com/swapnilpuri/masd-project-service/pull/12), [web#13](https://github.com/swapnilpuri/masd-web/pull/13), [central#23](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/23) | Merged 2026-11-26: contracts `ccbe920`, project-service `97c3192`, web `4367bdb`, central `0763029` |
 | B9 | — | — | not started |
 
 ### B1–B2 evidence (2026-11-24, branch heads after review round 1)
@@ -507,7 +507,7 @@ Not in B8:
 - Approving the promoted PRD and starting Architecture Studio from it are B9's acceptance scenario. The Architecture Studio lineage is covered by unit tests.
 - Artifacts other than PRDs have no downstream studio yet.
 
-#### B8 review round 1 (28 Sourcery findings: web 13, contracts 8, project-service 6, central 2)
+#### B8 review round 1 (28 Sourcery findings: web 12, contracts 8, project-service 6, central 2)
 
 Fixed with regression tests:
 - **Project Service:**
