@@ -1,0 +1,30 @@
+@startuml
+title Existing durable operation states / UI overlays — DRAFT
+state "Starting / reconciling\n(local observation only)" as Starting
+state "running\n(server persisted)" as Running
+state "completed" as Completed
+state "failed\nINTERRUPTED is a reason" as Failed
+state "cancelled" as Cancelled
+[*] --> Starting : explicit command / known key
+Starting --> Running : server claim found
+Starting --> Completed : completed record found
+Starting --> Failed : failed record found
+Starting --> Cancelled : cancelled record found
+Running --> Completed : server success wins race
+Running --> Failed : server failure / process interruption
+Running --> Cancelled : server cancellation confirmed
+Completed --> [*]
+Failed --> [*]
+Cancelled --> [*]
+note right of Running
+Cancellation request keeps running state
+until server confirms the actual result.
+Read failure is a stale/unavailable overlay,
+not an operation-state transition.
+No queued, pause or generic resume state.
+end note
+note bottom of Failed
+Retry, when permitted, creates a separate execution
+with a new key after outcome reconciliation.
+end note
+@enduml

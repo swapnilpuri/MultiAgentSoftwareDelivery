@@ -1,37 +1,44 @@
 # M3.1B.2 UI-01 detailed design handoff
 
-**DRAFT — foundation checkpoint F1; awaiting human foundational review.** Date: 2026-11-27 (America/Chicago). No baseline approval, application changes, M3.2 implementation prompt/implementation or M4 authorization.
+**DRAFT — detailed design v0.2 and standalone wireframes v0.3 prepared; full baseline approval pending.** Updated 2026-11-28 (America/Chicago). F1–F7 foundations were explicitly approved by the user (“Approve F1-F7.”) against `865659e0bb56808af1138a0221670b7f267b183f`. This is not M3.1 acceptance, full UI-01 approval, M3.2 implementation/prompt authorization or M4 authorization.
 
-Base/current main at entry: `1cfe56fa37879be7e01b23185559eb9c8a7e313b`, fetched from origin, merge of M3.1B.1 PR #28. Branch: `docs/m3.1b2-ui01-foundations`. Current commit: `git rev-parse HEAD` (this handoff cannot self-pin its eventual commit). Initial working tree clean; no pre-existing changes overwritten. Existing main tree matched the preceding local wireframe branch.
+## Baseline, branch and scope
 
-## Completed work and decisions
+- Central main/base: `1cfe56fa37879be7e01b23185559eb9c8a7e313b`; remote rechecked unchanged on 2026-11-28. Foundation commit `865659e`; current publication commit: `git rev-parse HEAD` (handoff does not self-pin its own future commit).
+- Branch: `docs/m3.1b2-ui01-foundations`; active checkout `C:/Projects/msad/MultiAgentSoftwareDelivery`.
+- Initial working tree was clean. A later untracked `out/docs/04-ui-ux/UI-01/diagrams/shell-foundation/` PNG/SVG preview appeared during the session; its origin is not established, so it is preserved and excluded from publication/package. No user changes were removed.
+- No Angular/backend/contracts/config/permission/deployment changes. Historical images, source manifests and milestone records preserved; current UX indexes receive additive links. Existing audit reused with targeted reads; no repeated seven-repository audit.
 
-[Foundation README](../04-ui-ux/UI-01/README.md) is the review entry point and tracks F1–F7 recommendations plus remaining deliverables. Reviewed mandatory references and all 14 screen images plus REF-01–04. Reused M3.1A seven-repository audit with targeted Angular/auth/context/operations source checks. Produced per-screen reconciliation, proposed navigation/route compatibility, design tokens/shared guidelines, shell control contracts/acceptance, and editable PlantUML architecture.
+## Completed design work and decisions
 
-Key proposals: single Home / Projects; stable legacy paths; distinct Background operations and future Production Operations; configuration-driven sign-in; no fabricated progress/agents/approvals; read-only identity; local light/dark/system theme. All are review proposals. No human approval is recorded. All historical images/provenance/handoffs are preserved; no seven-repository audit was repeated.
+[Design README](../04-ui-ux/UI-01/README.md) is the review entry point. All twenty deliverables are mapped in [acceptance/traceability](../04-ui-ux/UI-01/ACCEPTANCE_AND_TRACEABILITY.md). Includes all 14 page/control specifications, shared shell contracts, approved navigation/token foundations, routes/compatibility, user journeys, session/context/operations/state architecture, existing API reuse and explicit AP01–AP08 gaps, five editable PlantUML sources with rendered previews, Playwright strategy and proposed M3.2 plan (not an implementation prompt).
 
-## Verification
+[Wireframes v0.3](../04-ui-ux/wireframes/UI-01/v0.3/WIREFRAME_INDEX.md): seven independent built-in image_gen screen generations using preferred REF-01–03; exact prompts/correction passes, actual dimensions, bytes and SHA-256 recorded. Six are 1585×992; responsive board 1920×819. Seven outputs inspected visually; navigation/identity/internal-link and recovery-private-content errors corrected before selection. No upscaling of old crops. Original WF-001–007 remain historical pixels; written reconciliation governs their unsupported controls/data, subject to full human baseline review.
 
-Executed at this checkpoint:
+Core proposal reuses APIs; broader durability/search/metrics/account editing/execution gaps are excluded. No new microservice/framework justified. Future-module screens cannot execute or approve work. Foundation approval does not turn mockup data into runtime evidence.
+
+## Executed verification
 
 | Command / check | Result |
 |---|---|
-| `uv run --frozen python -m scripts.check` | PASS: governance, Ruff lint, format (84 files), mypy (6 source files), **46 passed**, secret scan 0, no known dependency vulnerabilities |
+| `uv run --frozen python -m scripts.check` | PASS: governance, Ruff lint, format (91 files), mypy (6 source files), **46 passed**, secret scan 0, no known dependency vulnerabilities |
 | `uv run --frozen python scripts/validate_standards.py` | PASS: pinned standards integrity |
-| Temporary inline Python documentation check | PASS: six DRAFT Markdown files, 22 relative links, 14 reconciliation IDs, 18 shell control IDs, eight compatibility route/alias mentions |
-| Temporary inline Python contrast arithmetic | PASS: 17 specified text pairs ≥4.5:1 (minimum 5.98:1); four control-boundary pairs ≥3:1 |
-| `git diff --check` | PASS |
-| Original visual reference inspection | All 14 screen PNGs and four reference PNGs opened visually |
+| Seven PNG validation with inline Python struct/zlib/hashlib | PASS: PNG signatures/chunk CRCs/IEND/EOF and decompression; dimensions/byte counts/SHA-256 recorded in v0.3 index |
+| `java -jar <existing VS Code PlantUML extension>/plantuml.jar -failfast2 -tpng -o <workspace>/artifacts/ui01-diagrams <diagram sources>` | PASS: all five rendered using PlantUML 1.2024.3 / local Java / Graphviz 2.44.1; all previews opened visually; state annotation overlap corrected and rerendered |
+| Foundation token arithmetic (prior checkpoint, unchanged token values) | PASS: 17 specified text pairs ≥4.5:1, minimum 5.98:1; four boundary pairs ≥3:1. Not full browser state contrast certification |
+| `git diff --check` | PASS; staging/manifest checks recorded at publication |
 
-Initial sandbox standards attempt was BLOCKED by uv cache permissions before validation; the authorized rerun passed. No failed check remains. Inline validation was executed with `python -` using pathlib/re for Markdown links/coverage and sRGB relative luminance for contrast; no runtime/test source files were added. Contrast arithmetic covers specified solid token pairs, not every composited/interactive browser state.
+Application/runtime/Playwright/live-provider tests are **not executed** for this docs-only design. Rendered mockups/diagrams do not prove runtime accessibility, authorization or operation survival. Initial sandbox uv cache and remote-network attempts were blocked before execution; authorized reruns passed without changing settings or bypassing gates. The original foundation's PlantUML-not-executed limitation is superseded by the local render evidence above.
 
-No runtime, Playwright, visual acceptance or live-provider test is claimed. Image review means the original PNGs were opened and inspected, not that new designs passed acceptance. PlantUML rendering is **not executed** (no PlantUML command found); editable source is provided, rendering remains a later validation item. Publication/PR review is not executed at this local foundation checkpoint; historical Sourcery budget exhaustion is not a current review result. Any future PR must inspect current findings/checks before publication completion.
+## Publication and distribution
 
-## Risks, blockers and next task
+Documentation draft PR and final package evidence are recorded after publication below. Final ZIP is a distribution of Git-backed docs, including historical context/dependencies, with root README/publication prompt/manifest and external archive SHA-256. ZIP/output tooling stays under ignored `artifacts/`; no duplicate project checkout. Do not copy distribution README over the repository README.
 
-Human foundation review is required by the user's explicit incremental design instruction. WF-008–014 still require seven independent full-resolution redraws; no regeneration is claimed. Complete page specifications, journeys, API/state/sequence detail, full traceability, Playwright strategy, proposed M3.2 plan and completed downloadable ZIP remain later slices. Do not package this checkpoint as the completed design. M3.1 acceptance remains separate.
+## Risks, review gate and next task
 
-Next task: obtain feedback on F1–F7; then use imagegen skill and preferred references to produce additive redraws and reconcile all 14. Continue remaining design slices incrementally. Complete design publication uses a documentation-only PR and final ZIP with README, ARTIFACT_MANIFEST, CODEX_PUBLISH_PROMPT, revisions/dependencies/SHA-256. Resolve applicable PR findings; do not merge automatically. Baseline approval precedes any implementation prompt.
+Full human functional/visual baseline review is required. Review detailed choices in [proposed M3.2 plan](../04-ui-ux/UI-01/M3_2_PROPOSED_PLAN.md), including written precedence over historical WF-001–007, v0.3 visuals, browser/screenshot policy and unsaved-auth-redirect limitation. A merge is not approval. Required automated review may be externally unavailable; record current PR results rather than inheriting historical status. Resolve applicable findings; no auto-merge.
+
+Next: review complete DRAFT UI-01 baseline and record explicit approval or requested changes. Only after full baseline approval may an M3.2 implementation prompt be generated. Actual implementation/deployment/migration/permission changes and M4 retain separate gates. No code work is authorized by this handoff.
 
 Resume:
 
@@ -39,5 +46,7 @@ Resume:
 git status --short --branch
 git rev-parse HEAD
 Get-Content docs/04-ui-ux/UI-01/README.md
+gh pr view docs/m3.1b2-ui01-foundations --json url,headRefOid,isDraft,state,statusCheckRollup
+gh pr checks docs/m3.1b2-ui01-foundations
 uv run --frozen python scripts/validate_standards.py
 ```

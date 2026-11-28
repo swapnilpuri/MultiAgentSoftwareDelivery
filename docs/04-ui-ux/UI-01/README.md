@@ -1,8 +1,8 @@
-# UI-01 detailed design — foundation checkpoint v0.1
+# UI-01 detailed functional and technical design — v0.2
 
-**DRAFT — human review required.** M3.1B.2, checkpoint F1, 2026-11-27 (America/Chicago).
+**DRAFT — foundations F1–F7 approved; complete design baseline not approved.** M3.1B.2, draft package revision v0.2, 2026-11-28 (America/Chicago).
 
-This is the first reviewable slice of the requested UI-01 detailed functional and technical design. It proposes foundational decisions, rather than an approved design baseline. Violet is the selected direction; exact tokens, navigation and behavior below are proposals. No application code, M3.2 implementation prompt, M3.2 implementation or M4 work is included.
+This package continues the approved foundations into a full UI-01 design proposal: all 14 screen specifications, seven independently regenerated wireframes, technical state/API design, editable diagrams, acceptance/traceability and a proposed implementation plan. All detailed artifacts and images remain DRAFT pending explicit whole-baseline approval. No application code, M3.2 implementation prompt, M3.2 implementation or M4 work is included.
 
 Review in order:
 
@@ -11,33 +11,39 @@ Review in order:
 3. [Application design system foundation](DESIGN_SYSTEM.md): light/dark tokens, typography, layout and shared interaction rules.
 4. [Shared shell functional design](SHELL_FUNCTIONAL_DESIGN.md): control behavior, authorization, data, failure states and acceptance.
 5. [Editable shell architecture](diagrams/shell-foundation.puml).
-6. [Milestone handoff](../../milestones/M3_1B_2_HANDOFF.md): verification, blockers and resume commands.
+6. [All 14 page specifications](PAGE_SPECIFICATIONS.md).
+7. [Technical design and journeys](TECHNICAL_DESIGN.md).
+8. [Acceptance, traceability and Playwright strategy](ACCEPTANCE_AND_TRACEABILITY.md).
+9. [Proposed M3.2 plan](M3_2_PROPOSED_PLAN.md) — not an implementation prompt.
+10. [Seven standalone redraws v0.3](../wireframes/UI-01/v0.3/WIREFRAME_INDEX.md), with exact prompts and checksums.
+11. [Artifact manifest](ARTIFACT_MANIFEST.md) and [documentation publication prompt](CODEX_PUBLISH_PROMPT.md).
+12. [Milestone handoff](../../milestones/M3_1B_2_HANDOFF.md): verification, blockers and resume commands.
 
-## Foundation decisions submitted for review
+## Foundation decision record
 
 | ID | Recommendation | Approval status |
 |---|---|---|
-| F1 | One Home / Projects destination; project dashboard and lifecycle/shared groups; use the exact vocabulary in NAVIGATION.md | Proposed |
-| F2 | Separate Background operations (AI execution activity) from future Production Operations; preserve legacy route meanings | Proposed |
-| F3 | Violet shell, neutral working canvas, semantic light/dark tokens and system font stack; retain preferred reference composition | Proposed |
-| F4 | Keep existing configuration-driven sign-in, per-tab authorized project context, guarded navigation and server operation actions | Proposed; existing behavior remains authoritative |
-| F5 | Hide unsupported global search/notifications and speculative dashboard metrics; label future modules explicitly | Proposed |
-| F6 | Use a single HRMS Platform sample fixture for later renders, marked illustrative; no fictional execution/approval evidence | Proposed |
-| F7 | Preserve original images; generate seven independent redraws in an additive revision after foundation review | Proposed sequencing; regeneration remains required |
+| F1 | One Home / Projects destination; project dashboard and lifecycle/shared groups; use the exact vocabulary in NAVIGATION.md | Approved 2026-11-27 |
+| F2 | Separate Background operations (AI execution activity) from future Production Operations; preserve legacy route meanings | Approved 2026-11-27 |
+| F3 | Violet shell, neutral working canvas, semantic light/dark tokens and system font stack; retain preferred reference composition | Approved 2026-11-27 |
+| F4 | Keep existing configuration-driven sign-in, per-tab authorized project context, guarded navigation and server operation actions | Approved 2026-11-27; existing behavior remains authoritative |
+| F5 | Hide unsupported global search/notifications and speculative dashboard metrics; label future modules explicitly | Approved 2026-11-27 |
+| F6 | Use a single HRMS Platform sample fixture for later renders, marked illustrative; no fictional execution/approval evidence | Approved 2026-11-27 |
+| F7 | Preserve original images; generate seven independent redraws in an additive revision after foundation review | Approved 2026-11-27; seven standalone redraws produced |
 
-The user's instruction is: “Do not generate the entire design package before reviewing the foundational decisions.” This checkpoint intentionally stops at that gate. Explicit feedback on F1–F7 is needed before dependent page specifications and redraws. Approving these foundations alone does not approve the entire UI-01 baseline or authorize implementation. No approval has been inferred from the request, prior publication or a Git merge.
+The user explicitly approved F1–F7 on 2026-11-27 with “Approve F1-F7.” This approves the foundation recommendations recorded in commit `865659e0bb56808af1138a0221670b7f267b183f`, including additive redraws. It satisfies the initial foundational review gate. It does not approve the complete UI-01 baseline, accept M3.1, or authorize application implementation, M3.2 or M4. Remaining detailed artifacts stay DRAFT pending review.
 
-## Remaining deliverables and dependencies
+## Revision and review status
 
-| Next slice | Required output | Depends on |
+| Revision | Status / change | Dependencies |
 |---|---|---|
-| F2 wireframes | WF-008–014 standalone full-resolution images using REF-01–03; reconcile all 14 against approved foundations; record prompts, dimensions, hashes and visual QA | Foundation review |
-| F3 page specifications | Complete page inventory, all 14 control specifications, detailed journeys, auth/session recovery, creation/dashboard/profile/empty/future behavior | Foundations and reconciled images |
-| F4 technical design | Angular component ownership/state, API reuse/gaps and changes by repository, auth/context/operation sequences and state diagrams | F3; contract decisions |
-| F5 acceptance/package | Functional/visual criteria, full traceability matrix, Playwright strategy, proposed M3.2 plan; README, manifest, publication prompt, revision and SHA-256 in downloadable ZIP | Reviewed design slices |
-| Separate gate | Explicit human UI-01 baseline approval; only then may an M3.2 implementation prompt be generated | Full package review |
+| v0.1 foundation (`865659e`) | F1–F7 explicitly approved by user; review checkpoint satisfied | Main `1cfe56f`; mandatory references and targeted source reads |
+| v0.2 detailed design | DRAFT; page/control/API/state/journey/acceptance/plan proposal, five editable diagrams | Approved F1–F7; no new seven-repository audit |
+| Wireframes v0.3 | DRAFT; WF-008–014 independent full-resolution generations, original images preserved | REF-01–03 and written foundations; built-in imagegen, per-screen corrections |
 
-All twenty requested deliverables remain tracked by these slices. Current files cover the foundation portions of design system, palette/type, shared guidelines, navigation, compatibility, shell specifications, architecture and acceptance. They do **not** constitute completion of the twenty deliverables. Final ZIP packaging and documentation-only publication must preserve this hierarchy, historical assets and review findings; do not label a partial checkpoint the completed package.
+All twenty requested design deliverables are mapped in the [traceability matrix](ACCEPTANCE_AND_TRACEABILITY.md). Human functional/visual baseline review is outstanding. Historical WF-001–007 remain unchanged; written reconciliation governs their conflicting controls/data. Accept that precedence or request additive corrected renders during baseline review. No browser implementation acceptance is claimed. The downloadable archive is a design distribution artifact; its SHA-256 sidecar is supplied separately. Merging a documentation PR is not design approval.
+
+After explicit whole UI-01 baseline approval, preparation of an M3.2 implementation prompt becomes eligible; none is included here. Actual implementation, deployment/migration/permission changes and M4 retain their separate authorizations.
 
 ## Evidence and preservation
 

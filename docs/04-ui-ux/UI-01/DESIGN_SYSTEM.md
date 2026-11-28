@@ -1,10 +1,10 @@
 # MASD application design system — foundation
 
-**DRAFT — v0.1; exact values proposed for F3 review.** UI-01 only. No UI framework, font dependency or application code is introduced.
+**DRAFT — v0.2; F3 foundation values approved, full visual baseline pending.** UI-01 only. No UI framework, font dependency or application code is introduced.
 
 ## Visual direction and tokens
 
-Retain the reference boards' violet identity, clear content cards, persistent header/project selector and collapsible navigation. Concentrate decorative gradients/illustration on sign-in and empty states. Working pages use a neutral canvas and restrained borders; gradients are not text backgrounds or status indicators. Brand/logo selection is still a human decision (R01).
+Retain the reference boards' violet identity, clear content cards, persistent header/project selector and collapsible navigation. Concentrate decorative gradients/illustration on sign-in and empty states. Working pages use a neutral canvas and restrained borders; gradients are not text backgrounds or status indicators. F3/F6 approval selects the consistent violet network treatment described in R01; raster glyphs remain illustrative and existing editable assets should be reused.
 
 | Semantic token | Light | Dark | Usage |
 |---|---|---|---|
@@ -29,7 +29,7 @@ Accessibility targets: WCAG 2.2 AA text contrast (4.5:1 normal, 3:1 large), 3:1 
 
 ## Typography and spacing
 
-Use the installed system UI stack `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`. Reference “Inter or similar” is satisfied by a consistent system face without adding a hosted font. Propose 16px/24px body; 14px/20px secondary labels; 12px/16px metadata only; page heading 32px/40px weight 700, section heading 24px/32px weight 600, card heading 20px/28px weight 600. Mobile page heading 24px/32px. Controls inherit the font; technical IDs use the existing monospace stack and wrap. Use rem units and support 200% text scaling.
+Use the installed system UI stack `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`. Reference “Inter or similar” is satisfied by a consistent system face without adding a hosted font. Use 16px/24px body; 14px/20px secondary labels; 12px/16px metadata only; page heading 32px/40px weight 700, section heading 24px/32px weight 600, card heading 20px/28px weight 600. Mobile page heading 24px/32px. Controls inherit the font; technical IDs use the existing monospace stack and wrap. Use rem units and support 200% text scaling.
 
 Spacing scale: 4, 8, 12, 16, 24, 32, 48px. Control height 44px minimum for touch access; 8px control radius, 12px card/menu radius. Use a 1px border; subtle shadow only for elevated menus/drawers, not every card. Icons 20–24px with one consistent existing icon approach. Icon-only buttons always have accessible names; tooltips supplement rather than replace names.
 

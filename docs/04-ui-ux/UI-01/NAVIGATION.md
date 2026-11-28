@@ -1,6 +1,6 @@
 # Proposed final application navigation
 
-**DRAFT — v0.1; human decision F1/F2 pending.** Navigation labels do not establish implemented capability.
+**DRAFT — v0.2; foundation navigation decisions F1/F2 approved, detailed baseline pending.** Navigation labels do not establish implemented capability.
 
 ## Hierarchy
 

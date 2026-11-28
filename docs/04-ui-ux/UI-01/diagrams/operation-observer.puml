@@ -1,0 +1,30 @@
+@startuml
+title UI-01 durable studio operation observer — DRAFT
+actor Human
+participant "Owning studio" as Studio
+participant "Existing OperationsTracker" as Tracker
+participant "Project Service" as API
+database "Persisted operation" as DB
+Studio -> API : command with request key
+API -> DB : claim operation / persist state
+API --> Studio : operation identity or uncertain response
+Studio -> Tracker : follow owning project/session/key
+Human -> Studio : navigate away / reload
+Tracker -> API : authorized lookup by ID/key
+API -> DB : read current state
+DB --> API : authoritative status/stage/actions
+API --> Tracker : current record
+alt read failure
+  Tracker -> Tracker : retain last known; stale label; backoff
+else Human chooses cancel
+  Human -> Tracker : explicit named cancel
+  Tracker -> API : POST cancel
+  API -> API : requester authorization and race handling
+  API -> DB : reconcile server outcome
+  API --> Tracker : actual state
+else Human chooses retry after known failure
+  Human -> Studio : explicit retry intent
+  Studio -> API : new key + validated command context
+end
+note over Tracker, DB : Closing drawer never cancels. Discovery is not in this durable feed.
+@enduml

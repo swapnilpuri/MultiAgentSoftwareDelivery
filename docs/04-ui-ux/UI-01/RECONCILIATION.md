@@ -1,6 +1,6 @@
 # UI-01 reference and wireframe reconciliation
 
-**DRAFT — v0.1 foundation checkpoint; no baseline approval.** Reviewed 2026-11-27.
+**DRAFT — v0.2; F1–F7 approved, full baseline pending.** Reviewed 2026-11-27.
 
 ## Evidence reviewed
 
@@ -55,6 +55,6 @@ Each row is a reconciliation instruction for subsequent specifications/redraws, 
 | [WF-013 Responsive](../wireframes/UI-01/WF-013-responsive-shell.png) | 559×206 composite crop; metrics/cards too small; collapsed/overlay behavior ambiguous | Independent full-resolution responsive presentation, readable individual viewports; 1280/768 boundaries and 320px reflow; no permanently hidden critical controls |
 | [WF-014 Future](../wireframes/UI-01/WF-014-future-module.png) | 503×206 crop; “coming” feature checklist can look executable; API Contracts treated as separate studio | Independent redraw; explicit unavailable explanation, no generation CTA, no promised release date; API contracts remain Architecture-owned content |
 
-## Regeneration and review gate
+## Regeneration follow-through
 
-Seven original crops remain unresolved visual deliverables. Do not upscale them and call that regeneration. After F1–F7 feedback, generate WF-008–014 separately using the three preferred references, at readable full-screen resolution (proposed desktop target 1600×1000; responsive states individually readable). Preserve the old revision; place new images in an additive revision with prompt/provenance/dimensions/SHA-256 and a per-screen visual check against R01–R06. Image generation must use the imagegen skill/tool. This checkpoint performs visual review and documents redraw instructions only; no new bitmap has been generated.
+The user approved F1–F7 after the initial review checkpoint. [Seven independent full-resolution redraws are now provided in additive v0.3](../wireframes/UI-01/v0.3/WIREFRAME_INDEX.md), with exact prompts, correction passes, dimensions, hashes and visual QA notes. Original crops remain historical evidence and were not overwritten. The built-in imagegen tool used REF-01–03 for each initial screen. Actual dimensions are 1585×992 for six screens and 1920×819 for the responsive board; requested target sizes were guidance rather than a claim of exact tool output. These outputs are not upscales or crops of REF-04. Full human visual/baseline approval remains outstanding; original WF-001–007 are reconciled by the written rules/table above, not silently changed pixels.
