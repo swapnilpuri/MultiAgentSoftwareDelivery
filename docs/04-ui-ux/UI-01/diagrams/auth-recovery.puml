@@ -1,0 +1,34 @@
+@startuml
+title UI-01 configured sign-in and recovery — DRAFT
+actor Human
+participant "Angular Auth / Router" as UI
+participant "Project Service\nsame-origin BFF" as API
+participant "Configured identity provider" as IdP
+Human -> UI : open protected deep link
+UI -> API : GET auth/session
+alt signed in
+  API --> UI : identity
+  UI -> API : authorize project/resource read
+  API --> UI : authorized data or refusal
+else no session / expired
+  API --> UI : 401
+  UI -> UI : mask protected content; sanitize return
+  UI -> API : GET auth/config
+  API --> UI : oidc or development password mode
+  alt configured OIDC
+    Human -> UI : Sign in again
+    UI -> API : navigate configured login + safe return
+    API -> IdP : server-owned OIDC handshake
+    IdP --> API : callback
+    API --> UI : session cookie + safe app return
+  else development password mode
+    Human -> UI : enter credentials
+    UI -> API : POST auth/session + CSRF
+    API --> UI : identity / safe error
+  end
+  UI -> UI : reset state if identity changed
+  UI -> API : reauthorize return resource; reconcile known keys
+  API --> UI : current state or refusal
+  note right of UI : No automatic mutation replay.
+end
+@enduml

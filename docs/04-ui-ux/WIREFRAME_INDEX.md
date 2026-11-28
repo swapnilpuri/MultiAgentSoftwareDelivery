@@ -15,3 +15,7 @@ These are conceptual images, not approved specifications. Text, metrics, project
 ## Additional UI-01 v0.2 drafts — M3.1B
 
 [UI-01 violet-theme wireframe index](wireframes/UI-01/WIREFRAME_INDEX.md) — **DRAFT**, 14 screen images plus alternatives and references. WF-008 through WF-014 are storyboard-derived crops requiring standalone full-resolution regeneration. See [publication constraints and validation](wireframes/UI-01/PUBLICATION.md). These additional drafts preserve the nine historical images above and do not approve or supersede the written baseline.
+
+## UI-01 additive standalone redraws v0.3 — DRAFT
+
+After explicit F1–F7 foundation approval, [seven independent WF-008–014 redraws](wireframes/UI-01/v0.3/WIREFRAME_INDEX.md) were generated using the preferred references and reconciled written foundations. The old crop files remain unchanged as historical artifacts. [UI-01 detailed design](UI-01/README.md) governs corrected control/data/navigation semantics for all 14 screens. Full human visual/baseline approval remains pending; no application implementation is authorized.

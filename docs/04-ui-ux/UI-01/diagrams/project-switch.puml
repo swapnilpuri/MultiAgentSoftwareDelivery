@@ -1,0 +1,31 @@
+@startuml
+title UI-01 coordinated project switch — DRAFT
+actor Human
+participant "Project selector" as Selector
+participant "Router / leave guard" as Router
+participant "ProjectContext" as Context
+participant "WorkspaceApi / Project Service" as API
+Human -> Selector : choose project B
+Selector -> Router : begin switch intent (generation n)
+Router -> Human : unsaved-work decision if needed
+alt leave refused
+  Router --> Selector : cancelled; retain A
+else leave permitted
+  Router -> API : authorized GET project B
+  alt forbidden / missing / transient error
+    API --> Router : failure
+    Router --> Selector : keep route/context A; show safe error
+  else authorized
+    API --> Router : B
+    Router -> Router : construct equivalent route; drop A child IDs
+    Router -> Router : navigate target
+    alt latest successful navigation
+      Router -> Context : commit B authorized snapshot
+      Context --> Selector : render B
+    else navigation failed or superseded
+      Router -> Context : retain/restore last committed snapshot
+    end
+  end
+end
+note over Context, API : Project ID from direct URL wins over remembered per-tab ID.
+@enduml

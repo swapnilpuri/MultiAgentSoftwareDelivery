@@ -1,0 +1,37 @@
+@startuml
+title UI-01 shell foundation v0.1 — DRAFT proposal
+skinparam componentStyle rectangle
+package "masd-web — independently deployed Angular application" {
+  [Application shell\nheader / sidebar / breadcrumbs] as shell
+  [Selector / user menu / theme\nbackground operations drawer] as controls
+  [Existing lazy routed pages\nFuture unavailable views (proposed)] as pages
+  [Auth] as auth
+  [ProjectContext] as context
+  [OperationsTracker] as tracker
+  [Existing API adapters] as adapters
+  shell --> controls
+  shell --> pages
+  controls --> auth
+  controls --> context
+  controls --> tracker
+  pages --> adapters
+  context --> adapters
+  tracker --> adapters
+}
+component "Same-origin API boundary\nProject Service — existing owner" as api
+database "Project Service persistence\nprojects / sessions / studio operations" as db
+cloud "Configured OIDC provider" as oidc
+auth --> api : cookie session / CSRF / safe return
+adapters --> api : existing versioned contracts
+api --> db
+api --> oidc : server-side sign-in
+note bottom of tracker
+Followed runs are per-tab;
+project history is bounded server data.
+Discovery durability is a separate gap.
+end note
+note bottom of pages
+No studio redesign or execution implementation.
+No new microservice or framework proposed.
+end note
+@enduml
