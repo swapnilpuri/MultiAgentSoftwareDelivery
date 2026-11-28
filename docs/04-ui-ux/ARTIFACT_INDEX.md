@@ -46,3 +46,9 @@ All 11 source artifacts below are copied byte-for-byte into the previously absen
 Repository convention already uses `docs/architecture/`, `docs/adr/`, `docs/governance/` and `docs/milestones/`. Retain those owners and historical records; add UI/UX drafts in the supplied `docs/04-ui-ux/` path and milestone handoff in the existing milestone directory. The new drafts do not supersede approved requirements or ADRs. No new service/repository/framework is introduced.
 
 Human review starts with [UX_BASELINE.md](UX_BASELINE.md), [WIREFRAME_INDEX.md](WIREFRAME_INDEX.md), then the audit and candidate slices. M3.2 and M4 remain blocked without explicit human authorization.
+
+## M3.1B UI-01 v0.2 archive — DRAFT
+
+The additive [UI-01 wireframe index](wireframes/UI-01/WIREFRAME_INDEX.md) publishes 14 screen drafts, six alternatives and four reference images. [Publication evidence and provenance](wireframes/UI-01/PUBLICATION.md) retain the supplied manifest and explain validation. All 24 images remain **DRAFT**, including references and alternatives; none supersedes the M3.1A baseline or authorizes implementation.
+
+**WF-008 through WF-014 are storyboard-derived crops requiring standalone full-resolution regeneration.** All screens use illustrative content; branding, navigation, stage labels and sample metrics require reconciliation. See the [M3.1B handoff](../milestones/M3_1B_HANDOFF.md) for checks, review gaps and the human gate. M3.1B is not completed or approved; M3.2 and M4 implementation has not begun.
