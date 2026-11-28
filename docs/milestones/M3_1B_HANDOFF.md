@@ -36,9 +36,15 @@ Application/browser/live-provider suites are **not executed** for this documenta
 
 ## Publication review
 
-PR creation and remote CI/review inspection are pending. Any unavailable external review will be reported separately from passing validation. No automatic merge is authorized.
+Documentation [PR #28](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/28) is **OPEN** for human review. Publication commit: `0eef12d6c1ce81feddcfcfeae32ea09e7e1a3327`. All 27 manifest records also match staged Git blobs, all 32 changed files are documentation/artifacts, and `git diff --cached --check` passed. The connector returned 403 on PR creation; authenticated GitHub CLI successfully opened the PR without credential/permission changes.
+
+The publication commit's [required validate CI](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/actions/runs/46109501982) **PASSED** in 16 seconds. This handoff follow-up triggers the same required gate; inspect the current PR head for its latest result.
+
+Review inspection found **zero submitted reviews and zero inline review threads**, so no actionable findings remain to address or resolve at this checkpoint. The [Sourcery comment](https://github.com/swapnilpuri/MultiAgentSoftwareDelivery/pull/28#issuecomment-7234308776) reports exhaustion of its 2,500,000-diff-character seven-day budget and says another review can be requested in two days and three hours from that comment. Its check is **SKIPPED**, not PASS. Automated review is therefore unavailable; human review (or a later successful automated review) remains a gate. No budget/settings changes or review bypass are authorized. Any later applicable findings must be addressed and resolved before a future merge. No merge or auto-merge is enabled.
 
 ## Risks, blockers and next task
+
+External review blocker: Sourcery budget exhaustion; no automated review was performed. No artifact/manifest/CI blocker remains at the publication commit.
 
 Standalone full-resolution regeneration of WF-008–014, design reconciliation, complete UI-01 specifications and human design approval remain pending. These are design gates rather than permission to implement. Keep M3.1B DRAFT and do not mark it completed/approved. M3.1 acceptance is separate; M3.2/M4 implementation remains unauthorized.
 
